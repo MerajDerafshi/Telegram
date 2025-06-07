@@ -46,71 +46,85 @@ public class HomeController implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        String name = "Holygram";
-        usersList.add(new UserViewModel(name, "message ",
-                getCurrentTime(), 0 + "", userImage));
-
-        if (name.matches("Sadra")) {
-            usersList.addAll(new UserViewModel("Amin", "Hello", getCurrentTime(), 1 + "", userImage)
-                    , new UserViewModel("Meraj", "Basheh👍👍", getCurrentTime(), 0 + "", userImage));
-        } else {
-            usersList.addAll(new UserViewModel("Meraj", "Salam Haji", getCurrentTime(), 1 + "", userImage)
-                    , new UserViewModel("Amin", "Turk nabash", getCurrentTime(), 0 + "", userImage)) ;
-        }
-
-        localUser = new UserViewModel(LogInController.userName, "message", getCurrentTime(), 0 + "", userImage);
+        localUser = new UserViewModel(LogInController.userName, "message", getCurrentTime(), "0", userImage);
         userNameLabel.setText(localUser.getUserName());
 
-        usersListView.setItems(usersList);
-        usersListView.setCellFactory(param -> new UserCustomCellController() {
-            {
-                prefWidthProperty().bind(usersListView.widthProperty().subtract(0)); // 1
-            }
-        });
-        messagesListView.setCellFactory(param -> new MessageCustomCellController() {
-            {
-                prefWidthProperty().bind(messagesListView.widthProperty().subtract(0)); // 1
-            }
-        });
-        usersListView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-                    currentlySelectedUser = usersListView.getSelectionModel().getSelectedItem();
-                    messagesListView.setItems(currentlySelectedUser.messagesList);
-                    chatRoomNameLabel.setText(currentlySelectedUser.userName);
-                    messagesListView.scrollTo(currentlySelectedUser.messagesList.size());
-                }
+        // Sample users for testing UI
+        usersList.addAll(
+                new UserViewModel("Meraj", "Hey!", getCurrentTime(), "1", userImage),
+                new UserViewModel("Amin", "Yo", getCurrentTime(), "0", userImage)
         );
 
-        connection = new NetworkConnection(data -> Platform.runLater(() -> {
-            Image image = null;
-            String[] messageInfo = data.toString().split(">");
-            if (messageInfo[2].matches(localUser.getUserName())) {
-                if (messageInfo[0].matches("image")) {
-                    image = new Image((InputStream) data);
-                }
-                int userSender = findUser(messageInfo[1]);
-                usersList.get(userSender).time.setValue(getCurrentTime());
-                if (messageInfo[3].matches("null")) {
-                    usersList.get(userSender).lastMessage.setValue(messageInfo[3]);
-                }
-                usersList.get(userSender).messagesList.add(new MessageViewModel(messageInfo[3], getCurrentTime(), false, image != null, image));
-                messagesListView.scrollTo(currentlySelectedUser.messagesList.size());
-                usersList.get(userSender).notificationsNumber.setValue((Integer.valueOf(currentlySelectedUser.notificationsNumber.getValue()) + 1) + "");
-                System.out.println("Sender: " + usersList.get(userSender).userName
-                        + "\n" + "Receiver: " + localUser.getUserName()
-                        + "\n" + "Image : " + image + messageInfo[0]);
-            }
-        }), "127.0.0.1", name.matches("Jetlight"), 55555);
+        usersListView.setItems(usersList);
+        usersListView.setCellFactory(param -> new UserCustomCellController() {{
+            prefWidthProperty().bind(usersListView.widthProperty());
+        }});
+        messagesListView.setCellFactory(param -> new MessageCustomCellController() {{
+            prefWidthProperty().bind(messagesListView.widthProperty());
+        }});
+
+        usersListView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+            currentlySelectedUser = newValue;
+            messagesListView.setItems(currentlySelectedUser.messagesList);
+            chatRoomNameLabel.setText(currentlySelectedUser.userName);
+            messagesListView.scrollTo(currentlySelectedUser.messagesList.size());
+        });
+
+        connection = new NetworkConnection(data -> Platform.runLater(() -> handleIncomingData(data)),
+                "127.0.0.1", false, 55555, LogInController.userName);
         connection.openConnection();
 
         usersListView.getSelectionModel().select(0);
     }
 
+    private void handleIncomingData(Object data) {
+        try {
+            if (!(data instanceof String)) return;
+
+            String msg = data.toString();
+            if (msg.startsWith("SYSTEM_STATUS:")) {
+                System.out.println("Status: " + msg);
+                return;
+            }
+
+            String[] messageInfo = msg.split(">");
+            if (messageInfo.length < 4) return;
+
+            String type = messageInfo[0];
+            String sender = messageInfo[1];
+            String receiver = messageInfo[2];
+            String content = messageInfo[3];
+
+            if (!receiver.equals(localUser.getUserName())) return;
+
+            int senderIndex = findUser(sender);
+            if (senderIndex == -1) {
+                usersList.add(new UserViewModel(sender, "", getCurrentTime(), "0", userImage));
+                senderIndex = usersList.size() - 1;
+            }
+
+            UserViewModel senderUser = usersList.get(senderIndex);
+            senderUser.time.setValue(getCurrentTime());
+            senderUser.lastMessage.setValue(content);
+            senderUser.notificationsNumber.setValue(String.valueOf(
+                    Integer.parseInt(senderUser.notificationsNumber.getValue()) + 1
+            ));
+
+            senderUser.messagesList.add(new MessageViewModel(content, getCurrentTime(), false, false, null));
+            messagesListView.scrollTo(senderUser.messagesList.size());
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
     @FXML
     void sendMessage(ActionEvent event) {
         try {
-            currentlySelectedUser.messagesList.add(new MessageViewModel(messageField.getText(), getCurrentTime(), true, false, null));
-            connection.sendData("text>" + localUser.getUserName() + ">" + currentlySelectedUser.getUserName() + ">" + messageField.getText());
+            String message = messageField.getText();
+            currentlySelectedUser.messagesList.add(
+                    new MessageViewModel(message, getCurrentTime(), true, false, null));
+            connection.sendData("text>" + localUser.getUserName() + ">" + currentlySelectedUser.getUserName() + ">" + message);
             messageField.clear();
             messagesListView.scrollTo(currentlySelectedUser.messagesList.size());
         } catch (IOException e) {
@@ -123,41 +137,19 @@ public class HomeController implements Initializable {
         try {
             FileChooser fileChooser = new FileChooser();
             File imageFile = fileChooser.showOpenDialog(new Stage());
+            if (imageFile == null) return;
+
             BufferedImage bufferedImage = ImageIO.read(imageFile);
             Image image = SwingFXUtils.toFXImage(bufferedImage, null);
-            currentlySelectedUser.messagesList.add(new MessageViewModel("", getCurrentTime(), false, true, image));
+            currentlySelectedUser.messagesList.add(new MessageViewModel("", getCurrentTime(), true, true, image));
             messagesListView.scrollTo(currentlySelectedUser.messagesList.size());
+
+            // Image sending not yet implemented — placeholder
+            System.out.println("[TODO] Send image: " + imageFile.getName());
 
         } catch (IOException e) {
             e.printStackTrace();
         }
-
-
-    }
-
-    @FXML
-    void searchChatRoom(MouseEvent event) {
-
-    }
-
-    @FXML
-    void settingsButtonClicked(MouseEvent event) {
-
-    }
-
-    @FXML
-    void slideMenuClicked(MouseEvent event) {
-
-    }
-
-    @FXML
-    void smileyButtonClicked(MouseEvent event) {
-
-    }
-
-    @FXML
-    void vocalMessageClicked(MouseEvent event) {
-
     }
 
     @FXML
@@ -177,11 +169,17 @@ public class HomeController implements Initializable {
 
     int findUser(String userName) {
         for (int i = 0; i < usersList.size(); i++) {
-            if (usersList.get(i).getUserName().matches(userName)) {
+            if (usersList.get(i).getUserName().equals(userName)) {
                 return i;
             }
         }
         return -1;
     }
 
+    // unused buttons
+    @FXML void searchChatRoom(MouseEvent event) {}
+    @FXML void settingsButtonClicked(MouseEvent event) {}
+    @FXML void slideMenuClicked(MouseEvent event) {}
+    @FXML void smileyButtonClicked(MouseEvent event) {}
+    @FXML void vocalMessageClicked(MouseEvent event) {}
 }
