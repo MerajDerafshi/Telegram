@@ -79,7 +79,13 @@ public class Server {
                         ToolBox.ImageMessage img = (ToolBox.ImageMessage) obj;
                         System.out.println("[Image] from " + img.sender + " to " + img.receiver);
                         Server.sendToClient(img.receiver, img.toString());
-                    } else {
+                    }
+                    else if (obj instanceof ToolBox.FileMessage) {
+                        ToolBox.FileMessage fileMsg = (ToolBox.FileMessage) obj;
+                        System.out.println("[File] from " + fileMsg.sender + " to " + fileMsg.receiver);
+                        Server.sendToClient(fileMsg.receiver, fileMsg.toString());
+                    }
+                    else {
                         System.out.println("[Unknown data type]: " + obj.getClass());
                     }
                 }

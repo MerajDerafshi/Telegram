@@ -1,8 +1,6 @@
 package ToolBox;
 
 import java.io.Serializable;
-import ToolBox.ImageMessage;
-
 
 public class ImageMessage implements Serializable {
     public byte[] imageData;

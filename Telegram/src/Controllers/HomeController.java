@@ -82,6 +82,25 @@ public class HomeController implements Initializable {
             if (!(data instanceof String)) return;
 
             String msg = data.toString();
+            if (data instanceof ToolBox.FileMessage) {
+                ToolBox.FileMessage fileMsg = (ToolBox.FileMessage) data;
+                if (!fileMsg.receiver.equals(localUser.getUserName())) return;
+
+                int senderIndex = findUser(fileMsg.sender);
+                if (senderIndex == -1) {
+                    usersList.add(new UserViewModel(fileMsg.sender, "", getCurrentTime(), "0", userImage));
+                    senderIndex = usersList.size() - 1;
+                }
+
+                usersList.get(senderIndex).messagesList.add(new MessageViewModel("📄 " + fileMsg.fileName, fileMsg.timestamp, false, false, null));
+                messagesListView.scrollTo(usersList.get(senderIndex).messagesList.size());
+
+                usersList.get(senderIndex).notificationsNumber.setValue(
+                        String.valueOf(Integer.parseInt(usersList.get(senderIndex).notificationsNumber.getValue()) + 1));
+
+                // Sadra : We can add save the file to disk or add a download button
+                return;
+            }
 
             if (data instanceof ToolBox.ImageMessage) {
                 ToolBox.ImageMessage imgMsg = (ToolBox.ImageMessage) data;
@@ -164,34 +183,40 @@ public class HomeController implements Initializable {
     void attachFile(MouseEvent event) {
         try {
             FileChooser fileChooser = new FileChooser();
-            File imageFile = fileChooser.showOpenDialog(new Stage());
-            if (imageFile == null) return;
-
-            BufferedImage bufferedImage = ImageIO.read(imageFile);
-            Image image = SwingFXUtils.toFXImage(bufferedImage, null);
-
-
-            currentlySelectedUser.messagesList.add(
-                    new MessageViewModel("", getCurrentTime(), true, true, image));
-            messagesListView.scrollTo(currentlySelectedUser.messagesList.size());
-
-
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            ImageIO.write(bufferedImage, "png", baos);
-            byte[] imageBytes = baos.toByteArray();
-
-            ToolBox.ImageMessage imageMessage = new ToolBox.ImageMessage(
-                    imageBytes,
-                    localUser.getUserName(),
-                    currentlySelectedUser.getUserName(),
-                    getCurrentTime()
+            fileChooser.getExtensionFilters().addAll(
+                    new FileChooser.ExtensionFilter("Supported Files", "*.png", "*.jpg", "*.jpeg", "*.pdf", "*.docx")
             );
-            connection.sendData(imageMessage);
+            File file = fileChooser.showOpenDialog(new Stage());
+            if (file == null) return;
+
+            String fileName = file.getName().toLowerCase();
+            String timestamp = getCurrentTime();
+
+            byte[] fileBytes = new byte[(int) file.length()];
+            try (FileInputStream fis = new FileInputStream(file)) {
+                fis.read(fileBytes);
+            }
+
+            if (fileName.endsWith(".png") || fileName.endsWith(".jpg") || fileName.endsWith(".jpeg")) {
+                Image image = SwingFXUtils.toFXImage(ImageIO.read(file), null);
+                currentlySelectedUser.messagesList.add(new MessageViewModel("📷 image", timestamp, true, true, image));
+
+                ToolBox.ImageMessage imageMessage = new ToolBox.ImageMessage(fileBytes, localUser.getUserName(), currentlySelectedUser.getUserName(), timestamp);
+                connection.sendData(imageMessage);
+            } else {
+                currentlySelectedUser.messagesList.add(new MessageViewModel("📄 " + file.getName(), timestamp, true, false, null));
+
+                ToolBox.FileMessage fileMessage = new ToolBox.FileMessage(fileBytes, file.getName(), localUser.getUserName(), currentlySelectedUser.getUserName(), timestamp);
+                connection.sendData(fileMessage);
+            }
+
+            messagesListView.scrollTo(currentlySelectedUser.messagesList.size());
 
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
+
 
 
     @FXML
