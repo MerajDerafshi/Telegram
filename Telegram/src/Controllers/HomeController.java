@@ -82,6 +82,34 @@ public class HomeController implements Initializable {
             if (!(data instanceof String)) return;
 
             String msg = data.toString();
+
+            if (data instanceof ToolBox.ImageMessage) {
+                ToolBox.ImageMessage imgMsg = (ToolBox.ImageMessage) data;
+                if (!imgMsg.receiver.equals(localUser.getUserName())) return;
+
+                int senderIndex = findUser(imgMsg.sender);
+                if (senderIndex == -1) {
+                    usersList.add(new UserViewModel(imgMsg.sender, "", getCurrentTime(), "0", userImage));
+                    senderIndex = usersList.size() - 1;
+                }
+
+
+                ByteArrayInputStream bais = new ByteArrayInputStream(imgMsg.imageData);
+                BufferedImage bufferedImage;
+                try {
+                    bufferedImage = ImageIO.read(bais);
+                    Image fxImage = SwingFXUtils.toFXImage(bufferedImage, null);
+                    usersList.get(senderIndex).messagesList.add(
+                            new MessageViewModel("", imgMsg.timestamp, false, true, fxImage));
+                    messagesListView.scrollTo(usersList.get(senderIndex).messagesList.size());
+                    usersList.get(senderIndex).notificationsNumber.setValue(
+                            String.valueOf(Integer.parseInt(usersList.get(senderIndex).notificationsNumber.getValue()) + 1));
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                return;
+            }
+
             if (msg.startsWith("SYSTEM_STATUS:")) {
                 System.out.println("Status: " + msg);
                 return;
@@ -141,16 +169,30 @@ public class HomeController implements Initializable {
 
             BufferedImage bufferedImage = ImageIO.read(imageFile);
             Image image = SwingFXUtils.toFXImage(bufferedImage, null);
-            currentlySelectedUser.messagesList.add(new MessageViewModel("", getCurrentTime(), true, true, image));
+
+
+            currentlySelectedUser.messagesList.add(
+                    new MessageViewModel("", getCurrentTime(), true, true, image));
             messagesListView.scrollTo(currentlySelectedUser.messagesList.size());
 
-            // Image sending not yet implemented — placeholder
-            System.out.println("[TODO] Send image: " + imageFile.getName());
+
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            ImageIO.write(bufferedImage, "png", baos);
+            byte[] imageBytes = baos.toByteArray();
+
+            ToolBox.ImageMessage imageMessage = new ToolBox.ImageMessage(
+                    imageBytes,
+                    localUser.getUserName(),
+                    currentlySelectedUser.getUserName(),
+                    getCurrentTime()
+            );
+            connection.sendData(imageMessage);
 
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
+
 
     @FXML
     void closeApp(MouseEvent event) {

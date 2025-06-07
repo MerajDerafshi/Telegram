@@ -66,14 +66,24 @@ public class Server {
                 }
 
 
-                String msg;
-                while ((msg = (String) in.readObject()) != null) {
-                    System.out.println("Received: " + msg);
-                    String[] parts = msg.split(">");
-                    if (parts.length >= 4 && parts[0].equals("text")) {
-                        Server.sendToClient(parts[2], msg);
+                Object obj;
+                while ((obj = in.readObject()) != null) {
+                    if (obj instanceof String) {
+                        String msg = (String) obj;
+                        System.out.println("[Text] " + msg);
+                        String[] parts = msg.split(">");
+                        if (parts.length >= 4 && parts[0].equals("text")) {
+                            Server.sendToClient(parts[2], msg);
+                        }
+                    } else if (obj instanceof ToolBox.ImageMessage) {
+                        ToolBox.ImageMessage img = (ToolBox.ImageMessage) obj;
+                        System.out.println("[Image] from " + img.sender + " to " + img.receiver);
+                        Server.sendToClient(img.receiver, img.toString());
+                    } else {
+                        System.out.println("[Unknown data type]: " + obj.getClass());
                     }
                 }
+
             } catch (Exception e) {
                 System.out.println("Client disconnected: " + userName);
             } finally {
