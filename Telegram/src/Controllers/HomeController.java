@@ -17,13 +17,11 @@ import javafx.scene.image.Image;
 import javafx.scene.input.MouseEvent;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
-
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.*;
 import java.net.URL;
 import java.util.ResourceBundle;
-
 import static ToolBox.Utilities.getCurrentTime;
 
 public class HomeController implements Initializable {
@@ -48,8 +46,7 @@ public class HomeController implements Initializable {
     public void initialize(URL location, ResourceBundle resources) {
         localUser = new UserViewModel(LogInController.userName, "message", getCurrentTime(), "0", userImage);
         userNameLabel.setText(localUser.getUserName());
-
-        // Sample users for testing UI
+        //examples for testing, not actual users
         usersList.addAll(
                 new UserViewModel("Meraj", "Hey!", getCurrentTime(), "1", userImage),
                 new UserViewModel("Amin", "Yo", getCurrentTime(), "0", userImage)
@@ -64,10 +61,12 @@ public class HomeController implements Initializable {
         }});
 
         usersListView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-            currentlySelectedUser = newValue;
-            messagesListView.setItems(currentlySelectedUser.messagesList);
-            chatRoomNameLabel.setText(currentlySelectedUser.userName);
-            messagesListView.scrollTo(currentlySelectedUser.messagesList.size());
+            if (newValue != null) {
+                currentlySelectedUser = newValue;
+                messagesListView.setItems(currentlySelectedUser.messagesList);
+                chatRoomNameLabel.setText(currentlySelectedUser.userName);
+                messagesListView.scrollTo(currentlySelectedUser.messagesList.size());
+            }
         });
 
         connection = new NetworkConnection(data -> Platform.runLater(() -> handleIncomingData(data)),
@@ -77,98 +76,101 @@ public class HomeController implements Initializable {
         usersListView.getSelectionModel().select(0);
     }
 
+    private int findOrAddUser(String userName) {
+        int index = findUser(userName);
+        if (index != -1) return index;
+
+        UserViewModel newUser = new UserViewModel(userName, "", getCurrentTime(), "0", userImage);
+        usersList.add(newUser);
+        return usersList.indexOf(newUser);
+    }
+
     private void handleIncomingData(Object data) {
         try {
-            if (!(data instanceof String)) return;
-
-            String msg = data.toString();
-            if (data instanceof ToolBox.FileMessage) {
-                ToolBox.FileMessage fileMsg = (ToolBox.FileMessage) data;
-                if (!fileMsg.receiver.equals(localUser.getUserName())) return;
-
-                int senderIndex = findUser(fileMsg.sender);
-                if (senderIndex == -1) {
-                    usersList.add(new UserViewModel(fileMsg.sender, "", getCurrentTime(), "0", userImage));
-                    senderIndex = usersList.size() - 1;
-                }
-
-                usersList.get(senderIndex).messagesList.add(new MessageViewModel("📄 " + fileMsg.fileName, fileMsg.timestamp, false, false, null));
-                messagesListView.scrollTo(usersList.get(senderIndex).messagesList.size());
-
-                usersList.get(senderIndex).notificationsNumber.setValue(
-                        String.valueOf(Integer.parseInt(usersList.get(senderIndex).notificationsNumber.getValue()) + 1));
-
-                // Sadra : We can add save the file to disk or add a download button
-                return;
-            }
-
             if (data instanceof ToolBox.ImageMessage) {
                 ToolBox.ImageMessage imgMsg = (ToolBox.ImageMessage) data;
                 if (!imgMsg.receiver.equals(localUser.getUserName())) return;
 
-                int senderIndex = findUser(imgMsg.sender);
-                if (senderIndex == -1) {
-                    usersList.add(new UserViewModel(imgMsg.sender, "", getCurrentTime(), "0", userImage));
-                    senderIndex = usersList.size() - 1;
-                }
-
-
+                int senderIndex = findOrAddUser(imgMsg.sender);
                 ByteArrayInputStream bais = new ByteArrayInputStream(imgMsg.imageData);
-                BufferedImage bufferedImage;
-                try {
-                    bufferedImage = ImageIO.read(bais);
-                    Image fxImage = SwingFXUtils.toFXImage(bufferedImage, null);
-                    usersList.get(senderIndex).messagesList.add(
-                            new MessageViewModel("", imgMsg.timestamp, false, true, fxImage));
-                    messagesListView.scrollTo(usersList.get(senderIndex).messagesList.size());
-                    usersList.get(senderIndex).notificationsNumber.setValue(
-                            String.valueOf(Integer.parseInt(usersList.get(senderIndex).notificationsNumber.getValue()) + 1));
-                } catch (IOException e) {
-                    e.printStackTrace();
+                BufferedImage bufferedImage = ImageIO.read(bais);
+                Image fxImage = SwingFXUtils.toFXImage(bufferedImage, null);
+
+                MessageViewModel imageMsg = new MessageViewModel("📷 image", imgMsg.timestamp, false, true, fxImage);
+                usersList.get(senderIndex).messagesList.add(imageMsg);
+                usersList.get(senderIndex).notificationsNumber.setValue(
+                        String.valueOf(Integer.parseInt(usersList.get(senderIndex).notificationsNumber.getValue()) + 1));
+                messagesListView.scrollTo(usersList.get(senderIndex).messagesList.size());
+                return;
+            }
+
+            if (data instanceof ToolBox.FileMessage) {
+                ToolBox.FileMessage fileMsg = (ToolBox.FileMessage) data;
+                if (!fileMsg.receiver.equals(localUser.getUserName())) return;
+
+                int senderIndex = findOrAddUser(fileMsg.sender);
+                MessageViewModel fileModel = new MessageViewModel(fileMsg.fileName, fileMsg.fileData, fileMsg.timestamp, false);
+                usersList.get(senderIndex).messagesList.add(fileModel);
+                usersList.get(senderIndex).notificationsNumber.setValue(
+                        String.valueOf(Integer.parseInt(usersList.get(senderIndex).notificationsNumber.getValue()) + 1));
+                messagesListView.scrollTo(usersList.get(senderIndex).messagesList.size());
+                return;
+            }
+
+            if (data instanceof String) {
+                String msg = (String) data;
+                if (msg.startsWith("SYSTEM_STATUS:")) {
+                    System.out.println("[Status] " + msg);
+                    return;
                 }
-                return;
+
+                String[] parts = msg.split(">");
+                if (parts.length < 4 || !parts[2].equals(localUser.getUserName())) return;
+
+                String type = parts[0];
+                String sender = parts[1];
+                String receiver = parts[2];
+                String content = parts[3];
+
+                int senderIndex = findOrAddUser(sender);
+                MessageViewModel textMsg = new MessageViewModel(content, getCurrentTime(), false, false, null);
+                usersList.get(senderIndex).messagesList.add(textMsg);
+                usersList.get(senderIndex).lastMessage.set(content);
+                usersList.get(senderIndex).time.set(getCurrentTime());
+                usersList.get(senderIndex).notificationsNumber.setValue(
+                        String.valueOf(Integer.parseInt(usersList.get(senderIndex).notificationsNumber.getValue()) + 1));
+                messagesListView.scrollTo(usersList.get(senderIndex).messagesList.size());
             }
-
-            if (msg.startsWith("SYSTEM_STATUS:")) {
-                System.out.println("Status: " + msg);
-                return;
-            }
-
-            String[] messageInfo = msg.split(">");
-            if (messageInfo.length < 4) return;
-
-            String type = messageInfo[0];
-            String sender = messageInfo[1];
-            String receiver = messageInfo[2];
-            String content = messageInfo[3];
-
-            if (!receiver.equals(localUser.getUserName())) return;
-
-            int senderIndex = findUser(sender);
-            if (senderIndex == -1) {
-                usersList.add(new UserViewModel(sender, "", getCurrentTime(), "0", userImage));
-                senderIndex = usersList.size() - 1;
-            }
-
-            UserViewModel senderUser = usersList.get(senderIndex);
-            senderUser.time.setValue(getCurrentTime());
-            senderUser.lastMessage.setValue(content);
-            senderUser.notificationsNumber.setValue(String.valueOf(
-                    Integer.parseInt(senderUser.notificationsNumber.getValue()) + 1
-            ));
-
-            senderUser.messagesList.add(new MessageViewModel(content, getCurrentTime(), false, false, null));
-            messagesListView.scrollTo(senderUser.messagesList.size());
 
         } catch (Exception e) {
+            System.err.println("[ERROR] Failed to handle incoming data: " + e.getMessage());
             e.printStackTrace();
         }
     }
 
+
     @FXML
-    void sendMessage(ActionEvent event) {
+    void sendMessageOnEnter(ActionEvent event) {
+        executeSendMessage();
+    }
+
+    @FXML
+    void sendMessageIconClicked(MouseEvent event) {
+        executeSendMessage();
+    }
+
+    private void executeSendMessage() {
+        String message = messageField.getText();
+        if (message == null || message.trim().isEmpty()) {
+            return;
+        }
+
+        if (currentlySelectedUser == null) {
+            System.out.println("No user selected. Cannot send message.");
+            return;
+        }
+
         try {
-            String message = messageField.getText();
             currentlySelectedUser.messagesList.add(
                     new MessageViewModel(message, getCurrentTime(), true, false, null));
             connection.sendData("text>" + localUser.getUserName() + ">" + currentlySelectedUser.getUserName() + ">" + message);
@@ -178,6 +180,7 @@ public class HomeController implements Initializable {
             e.printStackTrace();
         }
     }
+
 
     @FXML
     void attachFile(MouseEvent event) {
@@ -204,9 +207,8 @@ public class HomeController implements Initializable {
                 ToolBox.ImageMessage imageMessage = new ToolBox.ImageMessage(fileBytes, localUser.getUserName(), currentlySelectedUser.getUserName(), timestamp);
                 connection.sendData(imageMessage);
             } else {
-                currentlySelectedUser.messagesList.add(new MessageViewModel("📄 " + file.getName(), timestamp, true, false, null));
-
                 ToolBox.FileMessage fileMessage = new ToolBox.FileMessage(fileBytes, file.getName(), localUser.getUserName(), currentlySelectedUser.getUserName(), timestamp);
+                currentlySelectedUser.messagesList.add(new MessageViewModel(fileMessage.fileName, fileMessage.fileData, timestamp, true));
                 connection.sendData(fileMessage);
             }
 
@@ -216,8 +218,6 @@ public class HomeController implements Initializable {
             e.printStackTrace();
         }
     }
-
-
 
     @FXML
     void closeApp(MouseEvent event) {
@@ -243,10 +243,8 @@ public class HomeController implements Initializable {
         return -1;
     }
 
-    // unused buttons
     @FXML void searchChatRoom(MouseEvent event) {}
     @FXML void settingsButtonClicked(MouseEvent event) {}
     @FXML void slideMenuClicked(MouseEvent event) {}
     @FXML void smileyButtonClicked(MouseEvent event) {}
-    @FXML void vocalMessageClicked(MouseEvent event) {}
 }

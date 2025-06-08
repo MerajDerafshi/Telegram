@@ -10,12 +10,11 @@ public class Server {
     private static Map<String, ClientHandler> clients = new ConcurrentHashMap<>();
 
     public static void main(String[] args) {
-        System.out.println("Server started...");
+        System.out.println("Server started on port: " + PORT);
         try (ServerSocket serverSocket = new ServerSocket(PORT)) {
             while (true) {
                 Socket clientSocket = serverSocket.accept();
-                System.out.println("New connection: " + clientSocket.getInetAddress());
-
+                System.out.println("New client connected: " + clientSocket.getInetAddress());
                 ClientHandler handler = new ClientHandler(clientSocket);
                 new Thread(handler).start();
             }
@@ -24,11 +23,12 @@ public class Server {
         }
     }
 
-
-    public static void sendToClient(String receiver, String message) {
+    public static void sendToClient(String receiver, Serializable data) {
         ClientHandler receiverHandler = clients.get(receiver);
         if (receiverHandler != null) {
-            receiverHandler.sendMessage(message);
+            receiverHandler.sendMessage(data);
+        } else {
+            System.out.println("Could not find client: " + receiver);
         }
     }
 
@@ -42,12 +42,14 @@ public class Server {
             this.socket = socket;
         }
 
-        public void sendMessage(String message) {
+        public void sendMessage(Serializable data) {
             try {
-                out.writeObject(message);
-                out.flush();
+                if (out != null) {
+                    out.writeObject(data);
+                    out.flush();
+                }
             } catch (IOException e) {
-                System.out.println("Error sending to " + userName);
+                System.err.println("Error sending message to " + userName + ": " + e.getMessage());
             }
         }
 
@@ -57,47 +59,50 @@ public class Server {
                 out = new ObjectOutputStream(socket.getOutputStream());
                 in = new ObjectInputStream(socket.getInputStream());
 
-
                 String initMsg = (String) in.readObject();
                 if (initMsg.startsWith("INIT>")) {
                     userName = initMsg.split(">")[1];
                     clients.put(userName, this);
-                    System.out.println(userName + " joined.");
+                    System.out.println(userName + " has joined the chat.");
+                } else {
+                    System.err.println("Initialization failed for client: " + socket.getInetAddress());
+                    return;
                 }
 
-
-                Object obj;
-                while ((obj = in.readObject()) != null) {
-                    if (obj instanceof String) {
-                        String msg = (String) obj;
-                        System.out.println("[Text] " + msg);
+                Object receivedObject;
+                while ((receivedObject = in.readObject()) != null) {
+                    if (receivedObject instanceof String) {
+                        String msg = (String) receivedObject;
+                        System.out.println("[Text Received] from " + userName + ": " + msg);
                         String[] parts = msg.split(">");
                         if (parts.length >= 4 && parts[0].equals("text")) {
                             Server.sendToClient(parts[2], msg);
                         }
-                    } else if (obj instanceof ToolBox.ImageMessage) {
-                        ToolBox.ImageMessage img = (ToolBox.ImageMessage) obj;
-                        System.out.println("[Image] from " + img.sender + " to " + img.receiver);
-                        Server.sendToClient(img.receiver, img.toString());
-                    }
-                    else if (obj instanceof ToolBox.FileMessage) {
-                        ToolBox.FileMessage fileMsg = (ToolBox.FileMessage) obj;
-                        System.out.println("[File] from " + fileMsg.sender + " to " + fileMsg.receiver);
-                        Server.sendToClient(fileMsg.receiver, fileMsg.toString());
-                    }
-                    else {
-                        System.out.println("[Unknown data type]: " + obj.getClass());
+                    } else if (receivedObject instanceof ToolBox.ImageMessage) {
+                        ToolBox.ImageMessage imgMsg = (ToolBox.ImageMessage) receivedObject;
+                        System.out.println("[Image Received] from " + imgMsg.sender + " to " + imgMsg.receiver);
+                        Server.sendToClient(imgMsg.receiver, imgMsg);
+                    } else if (receivedObject instanceof ToolBox.FileMessage) {
+                        ToolBox.FileMessage fileMsg = (ToolBox.FileMessage) receivedObject;
+                        System.out.println("[File Received] from " + fileMsg.sender + " to " + fileMsg.receiver);
+                        Server.sendToClient(fileMsg.receiver, fileMsg);
+                    } else {
+                        System.out.println("[Unknown Data Type Received] from " + userName + ": " + receivedObject.getClass().getName());
                     }
                 }
-
-            } catch (Exception e) {
-                System.out.println("Client disconnected: " + userName);
+            } catch (EOFException e) {
+                System.out.println("Client " + (userName != null ? userName : socket.getInetAddress()) + " has disconnected.");
+            } catch (IOException | ClassNotFoundException e) {
+                System.err.println("An error occurred with client " + (userName != null ? userName : "") + ": " + e.getMessage());
             } finally {
+                if (userName != null) {
+                    clients.remove(userName);
+                    System.out.println(userName + " has been removed from the client list.");
+                }
                 try {
-                    if (userName != null) {
-                        clients.remove(userName);
+                    if (socket != null && !socket.isClosed()) {
+                        socket.close();
                     }
-                    socket.close();
                 } catch (IOException e) {
                     e.printStackTrace();
                 }

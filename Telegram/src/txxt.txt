@@ -1,0 +1,3054 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.net.URL?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.effect.DropShadow?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<GridPane alignment="center" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0" prefWidth="900.0" style="-fx-background-color: #fff;" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controllers.HomeController">
+    <columnConstraints>
+        <ColumnConstraints minWidth="10.0" percentWidth="100.0" />
+    </columnConstraints>
+    <rowConstraints>
+        <RowConstraints minHeight="10.0" percentHeight="5.0" vgrow="ALWAYS" />
+        <RowConstraints minHeight="10.0" percentHeight="95.0" vgrow="ALWAYS" />
+    </rowConstraints>
+    <children>
+      <GridPane style="-fx-background-color: #1F2936;">
+         <columnConstraints>
+            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+         </columnConstraints>
+         <rowConstraints>
+            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+         </rowConstraints>
+         <children>
+            <HBox alignment="CENTER_RIGHT" prefHeight="100.0" prefWidth="200.0" spacing="5.0">
+               <children>
+                  <ImageView fitHeight="25.0" fitWidth="25.0" onMouseClicked="#minimizeApp" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@../resources/img/minimize.png" />
+                     </image>
+                  </ImageView>
+                  <ImageView fitHeight="25.0" fitWidth="25.0" onMouseClicked="#closeApp" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@../resources/img/quitButton.png" />
+                     </image>
+                  </ImageView>
+               </children>
+               <padding>
+                  <Insets right="10.0" />
+               </padding>
+            </HBox>
+            <Label fx:id="userNameLabel" text="Holygram" textAlignment="CENTER" textFill="WHITE">
+               <font>
+                  <Font name="System Bold" size="21.0" />
+               </font>
+               <GridPane.margin>
+                  <Insets left="20.0" />
+               </GridPane.margin>
+            </Label>
+         </children>
+      </GridPane>
+        <GridPane alignment="center" prefHeight="720.0" prefWidth="1280.0" GridPane.rowIndex="1">
+            <columnConstraints>
+                <ColumnConstraints minWidth="10.0" percentWidth="30.0" />
+                <ColumnConstraints minWidth="10.0" percentWidth="80.0" />
+            </columnConstraints>
+            <rowConstraints>
+                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="ALWAYS" />
+            </rowConstraints>
+            <children>
+                <GridPane GridPane.columnIndex="1">
+                    <columnConstraints>
+                        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                    </columnConstraints>
+                    <rowConstraints>
+                        <RowConstraints minHeight="10.0" percentHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                        <RowConstraints minHeight="10.0" percentHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                    </rowConstraints>
+                    <children>
+                        <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" style="-fx-background-color: #17212B;">
+                            <children>
+                        <VBox alignment="CENTER_LEFT" prefHeight="45.0" prefWidth="526.0" spacing="5.0" HBox.hgrow="ALWAYS">
+                           <HBox.margin>
+                              <Insets />
+                           </HBox.margin>
+                           <children>
+                                      <Label fx:id="chatRoomNameLabel" text="Chat room" textAlignment="CENTER" textFill="WHITE">
+                                          <font>
+                                              <Font name="Segoe UI Bold" size="17.0" />
+                                          </font>
+                                      </Label>
+                              <Label fx:id="lastMessageLabel" text="Last Seen recently..." textAlignment="CENTER" textFill="#92a3af">
+                                 <font>
+                                    <Font name="Segoe UI" size="13.0" />
+                                 </font>
+                              </Label>
+                           </children>
+                        </VBox>
+                                <HBox alignment="CENTER_RIGHT" prefHeight="55.0" prefWidth="251.0" spacing="20.0">
+                                    <children>
+                                        <ImageView fitHeight="40.0" fitWidth="31.0" onMouseClicked="#searchChatRoom" pickOnBounds="true" preserveRatio="true">
+                                            <image>
+                                                <Image url="@../resources/img/search.png" />
+                                            </image>
+                                        </ImageView>
+                                        <ImageView fitHeight="34.0" fitWidth="30.0" onMouseClicked="#settingsButtonClicked" pickOnBounds="true" preserveRatio="true">
+                                            <image>
+                                                <Image url="@../resources/img/settings.png" />
+                                            </image>
+                                        </ImageView>
+                                    </children>
+                                    <padding>
+                                        <Insets right="20.0" />
+                                    </padding>
+                                </HBox>
+                            </children>
+                            <padding>
+                                <Insets left="20.0" />
+                            </padding>
+                        </HBox>
+                        <VBox prefHeight="200.0" prefWidth="100.0" style="-fx-background-color: #0E1621;" GridPane.rowIndex="1">
+                     <children>
+                        <ListView fx:id="messagesListView" prefHeight="571.0" prefWidth="911.0" style="-fx-background-color: #0E1621;" VBox.vgrow="ALWAYS">
+                           <VBox.margin>
+                              <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                           </VBox.margin>
+                           <stylesheets>
+                              <URL value="@../resources/css/messageCellViewCss.css" />
+                              <URL value="@../resources/css/usersListViewCss.css" />
+                           </stylesheets>
+                        </ListView>
+                     </children></VBox>
+                        <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" spacing="10.0" style="-fx-background-color: #17212B;" GridPane.rowIndex="2">
+                     <children>
+                        <ImageView fitHeight="32.0" fitWidth="46.0" onMouseClicked="#attachFile" pickOnBounds="true" preserveRatio="true">
+                           <image>
+                              <Image url="@../resources/img/attach.png" />
+                           </image>
+                        </ImageView>
+                        <TextField fx:id="messageField" onAction="#sendMessage" prefHeight="117.0" prefWidth="782.0" promptText="Mew..." style="-fx-background-color: transparent;" stylesheets="@../resources/css/textField.css" HBox.hgrow="ALWAYS">
+                           <font>
+                              <Font name="Segoe UI" size="16.0" />
+                           </font></TextField>
+                        <ImageView fitHeight="24.0" fitWidth="28.0" onMouseClicked="#smileyButtonClicked" pickOnBounds="true" preserveRatio="true">
+                           <image>
+                              <Image url="@../resources/img/smile.png" />
+                           </image>
+                        </ImageView>
+                        <ImageView fitHeight="30.0" fitWidth="54.0" onMouseClicked="#vocalMessageClicked" pickOnBounds="true" preserveRatio="true">
+                           <image>
+                              <Image url="@../resources/img/mic.png" />
+                           </image>
+                        </ImageView>
+                     </children>
+                     <padding>
+                        <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                     </padding></HBox>
+                    </children>
+                </GridPane>
+                <GridPane style="-fx-background-color: #17212B;">
+                    <columnConstraints>
+                        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" percentWidth="100.0" />
+                    </columnConstraints>
+                    <rowConstraints>
+                        <RowConstraints minHeight="10.0" percentHeight="10.0" vgrow="SOMETIMES" />
+                        <RowConstraints minHeight="10.0" percentHeight="90.0" vgrow="SOMETIMES" />
+                    </rowConstraints>
+                    <effect>
+                        <DropShadow color="#000000ab" height="0.0" radius="2.4175" spread="0.2" width="11.67" />
+                    </effect>
+                    <children>
+                        <HBox alignment="CENTER_LEFT" spacing="20.0" style="-fx-background-color: #17212B;">
+                            <children>
+                                <ImageView fitHeight="38.0" fitWidth="28.0" onMouseClicked="#slideMenuClicked" pickOnBounds="true" preserveRatio="true">
+                                    <image>
+                                        <Image url="@../resources/img/Liste.png" />
+                                    </image>
+                                </ImageView>
+                                <TextField prefHeight="12.0" prefWidth="123.0" promptText="Search" style="-fx-background-color: #242F3D;" HBox.hgrow="ALWAYS">
+                           <font>
+                              <Font size="17.0" />
+                           </font></TextField>
+                            </children>
+                            <padding>
+                                <Insets left="20.0" right="20.0" />
+                            </padding>
+                        </HBox>
+                  <ListView fx:id="usersListView" prefHeight="513.0" prefWidth="265.0" style="-fx-background-color: #17212B;" GridPane.rowIndex="1">
+                     <stylesheets>
+                        <URL value="@../resources/css/usersListViewCss.css" />
+                        <URL value="@../resources/css/cellViewCss.css" />
+                     </stylesheets>
+                  </ListView>
+                    </children>
+                </GridPane>
+            </children>
+        </GridPane>
+    </children>
+</GridPane>
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.text.Font?>
+
+<?import javafx.scene.control.Button?>
+<GridPane fx:id="root" alignment="CENTER" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1">
+   <columnConstraints>
+      <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" />
+      <ColumnConstraints hgrow="ALWAYS" minWidth="10.0" />
+   </columnConstraints>
+   <rowConstraints>
+      <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
+   </rowConstraints>
+   <children>
+      <HBox alignment="BOTTOM_RIGHT" spacing="10.0" style="-fx-background-radius: 10px; -fx-background-color: #182533;">
+         <children>
+            <ImageView fx:id="imageView" fitHeight="150.0" fitWidth="200.0" pickOnBounds="true" preserveRatio="true" />
+            <Label fx:id="messageTimeLabel" alignment="CENTER" text="10:00" textAlignment="CENTER" textFill="#92a3af">
+               <font>
+                  <Font name="Segoe UI" size="20.0" />
+               </font>
+               <padding>
+                  <Insets top="5.0" />
+               </padding>
+            </Label>
+         </children>
+         <padding>
+            <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+         </padding>
+      </HBox>
+   </children>
+</GridPane>
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+
+<GridPane fx:id="root" alignment="CENTER" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1">
+   <columnConstraints>
+      <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" />
+      <ColumnConstraints hgrow="ALWAYS" minWidth="10.0" />
+   </columnConstraints>
+   <rowConstraints>
+      <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
+   </rowConstraints>
+   <children>
+      <HBox spacing="10.0" style="-fx-background-radius: 10px; -fx-background-color: #182533;">
+         <children>
+            <Label fx:id="messageLabel" alignment="TOP_LEFT" maxHeight="-Infinity" maxWidth="400.0" text="MessageMessage" textFill="WHITE" wrapText="true">
+               <font>
+                  <Font name="Segoe UI" size="18.0" />
+               </font>
+            </Label>
+            <VBox alignment="BOTTOM_CENTER">
+               <HBox.margin>
+                  <Insets />
+               </HBox.margin>
+               <children>
+                  <Label fx:id="messageTimeLabel" alignment="CENTER" text="10:00" textAlignment="CENTER" textFill="#92a3af">
+                     <font>
+                        <Font name="Segoe UI" size="20.0" />
+                     </font>
+                     <padding>
+                        <Insets top="5.0" />
+                     </padding>
+                  </Label>
+               </children>
+            </VBox>
+         </children>
+         <padding>
+            <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+         </padding>
+      </HBox>
+   </children>
+
+</GridPane>
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<GridPane alignment="center" stylesheets="@../resources/css/imageBackground.css" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controllers.LogInController">
+    <columnConstraints>
+        <ColumnConstraints minWidth="10.0" percentWidth="100.0" />
+    </columnConstraints>
+    <rowConstraints>
+        <RowConstraints minHeight="10.0" percentHeight="5.0" vgrow="ALWAYS" />
+        <RowConstraints minHeight="10.0" percentHeight="95.0" vgrow="ALWAYS" />
+    </rowConstraints>
+    <children>
+        <GridPane>
+            <columnConstraints>
+                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+            </columnConstraints>
+            <rowConstraints>
+                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+            </rowConstraints>
+            <children>
+                <HBox alignment="CENTER_RIGHT" prefHeight="100.0" prefWidth="200.0" spacing="5.0">
+                    <children>
+                        <ImageView fitHeight="25.0" fitWidth="25.0" onMouseClicked="#minimizeApp" pickOnBounds="true" preserveRatio="true">
+                            <image>
+                                <Image url="@../resources/img/minimize.png" />
+                            </image>
+                        </ImageView>
+                        <ImageView fitHeight="25.0" fitWidth="25.0" onMouseClicked="#closeApp" pickOnBounds="true" preserveRatio="true">
+                            <image>
+                                <Image url="@../resources/img/quitButton.png" />
+                            </image>
+                        </ImageView>
+                    </children>
+                    <padding>
+                        <Insets right="10.0" />
+                    </padding>
+                </HBox>
+            </children>
+        </GridPane>
+        <GridPane alignment="center" prefHeight="720.0" prefWidth="1280.0" GridPane.rowIndex="1">
+            <columnConstraints>
+                <ColumnConstraints minWidth="10.0" percentWidth="43.0" />
+                <ColumnConstraints minWidth="10.0" percentWidth="57.0" />
+            </columnConstraints>
+            <rowConstraints>
+                <RowConstraints minHeight="10.0" percentHeight="92.0" vgrow="ALWAYS" />
+                <RowConstraints minHeight="10.0" percentHeight="8.0" vgrow="ALWAYS" />
+            </rowConstraints>
+            <children>
+                <VBox alignment="CENTER" spacing="20.0">
+                    <children>
+                        <ImageView fitHeight="342.0" fitWidth="304.0" pickOnBounds="true" preserveRatio="true">
+                            <image>
+                                <Image url="@../resources/img/telegram-app-300.png" />
+                            </image>
+                        </ImageView>
+                        <Label text="TELEGRAM" textFill="WHITE">
+                            <font>
+                                <Font name="Segoe UI" size="64.0" />
+                            </font>
+                        </Label>
+                        <Label alignment="CENTER" prefHeight="67.0" prefWidth="357.0" textAlignment="CENTER" textFill="#7f9191" wrapText="true">
+                            <font>
+                                <Font name="Segoe UI" size="22.0" />
+                            </font>
+                        </Label>
+                        <VBox alignment="CENTER_LEFT" spacing="10.0">
+                            <VBox.margin>
+                                <Insets left="165.0" top="20.0" />
+                            </VBox.margin>
+                        </VBox>
+                    </children>
+                    <padding>
+                        <Insets bottom="20.0" top="20.0" />
+                    </padding>
+                    <GridPane.margin>
+                        <Insets left="20.0" />
+                    </GridPane.margin>
+                </VBox>
+                <GridPane prefHeight="552.0" prefWidth="730.0" GridPane.columnIndex="1">
+                    <columnConstraints>
+                        <ColumnConstraints hgrow="ALWAYS" minWidth="10.0" percentWidth="20.0" />
+                        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" percentWidth="80.0" />
+                    </columnConstraints>
+                    <rowConstraints>
+                        <RowConstraints minHeight="10.0" percentHeight="100.0" vgrow="ALWAYS" />
+                    </rowConstraints>
+                    <children>
+                        <VBox alignment="CENTER_LEFT" prefHeight="200.0" prefWidth="100.0" spacing="20.0" GridPane.columnIndex="1">
+                            <children>
+                                <Label text="Create an account" textFill="WHITE">
+                                    <font>
+                                        <Font name="SansSerif Bold" size="36.0" />
+                                    </font>
+                                    <VBox.margin>
+                                        <Insets bottom="30.0" />
+                                    </VBox.margin>
+                                </Label>
+                                <TextField fx:id="userNameTextField" prefHeight="30.0" prefWidth="393.0" promptText="User name">
+                                    <font>
+                                        <Font size="22.0" />
+                                    </font>
+                                </TextField>
+                        <TextField fx:id="userNameTextField1" layoutX="60.0" layoutY="293.0" prefHeight="30.0" prefWidth="413.0" promptText="Country">
+                           <font>
+                              <Font size="22.0" />
+                           </font>
+                        </TextField>
+                                <TextField prefHeight="30.0" prefWidth="414.0" promptText="Pasword">
+                                    <font>
+                                        <Font size="22.0" />
+                                    </font>
+                                </TextField>
+                        <TextField layoutX="60.0" layoutY="386.0" prefHeight="30.0" prefWidth="414.0" promptText="Repeat Password">
+                           <font>
+                              <Font size="22.0" />
+                           </font>
+                        </TextField>
+                                <Button blendMode="SCREEN" onAction="#signUp" prefHeight="58.0" prefWidth="579.0" style="-fx-background-color: #202D3A; -fx-text-fill: WHITE;" styleClass="root" text="Sign up" textFill="WHITE">
+                                    <font>
+                                        <Font size="28.0" />
+                                    </font>
+                                    <VBox.margin>
+                                        <Insets bottom="10.0" top="20.0" />
+                                    </VBox.margin>
+                                </Button>
+                        <Button blendMode="SCREEN" layoutX="60.0" layoutY="505.0" onAction="#signUp" prefHeight="10.0" prefWidth="510.0" style="-fx-background-color: #202D3A; -fx-text-fill: WHITE;" styleClass="root" text="I already have an account" textFill="WHITE" underline="true">
+                           <font>
+                              <Font name="System Italic" size="18.0" />
+                           </font>
+                        </Button>
+                            </children>
+                            <padding>
+                                <Insets left="50.0" right="100.0" top="20.0" />
+                            </padding>
+                        </VBox>
+                    </children>
+                </GridPane>
+                <HBox alignment="CENTER" GridPane.rowIndex="1">
+                    <children>
+                        <Label alignment="CENTER" opacity="0.44" text="Made by Sadra Seyedtabaei, Amin Asadi and Meraj Derafshii" textAlignment="CENTER" textFill="#7f9191" wrapText="true">
+                            <font>
+                                <Font name="Segoe UI" size="16.0" />
+                            </font>
+                        </Label>
+                    </children>
+                </HBox>
+            </children>
+        </GridPane>
+    </children>
+</GridPane>
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.text.Font?>
+<?import javafx.scene.control.Button?>
+
+<GridPane fx:id="root" alignment="CENTER" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1">
+   <columnConstraints>
+      <ColumnConstraints hgrow="ALWAYS" minWidth="10.0" />
+      <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" />
+   </columnConstraints>
+   <rowConstraints>
+      <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
+   </rowConstraints>
+   <children>
+      <HBox alignment="BOTTOM_RIGHT" spacing="10.0" style="-fx-background-radius: 10px; -fx-background-color: #2B5278;" GridPane.columnIndex="1">
+         <children>
+            <ImageView fx:id="imageView" fitHeight="150.0" fitWidth="200.0" pickOnBounds="true" preserveRatio="true" />
+            <Label fx:id="messageTimeLabel" alignment="CENTER" text="10:00" textAlignment="CENTER" textFill="#92a3af">
+               <font>
+                  <Font name="Segoe UI" size="20.0" />
+               </font>
+               <HBox.margin>
+                  <Insets />
+               </HBox.margin>
+               <padding>
+                  <Insets top="5.0" />
+               </padding>
+            </Label>
+         </children>
+         <padding>
+            <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+         </padding>
+      </HBox>
+   </children>
+</GridPane>
+
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.text.Font?>
+
+<GridPane fx:id="root" alignment="CENTER" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1">
+   <columnConstraints>
+      <ColumnConstraints hgrow="ALWAYS" minWidth="10.0" />
+      <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" />
+   </columnConstraints>
+   <rowConstraints>
+      <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
+   </rowConstraints>
+   <children>
+      <HBox spacing="10.0" style="-fx-background-radius: 10px; -fx-background-color: #2B5278;" GridPane.columnIndex="1">
+         <children>
+            <Label fx:id="messageLabel" alignment="TOP_LEFT" maxHeight="-Infinity" maxWidth="400.0" text="Meesage" textFill="WHITE" wrapText="true">
+               <font>
+                  <Font name="Segoe UI" size="18.0" />
+               </font>
+            </Label>
+            <Label fx:id="messageTimeLabel" alignment="CENTER" text="10:00" textAlignment="CENTER" textFill="#92a3af">
+               <font>
+                  <Font name="Segoe UI" size="20.0" />
+               </font>
+               <HBox.margin>
+                  <Insets />
+               </HBox.margin>
+               <padding>
+                  <Insets top="5.0" />
+               </padding>
+            </Label>
+         </children>
+         <padding>
+            <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+         </padding>
+      </HBox>
+   </children>
+</GridPane>
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.shape.Circle?>
+<?import javafx.scene.text.Font?>
+
+<GridPane fx:id="root" alignment="CENTER" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1">
+   <columnConstraints>
+      <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" percentWidth="20.0" prefWidth="100.0" />
+      <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" percentWidth="80.0" />
+   </columnConstraints>
+   <rowConstraints>
+      <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
+   </rowConstraints>
+   <children>
+      <VBox alignment="CENTER">
+         <children>
+            <ImageView fx:id="avatarImage" fitHeight="50.0" fitWidth="78.0" pickOnBounds="true" preserveRatio="true" VBox.vgrow="ALWAYS">
+               <image>
+                  <Image url="@../resources/img/email.png" />
+               </image>
+            </ImageView>
+         </children>
+      </VBox>
+      <HBox spacing="10.0" GridPane.columnIndex="1">
+         <children>
+            <VBox spacing="10.0" HBox.hgrow="ALWAYS">
+               <children>
+                  <Label fx:id="userNameLabel" text="User name" textAlignment="CENTER" textFill="WHITE">
+                     <font>
+                        <Font name="Segoe UI Bold" size="20.0" />
+                     </font>
+                     <VBox.margin>
+                        <Insets top="10.0" />
+                     </VBox.margin>
+                  </Label>
+                  <Label fx:id="lastMessageLabel" text="Last message sent by user name" textAlignment="CENTER" textFill="#92a3af">
+                     <font>
+                        <Font name="Segoe UI" size="20.0" />
+                     </font>
+                  </Label>
+               </children>
+            </VBox>
+            <VBox alignment="TOP_CENTER" spacing="10.0">
+               <children>
+                  <Label fx:id="messageTimeLabel" alignment="CENTER" text="10:00" textAlignment="CENTER" textFill="#92a3af">
+                     <font>
+                        <Font name="Segoe UI" size="20.0" />
+                     </font>
+                     <VBox.margin>
+                        <Insets left="5.0" right="5.0" />
+                     </VBox.margin>
+                  </Label>
+                  <StackPane fx:id="notificationPanel" visible="false">
+                     <children>
+                        <Circle fill="#4082bc" radius="18.0" stroke="BLACK" strokeType="INSIDE" strokeWidth="0.0" />
+                        <Label fx:id="nombreMessageLabel" alignment="CENTER" text="3" textAlignment="CENTER" textFill="WHITE">
+                           <font>
+                              <Font name="Segoe UI Bold" size="20.0" />
+                           </font>
+                        </Label>
+                     </children>
+                  </StackPane>
+               </children>
+               <HBox.margin>
+                  <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+               </HBox.margin>
+            </VBox>
+         </children>
+      </HBox>
+   </children>
+</GridPane>
+package ToolBox;
+
+import java.io.Serializable;
+
+public class FileMessage implements Serializable {
+    public byte[] fileData;
+    public String fileName;
+    public String sender;
+    public String receiver;
+    public String timestamp;
+
+    public FileMessage(byte[] fileData, String fileName, String sender, String receiver, String timestamp) {
+        this.fileData = fileData;
+        this.fileName = fileName;
+        this.sender = sender;
+        this.receiver = receiver;
+        this.timestamp = timestamp;
+    }
+}
+package ToolBox;
+
+import java.io.Serializable;
+
+public class ImageMessage implements Serializable {
+    public byte[] imageData;
+    public String sender;
+    public String receiver;
+    public String timestamp;
+
+    public ImageMessage(byte[] imageData, String sender, String receiver, String timestamp) {
+        this.imageData = imageData;
+        this.sender = sender;
+        this.receiver = receiver;
+        this.timestamp = timestamp;
+    }
+}
+package ToolBox;
+
+import java.io.*;
+import java.net.*;
+import java.util.function.Consumer;
+
+public class NetworkConnection {
+
+    private ConnectionThread connectionThread;
+    public Consumer<Serializable> receiveCallback;
+    public String ip;
+    public boolean isServer;
+    public int port;
+    public String userName;
+
+    public NetworkConnection(Consumer<Serializable> receiveCallback, String ip, boolean isServer, int port, String userName) {
+        this.receiveCallback = receiveCallback;
+        this.ip = ip;
+        this.isServer = isServer;
+        this.port = port;
+        this.userName = userName;
+        this.connectionThread = new ConnectionThread();
+    }
+
+    public void openConnection() {
+        if (!connectionThread.isAlive()) {
+            if (connectionThread.getState() == Thread.State.TERMINATED) {
+                this.connectionThread = new ConnectionThread();
+            }
+            connectionThread.start();
+        }
+    }
+
+    public void sendData(Serializable data) throws IOException {
+        if (connectionThread.outputStream == null || connectionThread.socket == null || connectionThread.socket.isClosed()) {
+            throw new IOException("Connection not established.");
+        }
+        connectionThread.outputStream.writeObject(data);
+        connectionThread.outputStream.flush();
+    }
+
+    public void closeConnection() throws IOException {
+        if (connectionThread.socket != null && !connectionThread.socket.isClosed()) {
+            connectionThread.socket.close();
+        }
+        if (connectionThread.serverSocket != null && !connectionThread.serverSocket.isClosed()) {
+            connectionThread.serverSocket.close();
+        }
+        connectionThread.interrupt();
+    }
+
+    private class ConnectionThread extends Thread {
+        private Socket socket;
+        private ObjectOutputStream outputStream;
+        private ObjectInputStream inputStream;
+        private ServerSocket serverSocket;
+
+        @Override
+        public void run() {
+            try {
+                if (isServer) {
+                    serverSocket = new ServerSocket(port);
+                    System.out.println("[Server] Waiting for a client...");
+                    socket = serverSocket.accept();
+                    System.out.println("[Server] Client connected.");
+                } else {
+                    socket = new Socket(ip, port);
+                    System.out.println("[Client] Connected to server.");
+                }
+
+                outputStream = new ObjectOutputStream(socket.getOutputStream());
+                outputStream.flush();
+
+                // Send INIT message
+                outputStream.writeObject("INIT>" + userName);
+                outputStream.flush();
+
+                inputStream = new ObjectInputStream(socket.getInputStream());
+
+                // Notify successful connection
+                if (receiveCallback != null) {
+                    receiveCallback.accept("SYSTEM_STATUS:CONNECTION_SUCCESS");
+                }
+
+                while (!socket.isClosed()) {
+                    try {
+                        Serializable data = (Serializable) inputStream.readObject();
+                        if (receiveCallback != null) {
+                            receiveCallback.accept(data);
+                        }
+                    } catch (EOFException e) {
+                        System.out.println("[Network] Connection closed.");
+                        break;
+                    }
+                }
+
+            } catch (IOException | ClassNotFoundException e) {
+                if (receiveCallback != null) {
+                    receiveCallback.accept("SYSTEM_STATUS:ERROR: " + e.getMessage());
+                }
+                e.printStackTrace();
+            } finally {
+                cleanup();
+            }
+        }
+
+        private void cleanup() {
+            try {
+                if (outputStream != null) outputStream.close();
+                if (inputStream != null) inputStream.close();
+                if (socket != null && !socket.isClosed()) socket.close();
+                if (serverSocket != null && !serverSocket.isClosed()) serverSocket.close();
+                System.out.println("[Network] Connection closed.");
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+}
+package ToolBox;
+
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
+public class Utilities {
+
+    public static String getCurrentTime() {
+        DateFormat dateFormat = new SimpleDateFormat("HH:mm");
+        Date date = new Date();
+        return dateFormat.format(date);
+    }
+}
+package Controllers;
+
+import Models.UserViewModel;
+import Models.MessageViewModel;
+import ToolBox.NetworkConnection;
+import javafx.application.Platform;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.embed.swing.SwingFXUtils;
+import javafx.event.ActionEvent;
+import javafx.fxml.FXML;
+import javafx.fxml.Initializable;
+import javafx.scene.control.Label;
+import javafx.scene.control.ListView;
+import javafx.scene.control.TextField;
+import javafx.scene.image.Image;
+import javafx.scene.input.MouseEvent;
+import javafx.stage.FileChooser;
+import javafx.stage.Stage;
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.*;
+import java.net.URL;
+import java.util.ResourceBundle;
+import static ToolBox.Utilities.getCurrentTime;
+
+public class HomeController implements Initializable {
+
+    @FXML
+    private Label userNameLabel;
+    @FXML
+    private Label chatRoomNameLabel;
+    @FXML
+    private TextField messageField;
+    @FXML
+    private ListView<UserViewModel> usersListView;
+    @FXML
+    private ListView<MessageViewModel> messagesListView;
+
+    NetworkConnection connection;
+    private ObservableList<UserViewModel> usersList = FXCollections.observableArrayList();
+    UserViewModel currentlySelectedUser, localUser;
+    Image userImage = new Image("resources/img/smile.png");
+
+    @Override
+    public void initialize(URL location, ResourceBundle resources) {
+        localUser = new UserViewModel(LogInController.userName, "message", getCurrentTime(), "0", userImage);
+        userNameLabel.setText(localUser.getUserName());
+
+        // Sample users for testing UI
+        usersList.addAll(
+                new UserViewModel("Meraj", "Hey!", getCurrentTime(), "1", userImage),
+                new UserViewModel("Amin", "Yo", getCurrentTime(), "0", userImage)
+        );
+
+        usersListView.setItems(usersList);
+        usersListView.setCellFactory(param -> new UserCustomCellController() {{
+            prefWidthProperty().bind(usersListView.widthProperty());
+        }});
+        messagesListView.setCellFactory(param -> new MessageCustomCellController() {{
+            prefWidthProperty().bind(messagesListView.widthProperty());
+        }});
+
+        usersListView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+            currentlySelectedUser = newValue;
+            messagesListView.setItems(currentlySelectedUser.messagesList);
+            chatRoomNameLabel.setText(currentlySelectedUser.userName);
+            messagesListView.scrollTo(currentlySelectedUser.messagesList.size());
+        });
+
+        connection = new NetworkConnection(data -> Platform.runLater(() -> handleIncomingData(data)),
+                "127.0.0.1", false, 55555, LogInController.userName);
+        connection.openConnection();
+
+        usersListView.getSelectionModel().select(0);
+    }
+
+    private int findOrAddUser(String userName) {
+        int index = findUser(userName);
+        if (index != -1) return index;
+
+        UserViewModel newUser = new UserViewModel(userName, "", getCurrentTime(), "0", userImage);
+        usersList.add(newUser);
+        return usersList.indexOf(newUser);
+    }
+
+    private void handleIncomingData(Object data) {
+        try {
+            // Handle IMAGE
+            if (data instanceof ToolBox.ImageMessage) {
+                ToolBox.ImageMessage imgMsg = (ToolBox.ImageMessage) data;
+                if (!imgMsg.receiver.equals(localUser.getUserName())) return;
+
+                int senderIndex = findOrAddUser(imgMsg.sender);
+                ByteArrayInputStream bais = new ByteArrayInputStream(imgMsg.imageData);
+                BufferedImage bufferedImage = ImageIO.read(bais);
+                Image fxImage = SwingFXUtils.toFXImage(bufferedImage, null);
+
+                MessageViewModel imageMsg = new MessageViewModel("📷 image", imgMsg.timestamp, false, true, fxImage);
+                usersList.get(senderIndex).messagesList.add(imageMsg);
+                usersList.get(senderIndex).notificationsNumber.setValue(
+                        String.valueOf(Integer.parseInt(usersList.get(senderIndex).notificationsNumber.getValue()) + 1));
+                messagesListView.scrollTo(usersList.get(senderIndex).messagesList.size());
+                return;
+            }
+
+            // Handle FILE
+            if (data instanceof ToolBox.FileMessage) {
+                ToolBox.FileMessage fileMsg = (ToolBox.FileMessage) data;
+                if (!fileMsg.receiver.equals(localUser.getUserName())) return;
+
+                int senderIndex = findOrAddUser(fileMsg.sender);
+                MessageViewModel fileModel = new MessageViewModel(fileMsg.fileName, fileMsg.fileData, fileMsg.timestamp, false);
+                usersList.get(senderIndex).messagesList.add(fileModel);
+                usersList.get(senderIndex).notificationsNumber.setValue(
+                        String.valueOf(Integer.parseInt(usersList.get(senderIndex).notificationsNumber.getValue()) + 1));
+                messagesListView.scrollTo(usersList.get(senderIndex).messagesList.size());
+                return;
+            }
+
+            // Handle TEXT
+            if (data instanceof String) {
+                String msg = (String) data;
+                if (msg.startsWith("SYSTEM_STATUS:")) {
+                    System.out.println("[Status] " + msg);
+                    return;
+                }
+
+                String[] parts = msg.split(">");
+                if (parts.length < 4 || !parts[2].equals(localUser.getUserName())) return;
+
+                String type = parts[0];
+                String sender = parts[1];
+                String receiver = parts[2];
+                String content = parts[3];
+
+                int senderIndex = findOrAddUser(sender);
+                MessageViewModel textMsg = new MessageViewModel(content, getCurrentTime(), false, false, null);
+                usersList.get(senderIndex).messagesList.add(textMsg);
+                usersList.get(senderIndex).lastMessage.set(content);
+                usersList.get(senderIndex).time.set(getCurrentTime());
+                usersList.get(senderIndex).notificationsNumber.setValue(
+                        String.valueOf(Integer.parseInt(usersList.get(senderIndex).notificationsNumber.getValue()) + 1));
+                messagesListView.scrollTo(usersList.get(senderIndex).messagesList.size());
+            }
+
+        } catch (Exception e) {
+            System.err.println("[ERROR] Failed to handle incoming data: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+
+    @FXML
+    void sendMessage(ActionEvent event) {
+        try {
+            String message = messageField.getText();
+            currentlySelectedUser.messagesList.add(
+                    new MessageViewModel(message, getCurrentTime(), true, false, null));
+            connection.sendData("text>" + localUser.getUserName() + ">" + currentlySelectedUser.getUserName() + ">" + message);
+            messageField.clear();
+            messagesListView.scrollTo(currentlySelectedUser.messagesList.size());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @FXML
+    void attachFile(MouseEvent event) {
+        try {
+            FileChooser fileChooser = new FileChooser();
+            fileChooser.getExtensionFilters().addAll(
+                    new FileChooser.ExtensionFilter("Supported Files", "*.png", "*.jpg", "*.jpeg", "*.pdf", "*.docx")
+            );
+            File file = fileChooser.showOpenDialog(new Stage());
+            if (file == null) return;
+
+            String fileName = file.getName().toLowerCase();
+            String timestamp = getCurrentTime();
+
+            byte[] fileBytes = new byte[(int) file.length()];
+            try (FileInputStream fis = new FileInputStream(file)) {
+                fis.read(fileBytes);
+            }
+
+            if (fileName.endsWith(".png") || fileName.endsWith(".jpg") || fileName.endsWith(".jpeg")) {
+                Image image = SwingFXUtils.toFXImage(ImageIO.read(file), null);
+                currentlySelectedUser.messagesList.add(new MessageViewModel("📷 image", timestamp, true, true, image));
+
+                ToolBox.ImageMessage imageMessage = new ToolBox.ImageMessage(fileBytes, localUser.getUserName(), currentlySelectedUser.getUserName(), timestamp);
+                connection.sendData(imageMessage);
+            } else {
+                currentlySelectedUser.messagesList.add(new MessageViewModel("📄 " + file.getName(), timestamp, true, false, null));
+
+                ToolBox.FileMessage fileMessage = new ToolBox.FileMessage(fileBytes, file.getName(), localUser.getUserName(), currentlySelectedUser.getUserName(), timestamp);
+                connection.sendData(fileMessage);
+            }
+
+            messagesListView.scrollTo(currentlySelectedUser.messagesList.size());
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @FXML
+    void closeApp(MouseEvent event) {
+        try {
+            connection.closeConnection();
+            Main.stage.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @FXML
+    void minimizeApp(MouseEvent event) {
+        Main.stage.setIconified(true);
+    }
+
+    int findUser(String userName) {
+        for (int i = 0; i < usersList.size(); i++) {
+            if (usersList.get(i).getUserName().equals(userName)) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    // unused buttons
+    @FXML void searchChatRoom(MouseEvent event) {}
+    @FXML void settingsButtonClicked(MouseEvent event) {}
+    @FXML void slideMenuClicked(MouseEvent event) {}
+    @FXML void smileyButtonClicked(MouseEvent event) {}
+    @FXML void vocalMessageClicked(MouseEvent event) {}
+}
+package Controllers;
+
+import javafx.event.ActionEvent;
+import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.fxml.Initializable;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.scene.control.TextField; // Changed from JFXTextField
+import javafx.scene.input.MouseEvent;
+
+import java.io.IOException;
+import java.net.URL;
+import java.util.ResourceBundle;
+
+public class LogInController implements Initializable {
+
+    public static String userName;
+    @FXML
+    private TextField userNameTextField;
+
+    @Override
+    public void initialize(URL location, ResourceBundle resources) {
+    }
+
+    @FXML
+    void closeApp(MouseEvent event) {
+        Main.stage.close();
+    }
+
+    @FXML
+    void minimizeApp(MouseEvent event) {
+        Main.stage.setIconified(true);
+    }
+
+    @FXML
+    void signUp(ActionEvent event) {
+        try {
+            userName = userNameTextField.getText();
+            Parent root = FXMLLoader.load(getClass().getResource("../Views/home_view.fxml"));
+            Main.stage.setScene(new Scene(root));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+}package Controllers;
+
+import javafx.application.Application;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.stage.Stage;
+import javafx.stage.StageStyle;
+
+import java.util.Objects;
+
+public class Main extends Application {
+    public static Stage stage;
+    @Override
+    public void start(Stage primaryStage) throws Exception{
+        Parent root = FXMLLoader.load(Objects.requireNonNull(getClass().getResource("../Views/login_view.fxml")));
+        primaryStage.setScene(new Scene(root, 1280, 720));
+        primaryStage.initStyle(StageStyle.UNDECORATED);
+        stage = primaryStage;
+        stage.show();
+    }
+
+
+    public static void main(String[] args) {
+        launch(args);
+    }
+}
+package Controllers;
+
+import Models.MessageViewModel;
+import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.control.Button;
+import javafx.scene.control.ContextMenu;
+import javafx.scene.control.Label;
+import javafx.scene.control.ListCell;
+import javafx.scene.control.MenuItem;
+import javafx.scene.image.ImageView;
+import javafx.scene.layout.GridPane;
+import javafx.stage.FileChooser;
+import javafx.stage.Stage;
+
+import java.awt.Desktop;
+import java.io.*;
+
+public class MessageCustomCellController extends ListCell<MessageViewModel> {
+
+    @FXML private GridPane root;
+    @FXML private ImageView imageView;
+    @FXML private Label messageLabel;
+    @FXML private Label messageTimeLabel;
+
+    @Override
+    protected void updateItem(MessageViewModel item, boolean empty) {
+        super.updateItem(item, empty);
+
+        if (empty || item == null) {
+            setText(null);
+            setGraphic(null);
+            return;
+        }
+
+        try {
+            String fxmlPath;
+            if (item.isOutgoing) {
+                fxmlPath = item.isImage
+                        ? "/Views/outgoing_image_custom_cell_view.fxml"
+                        : "/Views/outgoing_message_custom_cell_view.fxml";
+            } else {
+                fxmlPath = item.isImage
+                        ? "/Views/incoming_image_custom_cell_view.fxml"
+                        : "/Views/incoming_message_custom_cell_view.fxml";
+            }
+
+            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource(fxmlPath));
+            fxmlLoader.setController(this);
+            fxmlLoader.load();
+
+            if (messageLabel != null) {
+                messageLabel.setText(item.getMessage());
+            }
+
+            if (messageTimeLabel != null) {
+                messageTimeLabel.setText(item.getTime());
+            }
+
+            if (item.isImage && imageView != null) {
+                imageView.setImage(item.getImage());
+            }
+
+            // Right-click menu for file messages
+            if (item.isFile && messageLabel != null) {
+                ContextMenu contextMenu = new ContextMenu();
+
+                MenuItem download = new MenuItem("📥 Download");
+                download.setOnAction(e -> saveFile(item.fileName, item.fileData));
+
+                if (item.fileName.toLowerCase().endsWith(".pdf")) {
+                    MenuItem open = new MenuItem("👁️ Open PDF");
+                    open.setOnAction(e -> openPdf(item.fileName, item.fileData));
+                    contextMenu.getItems().add(open);
+                }
+
+                contextMenu.getItems().add(download);
+                root.setOnContextMenuRequested(e -> contextMenu.show(root, e.getScreenX(), e.getScreenY()));
+            }
+
+            setGraphic(root);
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            setText("Failed to load message bubble.");
+        }
+    }
+
+
+    private void saveFile(String fileName, byte[] data) {
+        try {
+            FileChooser fileChooser = new FileChooser();
+            fileChooser.setInitialFileName(fileName);
+            File file = fileChooser.showSaveDialog(new Stage());
+            if (file != null) {
+                try (FileOutputStream fos = new FileOutputStream(file)) {
+                    fos.write(data);
+                    System.out.println("✅ File saved to: " + file.getAbsolutePath());
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void openPdf(String fileName, byte[] data) {
+        try {
+            File temp = File.createTempFile("chatfile_", "_" + fileName);
+            temp.deleteOnExit();
+            try (FileOutputStream fos = new FileOutputStream(temp)) {
+                fos.write(data);
+            }
+
+            if (Desktop.isDesktopSupported()) {
+                Desktop.getDesktop().open(temp);
+            } else {
+                System.out.println("⚠️ Desktop not supported.");
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+}package Controllers;
+
+import Models.UserViewModel;
+import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.control.Label;
+import javafx.scene.control.ListCell;
+import javafx.scene.image.ImageView;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.StackPane;
+
+import java.io.IOException;
+
+public class UserCustomCellController extends ListCell<UserViewModel> {
+
+    @FXML
+    private GridPane root;
+
+    @FXML
+    private ImageView avatarImage;
+
+    @FXML
+    private Label userNameLabel;
+
+    @FXML
+    private Label lastMessageLabel;
+
+    @FXML
+    private Label messageTimeLabel;
+
+    @FXML
+    private Label nombreMessageLabel;
+
+    @FXML
+    private StackPane notificationPanel;
+
+    @Override
+    protected void updateItem(UserViewModel item, boolean empty) {
+        super.updateItem(item, empty);
+        if (empty || item == null) {
+            setText(null);
+            setGraphic(null);
+        } else {
+            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("../Views/user_custom_cell_view.fxml"));
+            fxmlLoader.setController(this);
+            try {
+                fxmlLoader.load();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            userNameLabel.setText(String.valueOf(item.getUserName()));
+            lastMessageLabel.setText(String.valueOf(item.getLastMessage()));
+            messageTimeLabel.textProperty().bind(item.time);
+            if (!item.getNotificationsNumber().matches("0")) {
+                nombreMessageLabel.textProperty().bind(item.notificationsNumberProperty());
+                if (!notificationPanel.isVisible()) notificationPanel.setVisible(true);
+            }
+            setGraphic(root);
+        }
+    }
+}package Models;
+
+import javafx.scene.image.Image;
+
+public class MessageViewModel {
+    Image image;
+    String message;
+    String time;
+    public boolean isOutgoing;
+    public boolean isImage;
+    public boolean isFile;
+    public byte[] fileData;
+    public String fileName;
+
+    public MessageViewModel(String message, String time, boolean isOutgoing, boolean isImage, Image image) {
+        this.message = message;
+        this.time = time;
+        this.isOutgoing = isOutgoing;
+        this.isImage = isImage;
+        this.image = image;
+        this.isFile = false;
+    }
+
+    public MessageViewModel(String fileName, byte[] fileData, String time, boolean isOutgoing) {
+        this.fileName = fileName;
+        this.fileData = fileData;
+        this.message = "📄 " + fileName;
+        this.time = time;
+        this.isOutgoing = isOutgoing;
+        this.isImage = false;
+        this.isFile = true;
+    }
+
+
+    public String getMessage() {
+        return message;
+    }
+
+    public void setMessage(String message) {
+        this.message = message;
+    }
+
+    public String getTime() {
+        return time;
+    }
+
+    public void setTime(String time) {
+        this.time = time;
+    }
+
+    public boolean isOutgoing() {
+        return isOutgoing;
+    }
+
+    public void setOutgoing(boolean outgoing) {
+        isOutgoing = outgoing;
+    }
+
+    public Image getImage() {
+        return image;
+    }
+
+    public void setImage(Image image) {
+        this.image = image;
+    }
+}
+package Models;
+
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.scene.image.Image;
+
+
+public class UserViewModel {
+    public String userName;
+    public SimpleStringProperty lastMessage;
+    public SimpleStringProperty time;
+    public SimpleStringProperty notificationsNumber;
+    public Image avatarImage;
+    public ObservableList<MessageViewModel> messagesList;
+
+    public UserViewModel(String userName, String lastMessage, String time, String notificationsNumber, Image avatarImage) {
+        this.userName = userName;
+        this.lastMessage = new SimpleStringProperty(lastMessage);
+        this.time = new SimpleStringProperty(time);
+        this.notificationsNumber = new SimpleStringProperty(notificationsNumber);
+        this.avatarImage = avatarImage;
+        messagesList = FXCollections.observableArrayList();
+    }
+
+
+    public String getUserName() {
+        return userName;
+    }
+
+    public void setUserName(String userName) {
+        this.userName = userName;
+    }
+
+    public String getLastMessage() {
+        return lastMessage.get();
+    }
+
+    public SimpleStringProperty lastMessageProperty() {
+        return lastMessage;
+    }
+
+    public void setLastMessage(String lastMessage) {
+        this.lastMessage.set(lastMessage);
+    }
+
+    public SimpleStringProperty timeProperty() {
+        return time;
+    }
+
+    public String getNotificationsNumber() {
+        return notificationsNumber.get();
+    }
+
+    public SimpleStringProperty notificationsNumberProperty() {
+        return notificationsNumber;
+    }
+
+    public void setNotificationsNumber(String notificationsNumber) {
+        this.notificationsNumber.set(notificationsNumber);
+    }
+
+    public Image getAvatarImage() {
+        return avatarImage;
+    }
+
+    public void setAvatarImage(Image avatarImage) {
+        this.avatarImage = avatarImage;
+    }
+
+}
+package Server;
+
+import java.io.*;
+import java.net.*;
+import java.util.*;
+import java.util.concurrent.*;
+
+public class Server {
+    private static final int PORT = 55555;
+    private static Map<String, ClientHandler> clients = new ConcurrentHashMap<>();
+
+    public static void main(String[] args) {
+        System.out.println("Server started...");
+        try (ServerSocket serverSocket = new ServerSocket(PORT)) {
+            while (true) {
+                Socket clientSocket = serverSocket.accept();
+                System.out.println("New connection: " + clientSocket.getInetAddress());
+
+                ClientHandler handler = new ClientHandler(clientSocket);
+                new Thread(handler).start();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+
+    public static void sendToClient(String receiver, String message) {
+        ClientHandler receiverHandler = clients.get(receiver);
+        if (receiverHandler != null) {
+            receiverHandler.sendMessage(message);
+        }
+    }
+
+    static class ClientHandler implements Runnable {
+        private Socket socket;
+        private ObjectInputStream in;
+        private ObjectOutputStream out;
+        private String userName;
+
+        public ClientHandler(Socket socket) {
+            this.socket = socket;
+        }
+
+        public void sendMessage(String message) {
+            try {
+                out.writeObject(message);
+                out.flush();
+            } catch (IOException e) {
+                System.out.println("Error sending to " + userName);
+            }
+        }
+
+        @Override
+        public void run() {
+            try {
+                out = new ObjectOutputStream(socket.getOutputStream());
+                in = new ObjectInputStream(socket.getInputStream());
+
+
+                String initMsg = (String) in.readObject();
+                if (initMsg.startsWith("INIT>")) {
+                    userName = initMsg.split(">")[1];
+                    clients.put(userName, this);
+                    System.out.println(userName + " joined.");
+                }
+
+
+                Object obj;
+                while ((obj = in.readObject()) != null) {
+                    if (obj instanceof String) {
+                        String msg = (String) obj;
+                        System.out.println("[Text] " + msg);
+                        String[] parts = msg.split(">");
+                        if (parts.length >= 4 && parts[0].equals("text")) {
+                            Server.sendToClient(parts[2], msg);
+                        }
+                    } else if (obj instanceof ToolBox.ImageMessage) {
+                        ToolBox.ImageMessage img = (ToolBox.ImageMessage) obj;
+                        System.out.println("[Image] from " + img.sender + " to " + img.receiver);
+                        Server.sendToClient(img.receiver, img.toString());
+                    }
+                    else if (obj instanceof ToolBox.FileMessage) {
+                        ToolBox.FileMessage fileMsg = (ToolBox.FileMessage) obj;
+                        System.out.println("[File] from " + fileMsg.sender + " to " + fileMsg.receiver);
+                        Server.sendToClient(fileMsg.receiver, fileMsg.toString());
+                    }
+                    else {
+                        System.out.println("[Unknown data type]: " + obj.getClass());
+                    }
+                }
+
+            } catch (Exception e) {
+                System.out.println("Client disconnected: " + userName);
+            } finally {
+                try {
+                    if (userName != null) {
+                        clients.remove(userName);
+                    }
+                    socket.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+}
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.net.URL?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.effect.DropShadow?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<GridPane alignment="center" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0" prefWidth="900.0" style="-fx-background-color: #fff;" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controllers.HomeController">
+    <columnConstraints>
+        <ColumnConstraints minWidth="10.0" percentWidth="100.0" />
+    </columnConstraints>
+    <rowConstraints>
+        <RowConstraints minHeight="10.0" percentHeight="5.0" vgrow="ALWAYS" />
+        <RowConstraints minHeight="10.0" percentHeight="95.0" vgrow="ALWAYS" />
+    </rowConstraints>
+    <children>
+      <GridPane style="-fx-background-color: #1F2936;">
+         <columnConstraints>
+            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+         </columnConstraints>
+         <rowConstraints>
+            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+         </rowConstraints>
+         <children>
+            <HBox alignment="CENTER_RIGHT" prefHeight="100.0" prefWidth="200.0" spacing="5.0">
+               <children>
+                  <ImageView fitHeight="25.0" fitWidth="25.0" onMouseClicked="#minimizeApp" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@../resources/img/minimize.png" />
+                     </image>
+                  </ImageView>
+                  <ImageView fitHeight="25.0" fitWidth="25.0" onMouseClicked="#closeApp" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@../resources/img/quitButton.png" />
+                     </image>
+                  </ImageView>
+               </children>
+               <padding>
+                  <Insets right="10.0" />
+               </padding>
+            </HBox>
+            <Label fx:id="userNameLabel" text="Holygram" textAlignment="CENTER" textFill="WHITE">
+               <font>
+                  <Font name="System Bold" size="21.0" />
+               </font>
+               <GridPane.margin>
+                  <Insets left="20.0" />
+               </GridPane.margin>
+            </Label>
+         </children>
+      </GridPane>
+        <GridPane alignment="center" prefHeight="720.0" prefWidth="1280.0" GridPane.rowIndex="1">
+            <columnConstraints>
+                <ColumnConstraints minWidth="10.0" percentWidth="30.0" />
+                <ColumnConstraints minWidth="10.0" percentWidth="80.0" />
+            </columnConstraints>
+            <rowConstraints>
+                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="ALWAYS" />
+            </rowConstraints>
+            <children>
+                <GridPane GridPane.columnIndex="1">
+                    <columnConstraints>
+                        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                    </columnConstraints>
+                    <rowConstraints>
+                        <RowConstraints minHeight="10.0" percentHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                        <RowConstraints minHeight="10.0" percentHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                    </rowConstraints>
+                    <children>
+                        <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" style="-fx-background-color: #17212B;">
+                            <children>
+                        <VBox alignment="CENTER_LEFT" prefHeight="45.0" prefWidth="526.0" spacing="5.0" HBox.hgrow="ALWAYS">
+                           <HBox.margin>
+                              <Insets />
+                           </HBox.margin>
+                           <children>
+                                      <Label fx:id="chatRoomNameLabel" text="Chat room" textAlignment="CENTER" textFill="WHITE">
+                                          <font>
+                                              <Font name="Segoe UI Bold" size="17.0" />
+                                          </font>
+                                      </Label>
+                              <Label fx:id="lastMessageLabel" text="Last Seen recently..." textAlignment="CENTER" textFill="#92a3af">
+                                 <font>
+                                    <Font name="Segoe UI" size="13.0" />
+                                 </font>
+                              </Label>
+                           </children>
+                        </VBox>
+                                <HBox alignment="CENTER_RIGHT" prefHeight="55.0" prefWidth="251.0" spacing="20.0">
+                                    <children>
+                                        <ImageView fitHeight="40.0" fitWidth="31.0" onMouseClicked="#searchChatRoom" pickOnBounds="true" preserveRatio="true">
+                                            <image>
+                                                <Image url="@../resources/img/search.png" />
+                                            </image>
+                                        </ImageView>
+                                        <ImageView fitHeight="34.0" fitWidth="30.0" onMouseClicked="#settingsButtonClicked" pickOnBounds="true" preserveRatio="true">
+                                            <image>
+                                                <Image url="@../resources/img/settings.png" />
+                                            </image>
+                                        </ImageView>
+                                    </children>
+                                    <padding>
+                                        <Insets right="20.0" />
+                                    </padding>
+                                </HBox>
+                            </children>
+                            <padding>
+                                <Insets left="20.0" />
+                            </padding>
+                        </HBox>
+                        <VBox prefHeight="200.0" prefWidth="100.0" style="-fx-background-color: #0E1621;" GridPane.rowIndex="1">
+                     <children>
+                        <ListView fx:id="messagesListView" prefHeight="571.0" prefWidth="911.0" style="-fx-background-color: #0E1621;" VBox.vgrow="ALWAYS">
+                           <VBox.margin>
+                              <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                           </VBox.margin>
+                           <stylesheets>
+                              <URL value="@../resources/css/messageCellViewCss.css" />
+                              <URL value="@../resources/css/usersListViewCss.css" />
+                           </stylesheets>
+                        </ListView>
+                     </children></VBox>
+                        <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" spacing="10.0" style="-fx-background-color: #17212B;" GridPane.rowIndex="2">
+                     <children>
+                        <ImageView fitHeight="32.0" fitWidth="46.0" onMouseClicked="#attachFile" pickOnBounds="true" preserveRatio="true">
+                           <image>
+                              <Image url="@../resources/img/attach.png" />
+                           </image>
+                        </ImageView>
+                        <TextField fx:id="messageField" onAction="#sendMessage" prefHeight="117.0" prefWidth="782.0" promptText="Mew..." style="-fx-background-color: transparent;" stylesheets="@../resources/css/textField.css" HBox.hgrow="ALWAYS">
+                           <font>
+                              <Font name="Segoe UI" size="16.0" />
+                           </font></TextField>
+                        <ImageView fitHeight="24.0" fitWidth="28.0" onMouseClicked="#smileyButtonClicked" pickOnBounds="true" preserveRatio="true">
+                           <image>
+                              <Image url="@../resources/img/smile.png" />
+                           </image>
+                        </ImageView>
+                        <ImageView fitHeight="30.0" fitWidth="54.0" onMouseClicked="#vocalMessageClicked" pickOnBounds="true" preserveRatio="true">
+                           <image>
+                              <Image url="@../resources/img/mic.png" />
+                           </image>
+                        </ImageView>
+                     </children>
+                     <padding>
+                        <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                     </padding></HBox>
+                    </children>
+                </GridPane>
+                <GridPane style="-fx-background-color: #17212B;">
+                    <columnConstraints>
+                        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" percentWidth="100.0" />
+                    </columnConstraints>
+                    <rowConstraints>
+                        <RowConstraints minHeight="10.0" percentHeight="10.0" vgrow="SOMETIMES" />
+                        <RowConstraints minHeight="10.0" percentHeight="90.0" vgrow="SOMETIMES" />
+                    </rowConstraints>
+                    <effect>
+                        <DropShadow color="#000000ab" height="0.0" radius="2.4175" spread="0.2" width="11.67" />
+                    </effect>
+                    <children>
+                        <HBox alignment="CENTER_LEFT" spacing="20.0" style="-fx-background-color: #17212B;">
+                            <children>
+                                <ImageView fitHeight="38.0" fitWidth="28.0" onMouseClicked="#slideMenuClicked" pickOnBounds="true" preserveRatio="true">
+                                    <image>
+                                        <Image url="@../resources/img/Liste.png" />
+                                    </image>
+                                </ImageView>
+                                <TextField prefHeight="12.0" prefWidth="123.0" promptText="Search" style="-fx-background-color: #242F3D;" HBox.hgrow="ALWAYS">
+                           <font>
+                              <Font size="17.0" />
+                           </font></TextField>
+                            </children>
+                            <padding>
+                                <Insets left="20.0" right="20.0" />
+                            </padding>
+                        </HBox>
+                  <ListView fx:id="usersListView" prefHeight="513.0" prefWidth="265.0" style="-fx-background-color: #17212B;" GridPane.rowIndex="1">
+                     <stylesheets>
+                        <URL value="@../resources/css/usersListViewCss.css" />
+                        <URL value="@../resources/css/cellViewCss.css" />
+                     </stylesheets>
+                  </ListView>
+                    </children>
+                </GridPane>
+            </children>
+        </GridPane>
+    </children>
+</GridPane>
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.text.Font?>
+
+<?import javafx.scene.control.Button?>
+<GridPane fx:id="root" alignment="CENTER" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1">
+   <columnConstraints>
+      <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" />
+      <ColumnConstraints hgrow="ALWAYS" minWidth="10.0" />
+   </columnConstraints>
+   <rowConstraints>
+      <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
+   </rowConstraints>
+   <children>
+      <HBox alignment="BOTTOM_RIGHT" spacing="10.0" style="-fx-background-radius: 10px; -fx-background-color: #182533;">
+         <children>
+            <ImageView fx:id="imageView" fitHeight="150.0" fitWidth="200.0" pickOnBounds="true" preserveRatio="true" />
+            <Label fx:id="messageTimeLabel" alignment="CENTER" text="10:00" textAlignment="CENTER" textFill="#92a3af">
+               <font>
+                  <Font name="Segoe UI" size="20.0" />
+               </font>
+               <padding>
+                  <Insets top="5.0" />
+               </padding>
+            </Label>
+         </children>
+         <padding>
+            <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+         </padding>
+      </HBox>
+   </children>
+</GridPane>
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+
+<GridPane fx:id="root" alignment="CENTER" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1">
+   <columnConstraints>
+      <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" />
+      <ColumnConstraints hgrow="ALWAYS" minWidth="10.0" />
+   </columnConstraints>
+   <rowConstraints>
+      <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
+   </rowConstraints>
+   <children>
+      <HBox spacing="10.0" style="-fx-background-radius: 10px; -fx-background-color: #182533;">
+         <children>
+            <Label fx:id="messageLabel" alignment="TOP_LEFT" maxHeight="-Infinity" maxWidth="400.0" text="MessageMessage" textFill="WHITE" wrapText="true">
+               <font>
+                  <Font name="Segoe UI" size="18.0" />
+               </font>
+            </Label>
+            <VBox alignment="BOTTOM_CENTER">
+               <HBox.margin>
+                  <Insets />
+               </HBox.margin>
+               <children>
+                  <Label fx:id="messageTimeLabel" alignment="CENTER" text="10:00" textAlignment="CENTER" textFill="#92a3af">
+                     <font>
+                        <Font name="Segoe UI" size="20.0" />
+                     </font>
+                     <padding>
+                        <Insets top="5.0" />
+                     </padding>
+                  </Label>
+               </children>
+            </VBox>
+         </children>
+         <padding>
+            <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+         </padding>
+      </HBox>
+   </children>
+
+</GridPane>
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<GridPane alignment="center" stylesheets="@../resources/css/imageBackground.css" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controllers.LogInController">
+    <columnConstraints>
+        <ColumnConstraints minWidth="10.0" percentWidth="100.0" />
+    </columnConstraints>
+    <rowConstraints>
+        <RowConstraints minHeight="10.0" percentHeight="5.0" vgrow="ALWAYS" />
+        <RowConstraints minHeight="10.0" percentHeight="95.0" vgrow="ALWAYS" />
+    </rowConstraints>
+    <children>
+        <GridPane>
+            <columnConstraints>
+                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+            </columnConstraints>
+            <rowConstraints>
+                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+            </rowConstraints>
+            <children>
+                <HBox alignment="CENTER_RIGHT" prefHeight="100.0" prefWidth="200.0" spacing="5.0">
+                    <children>
+                        <ImageView fitHeight="25.0" fitWidth="25.0" onMouseClicked="#minimizeApp" pickOnBounds="true" preserveRatio="true">
+                            <image>
+                                <Image url="@../resources/img/minimize.png" />
+                            </image>
+                        </ImageView>
+                        <ImageView fitHeight="25.0" fitWidth="25.0" onMouseClicked="#closeApp" pickOnBounds="true" preserveRatio="true">
+                            <image>
+                                <Image url="@../resources/img/quitButton.png" />
+                            </image>
+                        </ImageView>
+                    </children>
+                    <padding>
+                        <Insets right="10.0" />
+                    </padding>
+                </HBox>
+            </children>
+        </GridPane>
+        <GridPane alignment="center" prefHeight="720.0" prefWidth="1280.0" GridPane.rowIndex="1">
+            <columnConstraints>
+                <ColumnConstraints minWidth="10.0" percentWidth="43.0" />
+                <ColumnConstraints minWidth="10.0" percentWidth="57.0" />
+            </columnConstraints>
+            <rowConstraints>
+                <RowConstraints minHeight="10.0" percentHeight="92.0" vgrow="ALWAYS" />
+                <RowConstraints minHeight="10.0" percentHeight="8.0" vgrow="ALWAYS" />
+            </rowConstraints>
+            <children>
+                <VBox alignment="CENTER" spacing="20.0">
+                    <children>
+                        <ImageView fitHeight="342.0" fitWidth="304.0" pickOnBounds="true" preserveRatio="true">
+                            <image>
+                                <Image url="@../resources/img/telegram-app-300.png" />
+                            </image>
+                        </ImageView>
+                        <Label text="TELEGRAM" textFill="WHITE">
+                            <font>
+                                <Font name="Segoe UI" size="64.0" />
+                            </font>
+                        </Label>
+                        <Label alignment="CENTER" prefHeight="67.0" prefWidth="357.0" textAlignment="CENTER" textFill="#7f9191" wrapText="true">
+                            <font>
+                                <Font name="Segoe UI" size="22.0" />
+                            </font>
+                        </Label>
+                        <VBox alignment="CENTER_LEFT" spacing="10.0">
+                            <VBox.margin>
+                                <Insets left="165.0" top="20.0" />
+                            </VBox.margin>
+                        </VBox>
+                    </children>
+                    <padding>
+                        <Insets bottom="20.0" top="20.0" />
+                    </padding>
+                    <GridPane.margin>
+                        <Insets left="20.0" />
+                    </GridPane.margin>
+                </VBox>
+                <GridPane prefHeight="552.0" prefWidth="730.0" GridPane.columnIndex="1">
+                    <columnConstraints>
+                        <ColumnConstraints hgrow="ALWAYS" minWidth="10.0" percentWidth="20.0" />
+                        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" percentWidth="80.0" />
+                    </columnConstraints>
+                    <rowConstraints>
+                        <RowConstraints minHeight="10.0" percentHeight="100.0" vgrow="ALWAYS" />
+                    </rowConstraints>
+                    <children>
+                        <VBox alignment="CENTER_LEFT" prefHeight="200.0" prefWidth="100.0" spacing="20.0" GridPane.columnIndex="1">
+                            <children>
+                                <Label text="Create an account" textFill="WHITE">
+                                    <font>
+                                        <Font name="SansSerif Bold" size="36.0" />
+                                    </font>
+                                    <VBox.margin>
+                                        <Insets bottom="30.0" />
+                                    </VBox.margin>
+                                </Label>
+                                <TextField fx:id="userNameTextField" prefHeight="30.0" prefWidth="393.0" promptText="User name">
+                                    <font>
+                                        <Font size="22.0" />
+                                    </font>
+                                </TextField>
+                        <TextField fx:id="userNameTextField1" layoutX="60.0" layoutY="293.0" prefHeight="30.0" prefWidth="413.0" promptText="Country">
+                           <font>
+                              <Font size="22.0" />
+                           </font>
+                        </TextField>
+                                <TextField prefHeight="30.0" prefWidth="414.0" promptText="Pasword">
+                                    <font>
+                                        <Font size="22.0" />
+                                    </font>
+                                </TextField>
+                        <TextField layoutX="60.0" layoutY="386.0" prefHeight="30.0" prefWidth="414.0" promptText="Repeat Password">
+                           <font>
+                              <Font size="22.0" />
+                           </font>
+                        </TextField>
+                                <Button blendMode="SCREEN" onAction="#signUp" prefHeight="58.0" prefWidth="579.0" style="-fx-background-color: #202D3A; -fx-text-fill: WHITE;" styleClass="root" text="Sign up" textFill="WHITE">
+                                    <font>
+                                        <Font size="28.0" />
+                                    </font>
+                                    <VBox.margin>
+                                        <Insets bottom="10.0" top="20.0" />
+                                    </VBox.margin>
+                                </Button>
+                        <Button blendMode="SCREEN" layoutX="60.0" layoutY="505.0" onAction="#signUp" prefHeight="10.0" prefWidth="510.0" style="-fx-background-color: #202D3A; -fx-text-fill: WHITE;" styleClass="root" text="I already have an account" textFill="WHITE" underline="true">
+                           <font>
+                              <Font name="System Italic" size="18.0" />
+                           </font>
+                        </Button>
+                            </children>
+                            <padding>
+                                <Insets left="50.0" right="100.0" top="20.0" />
+                            </padding>
+                        </VBox>
+                    </children>
+                </GridPane>
+                <HBox alignment="CENTER" GridPane.rowIndex="1">
+                    <children>
+                        <Label alignment="CENTER" opacity="0.44" text="Made by Sadra Seyedtabaei, Amin Asadi and Meraj Derafshii" textAlignment="CENTER" textFill="#7f9191" wrapText="true">
+                            <font>
+                                <Font name="Segoe UI" size="16.0" />
+                            </font>
+                        </Label>
+                    </children>
+                </HBox>
+            </children>
+        </GridPane>
+    </children>
+</GridPane>
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.text.Font?>
+<?import javafx.scene.control.Button?>
+
+<GridPane fx:id="root" alignment="CENTER" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1">
+   <columnConstraints>
+      <ColumnConstraints hgrow="ALWAYS" minWidth="10.0" />
+      <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" />
+   </columnConstraints>
+   <rowConstraints>
+      <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
+   </rowConstraints>
+   <children>
+      <HBox alignment="BOTTOM_RIGHT" spacing="10.0" style="-fx-background-radius: 10px; -fx-background-color: #2B5278;" GridPane.columnIndex="1">
+         <children>
+            <ImageView fx:id="imageView" fitHeight="150.0" fitWidth="200.0" pickOnBounds="true" preserveRatio="true" />
+            <Label fx:id="messageTimeLabel" alignment="CENTER" text="10:00" textAlignment="CENTER" textFill="#92a3af">
+               <font>
+                  <Font name="Segoe UI" size="20.0" />
+               </font>
+               <HBox.margin>
+                  <Insets />
+               </HBox.margin>
+               <padding>
+                  <Insets top="5.0" />
+               </padding>
+            </Label>
+         </children>
+         <padding>
+            <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+         </padding>
+      </HBox>
+   </children>
+</GridPane>
+
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.text.Font?>
+
+<GridPane fx:id="root" alignment="CENTER" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1">
+   <columnConstraints>
+      <ColumnConstraints hgrow="ALWAYS" minWidth="10.0" />
+      <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" />
+   </columnConstraints>
+   <rowConstraints>
+      <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
+   </rowConstraints>
+   <children>
+      <HBox spacing="10.0" style="-fx-background-radius: 10px; -fx-background-color: #2B5278;" GridPane.columnIndex="1">
+         <children>
+            <Label fx:id="messageLabel" alignment="TOP_LEFT" maxHeight="-Infinity" maxWidth="400.0" text="Meesage" textFill="WHITE" wrapText="true">
+               <font>
+                  <Font name="Segoe UI" size="18.0" />
+               </font>
+            </Label>
+            <Label fx:id="messageTimeLabel" alignment="CENTER" text="10:00" textAlignment="CENTER" textFill="#92a3af">
+               <font>
+                  <Font name="Segoe UI" size="20.0" />
+               </font>
+               <HBox.margin>
+                  <Insets />
+               </HBox.margin>
+               <padding>
+                  <Insets top="5.0" />
+               </padding>
+            </Label>
+         </children>
+         <padding>
+            <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+         </padding>
+      </HBox>
+   </children>
+</GridPane>
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.shape.Circle?>
+<?import javafx.scene.text.Font?>
+
+<GridPane fx:id="root" alignment="CENTER" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1">
+   <columnConstraints>
+      <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" percentWidth="20.0" prefWidth="100.0" />
+      <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" percentWidth="80.0" />
+   </columnConstraints>
+   <rowConstraints>
+      <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
+   </rowConstraints>
+   <children>
+      <VBox alignment="CENTER">
+         <children>
+            <ImageView fx:id="avatarImage" fitHeight="50.0" fitWidth="78.0" pickOnBounds="true" preserveRatio="true" VBox.vgrow="ALWAYS">
+               <image>
+                  <Image url="@../resources/img/email.png" />
+               </image>
+            </ImageView>
+         </children>
+      </VBox>
+      <HBox spacing="10.0" GridPane.columnIndex="1">
+         <children>
+            <VBox spacing="10.0" HBox.hgrow="ALWAYS">
+               <children>
+                  <Label fx:id="userNameLabel" text="User name" textAlignment="CENTER" textFill="WHITE">
+                     <font>
+                        <Font name="Segoe UI Bold" size="20.0" />
+                     </font>
+                     <VBox.margin>
+                        <Insets top="10.0" />
+                     </VBox.margin>
+                  </Label>
+                  <Label fx:id="lastMessageLabel" text="Last message sent by user name" textAlignment="CENTER" textFill="#92a3af">
+                     <font>
+                        <Font name="Segoe UI" size="20.0" />
+                     </font>
+                  </Label>
+               </children>
+            </VBox>
+            <VBox alignment="TOP_CENTER" spacing="10.0">
+               <children>
+                  <Label fx:id="messageTimeLabel" alignment="CENTER" text="10:00" textAlignment="CENTER" textFill="#92a3af">
+                     <font>
+                        <Font name="Segoe UI" size="20.0" />
+                     </font>
+                     <VBox.margin>
+                        <Insets left="5.0" right="5.0" />
+                     </VBox.margin>
+                  </Label>
+                  <StackPane fx:id="notificationPanel" visible="false">
+                     <children>
+                        <Circle fill="#4082bc" radius="18.0" stroke="BLACK" strokeType="INSIDE" strokeWidth="0.0" />
+                        <Label fx:id="nombreMessageLabel" alignment="CENTER" text="3" textAlignment="CENTER" textFill="WHITE">
+                           <font>
+                              <Font name="Segoe UI Bold" size="20.0" />
+                           </font>
+                        </Label>
+                     </children>
+                  </StackPane>
+               </children>
+               <HBox.margin>
+                  <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+               </HBox.margin>
+            </VBox>
+         </children>
+      </HBox>
+   </children>
+</GridPane>
+package ToolBox;
+
+import java.io.Serializable;
+
+public class FileMessage implements Serializable {
+    public byte[] fileData;
+    public String fileName;
+    public String sender;
+    public String receiver;
+    public String timestamp;
+
+    public FileMessage(byte[] fileData, String fileName, String sender, String receiver, String timestamp) {
+        this.fileData = fileData;
+        this.fileName = fileName;
+        this.sender = sender;
+        this.receiver = receiver;
+        this.timestamp = timestamp;
+    }
+}
+package ToolBox;
+
+import java.io.Serializable;
+
+public class ImageMessage implements Serializable {
+    public byte[] imageData;
+    public String sender;
+    public String receiver;
+    public String timestamp;
+
+    public ImageMessage(byte[] imageData, String sender, String receiver, String timestamp) {
+        this.imageData = imageData;
+        this.sender = sender;
+        this.receiver = receiver;
+        this.timestamp = timestamp;
+    }
+}
+package ToolBox;
+
+import java.io.*;
+import java.net.*;
+import java.util.function.Consumer;
+
+public class NetworkConnection {
+
+    private ConnectionThread connectionThread;
+    public Consumer<Serializable> receiveCallback;
+    public String ip;
+    public boolean isServer;
+    public int port;
+    public String userName;
+
+    public NetworkConnection(Consumer<Serializable> receiveCallback, String ip, boolean isServer, int port, String userName) {
+        this.receiveCallback = receiveCallback;
+        this.ip = ip;
+        this.isServer = isServer;
+        this.port = port;
+        this.userName = userName;
+        this.connectionThread = new ConnectionThread();
+    }
+
+    public void openConnection() {
+        if (!connectionThread.isAlive()) {
+            if (connectionThread.getState() == Thread.State.TERMINATED) {
+                this.connectionThread = new ConnectionThread();
+            }
+            connectionThread.start();
+        }
+    }
+
+    public void sendData(Serializable data) throws IOException {
+        if (connectionThread.outputStream == null || connectionThread.socket == null || connectionThread.socket.isClosed()) {
+            throw new IOException("Connection not established.");
+        }
+        connectionThread.outputStream.writeObject(data);
+        connectionThread.outputStream.flush();
+    }
+
+    public void closeConnection() throws IOException {
+        if (connectionThread.socket != null && !connectionThread.socket.isClosed()) {
+            connectionThread.socket.close();
+        }
+        if (connectionThread.serverSocket != null && !connectionThread.serverSocket.isClosed()) {
+            connectionThread.serverSocket.close();
+        }
+        connectionThread.interrupt();
+    }
+
+    private class ConnectionThread extends Thread {
+        private Socket socket;
+        private ObjectOutputStream outputStream;
+        private ObjectInputStream inputStream;
+        private ServerSocket serverSocket;
+
+        @Override
+        public void run() {
+            try {
+                if (isServer) {
+                    serverSocket = new ServerSocket(port);
+                    System.out.println("[Server] Waiting for a client...");
+                    socket = serverSocket.accept();
+                    System.out.println("[Server] Client connected.");
+                } else {
+                    socket = new Socket(ip, port);
+                    System.out.println("[Client] Connected to server.");
+                }
+
+                outputStream = new ObjectOutputStream(socket.getOutputStream());
+                outputStream.flush();
+
+                // Send INIT message
+                outputStream.writeObject("INIT>" + userName);
+                outputStream.flush();
+
+                inputStream = new ObjectInputStream(socket.getInputStream());
+
+                // Notify successful connection
+                if (receiveCallback != null) {
+                    receiveCallback.accept("SYSTEM_STATUS:CONNECTION_SUCCESS");
+                }
+
+                while (!socket.isClosed()) {
+                    try {
+                        Serializable data = (Serializable) inputStream.readObject();
+                        if (receiveCallback != null) {
+                            receiveCallback.accept(data);
+                        }
+                    } catch (EOFException e) {
+                        System.out.println("[Network] Connection closed.");
+                        break;
+                    }
+                }
+
+            } catch (IOException | ClassNotFoundException e) {
+                if (receiveCallback != null) {
+                    receiveCallback.accept("SYSTEM_STATUS:ERROR: " + e.getMessage());
+                }
+                e.printStackTrace();
+            } finally {
+                cleanup();
+            }
+        }
+
+        private void cleanup() {
+            try {
+                if (outputStream != null) outputStream.close();
+                if (inputStream != null) inputStream.close();
+                if (socket != null && !socket.isClosed()) socket.close();
+                if (serverSocket != null && !serverSocket.isClosed()) serverSocket.close();
+                System.out.println("[Network] Connection closed.");
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+}
+package ToolBox;
+
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
+public class Utilities {
+
+    public static String getCurrentTime() {
+        DateFormat dateFormat = new SimpleDateFormat("HH:mm");
+        Date date = new Date();
+        return dateFormat.format(date);
+    }
+}
+package Controllers;
+
+import Models.UserViewModel;
+import Models.MessageViewModel;
+import ToolBox.NetworkConnection;
+import javafx.application.Platform;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.embed.swing.SwingFXUtils;
+import javafx.event.ActionEvent;
+import javafx.fxml.FXML;
+import javafx.fxml.Initializable;
+import javafx.scene.control.Label;
+import javafx.scene.control.ListView;
+import javafx.scene.control.TextField;
+import javafx.scene.image.Image;
+import javafx.scene.input.MouseEvent;
+import javafx.stage.FileChooser;
+import javafx.stage.Stage;
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.*;
+import java.net.URL;
+import java.util.ResourceBundle;
+import static ToolBox.Utilities.getCurrentTime;
+
+public class HomeController implements Initializable {
+
+    @FXML
+    private Label userNameLabel;
+    @FXML
+    private Label chatRoomNameLabel;
+    @FXML
+    private TextField messageField;
+    @FXML
+    private ListView<UserViewModel> usersListView;
+    @FXML
+    private ListView<MessageViewModel> messagesListView;
+
+    NetworkConnection connection;
+    private ObservableList<UserViewModel> usersList = FXCollections.observableArrayList();
+    UserViewModel currentlySelectedUser, localUser;
+    Image userImage = new Image("resources/img/smile.png");
+
+    @Override
+    public void initialize(URL location, ResourceBundle resources) {
+        localUser = new UserViewModel(LogInController.userName, "message", getCurrentTime(), "0", userImage);
+        userNameLabel.setText(localUser.getUserName());
+
+        // Sample users for testing UI
+        usersList.addAll(
+                new UserViewModel("Meraj", "Hey!", getCurrentTime(), "1", userImage),
+                new UserViewModel("Amin", "Yo", getCurrentTime(), "0", userImage)
+        );
+
+        usersListView.setItems(usersList);
+        usersListView.setCellFactory(param -> new UserCustomCellController() {{
+            prefWidthProperty().bind(usersListView.widthProperty());
+        }});
+        messagesListView.setCellFactory(param -> new MessageCustomCellController() {{
+            prefWidthProperty().bind(messagesListView.widthProperty());
+        }});
+
+        usersListView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+            currentlySelectedUser = newValue;
+            messagesListView.setItems(currentlySelectedUser.messagesList);
+            chatRoomNameLabel.setText(currentlySelectedUser.userName);
+            messagesListView.scrollTo(currentlySelectedUser.messagesList.size());
+        });
+
+        connection = new NetworkConnection(data -> Platform.runLater(() -> handleIncomingData(data)),
+                "127.0.0.1", false, 55555, LogInController.userName);
+        connection.openConnection();
+
+        usersListView.getSelectionModel().select(0);
+    }
+
+    private int findOrAddUser(String userName) {
+        int index = findUser(userName);
+        if (index != -1) return index;
+
+        UserViewModel newUser = new UserViewModel(userName, "", getCurrentTime(), "0", userImage);
+        usersList.add(newUser);
+        return usersList.indexOf(newUser);
+    }
+
+    private void handleIncomingData(Object data) {
+        try {
+            // Handle IMAGE
+            if (data instanceof ToolBox.ImageMessage) {
+                ToolBox.ImageMessage imgMsg = (ToolBox.ImageMessage) data;
+                if (!imgMsg.receiver.equals(localUser.getUserName())) return;
+
+                int senderIndex = findOrAddUser(imgMsg.sender);
+                ByteArrayInputStream bais = new ByteArrayInputStream(imgMsg.imageData);
+                BufferedImage bufferedImage = ImageIO.read(bais);
+                Image fxImage = SwingFXUtils.toFXImage(bufferedImage, null);
+
+                MessageViewModel imageMsg = new MessageViewModel("📷 image", imgMsg.timestamp, false, true, fxImage);
+                usersList.get(senderIndex).messagesList.add(imageMsg);
+                usersList.get(senderIndex).notificationsNumber.setValue(
+                        String.valueOf(Integer.parseInt(usersList.get(senderIndex).notificationsNumber.getValue()) + 1));
+                messagesListView.scrollTo(usersList.get(senderIndex).messagesList.size());
+                return;
+            }
+
+            // Handle FILE
+            if (data instanceof ToolBox.FileMessage) {
+                ToolBox.FileMessage fileMsg = (ToolBox.FileMessage) data;
+                if (!fileMsg.receiver.equals(localUser.getUserName())) return;
+
+                int senderIndex = findOrAddUser(fileMsg.sender);
+                MessageViewModel fileModel = new MessageViewModel(fileMsg.fileName, fileMsg.fileData, fileMsg.timestamp, false);
+                usersList.get(senderIndex).messagesList.add(fileModel);
+                usersList.get(senderIndex).notificationsNumber.setValue(
+                        String.valueOf(Integer.parseInt(usersList.get(senderIndex).notificationsNumber.getValue()) + 1));
+                messagesListView.scrollTo(usersList.get(senderIndex).messagesList.size());
+                return;
+            }
+
+            // Handle TEXT
+            if (data instanceof String) {
+                String msg = (String) data;
+                if (msg.startsWith("SYSTEM_STATUS:")) {
+                    System.out.println("[Status] " + msg);
+                    return;
+                }
+
+                String[] parts = msg.split(">");
+                if (parts.length < 4 || !parts[2].equals(localUser.getUserName())) return;
+
+                String type = parts[0];
+                String sender = parts[1];
+                String receiver = parts[2];
+                String content = parts[3];
+
+                int senderIndex = findOrAddUser(sender);
+                MessageViewModel textMsg = new MessageViewModel(content, getCurrentTime(), false, false, null);
+                usersList.get(senderIndex).messagesList.add(textMsg);
+                usersList.get(senderIndex).lastMessage.set(content);
+                usersList.get(senderIndex).time.set(getCurrentTime());
+                usersList.get(senderIndex).notificationsNumber.setValue(
+                        String.valueOf(Integer.parseInt(usersList.get(senderIndex).notificationsNumber.getValue()) + 1));
+                messagesListView.scrollTo(usersList.get(senderIndex).messagesList.size());
+            }
+
+        } catch (Exception e) {
+            System.err.println("[ERROR] Failed to handle incoming data: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+
+    @FXML
+    void sendMessage(ActionEvent event) {
+        try {
+            String message = messageField.getText();
+            currentlySelectedUser.messagesList.add(
+                    new MessageViewModel(message, getCurrentTime(), true, false, null));
+            connection.sendData("text>" + localUser.getUserName() + ">" + currentlySelectedUser.getUserName() + ">" + message);
+            messageField.clear();
+            messagesListView.scrollTo(currentlySelectedUser.messagesList.size());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @FXML
+    void attachFile(MouseEvent event) {
+        try {
+            FileChooser fileChooser = new FileChooser();
+            fileChooser.getExtensionFilters().addAll(
+                    new FileChooser.ExtensionFilter("Supported Files", "*.png", "*.jpg", "*.jpeg", "*.pdf", "*.docx")
+            );
+            File file = fileChooser.showOpenDialog(new Stage());
+            if (file == null) return;
+
+            String fileName = file.getName().toLowerCase();
+            String timestamp = getCurrentTime();
+
+            byte[] fileBytes = new byte[(int) file.length()];
+            try (FileInputStream fis = new FileInputStream(file)) {
+                fis.read(fileBytes);
+            }
+
+            if (fileName.endsWith(".png") || fileName.endsWith(".jpg") || fileName.endsWith(".jpeg")) {
+                Image image = SwingFXUtils.toFXImage(ImageIO.read(file), null);
+                currentlySelectedUser.messagesList.add(new MessageViewModel("📷 image", timestamp, true, true, image));
+
+                ToolBox.ImageMessage imageMessage = new ToolBox.ImageMessage(fileBytes, localUser.getUserName(), currentlySelectedUser.getUserName(), timestamp);
+                connection.sendData(imageMessage);
+            } else {
+                currentlySelectedUser.messagesList.add(new MessageViewModel("📄 " + file.getName(), timestamp, true, false, null));
+
+                ToolBox.FileMessage fileMessage = new ToolBox.FileMessage(fileBytes, file.getName(), localUser.getUserName(), currentlySelectedUser.getUserName(), timestamp);
+                connection.sendData(fileMessage);
+            }
+
+            messagesListView.scrollTo(currentlySelectedUser.messagesList.size());
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @FXML
+    void closeApp(MouseEvent event) {
+        try {
+            connection.closeConnection();
+            Main.stage.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @FXML
+    void minimizeApp(MouseEvent event) {
+        Main.stage.setIconified(true);
+    }
+
+    int findUser(String userName) {
+        for (int i = 0; i < usersList.size(); i++) {
+            if (usersList.get(i).getUserName().equals(userName)) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    // unused buttons
+    @FXML void searchChatRoom(MouseEvent event) {}
+    @FXML void settingsButtonClicked(MouseEvent event) {}
+    @FXML void slideMenuClicked(MouseEvent event) {}
+    @FXML void smileyButtonClicked(MouseEvent event) {}
+    @FXML void vocalMessageClicked(MouseEvent event) {}
+}
+package Controllers;
+
+import javafx.event.ActionEvent;
+import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.fxml.Initializable;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.scene.control.TextField; // Changed from JFXTextField
+import javafx.scene.input.MouseEvent;
+
+import java.io.IOException;
+import java.net.URL;
+import java.util.ResourceBundle;
+
+public class LogInController implements Initializable {
+
+    public static String userName;
+    @FXML
+    private TextField userNameTextField;
+
+    @Override
+    public void initialize(URL location, ResourceBundle resources) {
+    }
+
+    @FXML
+    void closeApp(MouseEvent event) {
+        Main.stage.close();
+    }
+
+    @FXML
+    void minimizeApp(MouseEvent event) {
+        Main.stage.setIconified(true);
+    }
+
+    @FXML
+    void signUp(ActionEvent event) {
+        try {
+            userName = userNameTextField.getText();
+            Parent root = FXMLLoader.load(getClass().getResource("../Views/home_view.fxml"));
+            Main.stage.setScene(new Scene(root));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+}package Controllers;
+
+import javafx.application.Application;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.stage.Stage;
+import javafx.stage.StageStyle;
+
+import java.util.Objects;
+
+public class Main extends Application {
+    public static Stage stage;
+    @Override
+    public void start(Stage primaryStage) throws Exception{
+        Parent root = FXMLLoader.load(Objects.requireNonNull(getClass().getResource("../Views/login_view.fxml")));
+        primaryStage.setScene(new Scene(root, 1280, 720));
+        primaryStage.initStyle(StageStyle.UNDECORATED);
+        stage = primaryStage;
+        stage.show();
+    }
+
+
+    public static void main(String[] args) {
+        launch(args);
+    }
+}
+package Controllers;
+
+import Models.MessageViewModel;
+import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.control.Button;
+import javafx.scene.control.ContextMenu;
+import javafx.scene.control.Label;
+import javafx.scene.control.ListCell;
+import javafx.scene.control.MenuItem;
+import javafx.scene.image.ImageView;
+import javafx.scene.layout.GridPane;
+import javafx.stage.FileChooser;
+import javafx.stage.Stage;
+
+import java.awt.Desktop;
+import java.io.*;
+
+public class MessageCustomCellController extends ListCell<MessageViewModel> {
+
+    @FXML private GridPane root;
+    @FXML private ImageView imageView;
+    @FXML private Label messageLabel;
+    @FXML private Label messageTimeLabel;
+
+    @Override
+    protected void updateItem(MessageViewModel item, boolean empty) {
+        super.updateItem(item, empty);
+
+        if (empty || item == null) {
+            setText(null);
+            setGraphic(null);
+            return;
+        }
+
+        try {
+            String fxmlPath;
+            if (item.isOutgoing) {
+                fxmlPath = item.isImage
+                        ? "/Views/outgoing_image_custom_cell_view.fxml"
+                        : "/Views/outgoing_message_custom_cell_view.fxml";
+            } else {
+                fxmlPath = item.isImage
+                        ? "/Views/incoming_image_custom_cell_view.fxml"
+                        : "/Views/incoming_message_custom_cell_view.fxml";
+            }
+
+            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource(fxmlPath));
+            fxmlLoader.setController(this);
+            fxmlLoader.load();
+
+            if (messageLabel != null) {
+                messageLabel.setText(item.getMessage());
+            }
+
+            if (messageTimeLabel != null) {
+                messageTimeLabel.setText(item.getTime());
+            }
+
+            if (item.isImage && imageView != null) {
+                imageView.setImage(item.getImage());
+            }
+
+            // Right-click menu for file messages
+            if (item.isFile && messageLabel != null) {
+                ContextMenu contextMenu = new ContextMenu();
+
+                MenuItem download = new MenuItem("📥 Download");
+                download.setOnAction(e -> saveFile(item.fileName, item.fileData));
+
+                if (item.fileName.toLowerCase().endsWith(".pdf")) {
+                    MenuItem open = new MenuItem("👁️ Open PDF");
+                    open.setOnAction(e -> openPdf(item.fileName, item.fileData));
+                    contextMenu.getItems().add(open);
+                }
+
+                contextMenu.getItems().add(download);
+                root.setOnContextMenuRequested(e -> contextMenu.show(root, e.getScreenX(), e.getScreenY()));
+            }
+
+            setGraphic(root);
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            setText("Failed to load message bubble.");
+        }
+    }
+
+
+    private void saveFile(String fileName, byte[] data) {
+        try {
+            FileChooser fileChooser = new FileChooser();
+            fileChooser.setInitialFileName(fileName);
+            File file = fileChooser.showSaveDialog(new Stage());
+            if (file != null) {
+                try (FileOutputStream fos = new FileOutputStream(file)) {
+                    fos.write(data);
+                    System.out.println("✅ File saved to: " + file.getAbsolutePath());
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void openPdf(String fileName, byte[] data) {
+        try {
+            File temp = File.createTempFile("chatfile_", "_" + fileName);
+            temp.deleteOnExit();
+            try (FileOutputStream fos = new FileOutputStream(temp)) {
+                fos.write(data);
+            }
+
+            if (Desktop.isDesktopSupported()) {
+                Desktop.getDesktop().open(temp);
+            } else {
+                System.out.println("⚠️ Desktop not supported.");
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+}package Controllers;
+
+import Models.UserViewModel;
+import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.control.Label;
+import javafx.scene.control.ListCell;
+import javafx.scene.image.ImageView;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.StackPane;
+
+import java.io.IOException;
+
+public class UserCustomCellController extends ListCell<UserViewModel> {
+
+    @FXML
+    private GridPane root;
+
+    @FXML
+    private ImageView avatarImage;
+
+    @FXML
+    private Label userNameLabel;
+
+    @FXML
+    private Label lastMessageLabel;
+
+    @FXML
+    private Label messageTimeLabel;
+
+    @FXML
+    private Label nombreMessageLabel;
+
+    @FXML
+    private StackPane notificationPanel;
+
+    @Override
+    protected void updateItem(UserViewModel item, boolean empty) {
+        super.updateItem(item, empty);
+        if (empty || item == null) {
+            setText(null);
+            setGraphic(null);
+        } else {
+            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("../Views/user_custom_cell_view.fxml"));
+            fxmlLoader.setController(this);
+            try {
+                fxmlLoader.load();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            userNameLabel.setText(String.valueOf(item.getUserName()));
+            lastMessageLabel.setText(String.valueOf(item.getLastMessage()));
+            messageTimeLabel.textProperty().bind(item.time);
+            if (!item.getNotificationsNumber().matches("0")) {
+                nombreMessageLabel.textProperty().bind(item.notificationsNumberProperty());
+                if (!notificationPanel.isVisible()) notificationPanel.setVisible(true);
+            }
+            setGraphic(root);
+        }
+    }
+}package Models;
+
+import javafx.scene.image.Image;
+
+public class MessageViewModel {
+    Image image;
+    String message;
+    String time;
+    public boolean isOutgoing;
+    public boolean isImage;
+    public boolean isFile;
+    public byte[] fileData;
+    public String fileName;
+
+    public MessageViewModel(String message, String time, boolean isOutgoing, boolean isImage, Image image) {
+        this.message = message;
+        this.time = time;
+        this.isOutgoing = isOutgoing;
+        this.isImage = isImage;
+        this.image = image;
+        this.isFile = false;
+    }
+
+    public MessageViewModel(String fileName, byte[] fileData, String time, boolean isOutgoing) {
+        this.fileName = fileName;
+        this.fileData = fileData;
+        this.message = "📄 " + fileName;
+        this.time = time;
+        this.isOutgoing = isOutgoing;
+        this.isImage = false;
+        this.isFile = true;
+    }
+
+
+    public String getMessage() {
+        return message;
+    }
+
+    public void setMessage(String message) {
+        this.message = message;
+    }
+
+    public String getTime() {
+        return time;
+    }
+
+    public void setTime(String time) {
+        this.time = time;
+    }
+
+    public boolean isOutgoing() {
+        return isOutgoing;
+    }
+
+    public void setOutgoing(boolean outgoing) {
+        isOutgoing = outgoing;
+    }
+
+    public Image getImage() {
+        return image;
+    }
+
+    public void setImage(Image image) {
+        this.image = image;
+    }
+}
+package Models;
+
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.scene.image.Image;
+
+
+public class UserViewModel {
+    public String userName;
+    public SimpleStringProperty lastMessage;
+    public SimpleStringProperty time;
+    public SimpleStringProperty notificationsNumber;
+    public Image avatarImage;
+    public ObservableList<MessageViewModel> messagesList;
+
+    public UserViewModel(String userName, String lastMessage, String time, String notificationsNumber, Image avatarImage) {
+        this.userName = userName;
+        this.lastMessage = new SimpleStringProperty(lastMessage);
+        this.time = new SimpleStringProperty(time);
+        this.notificationsNumber = new SimpleStringProperty(notificationsNumber);
+        this.avatarImage = avatarImage;
+        messagesList = FXCollections.observableArrayList();
+    }
+
+
+    public String getUserName() {
+        return userName;
+    }
+
+    public void setUserName(String userName) {
+        this.userName = userName;
+    }
+
+    public String getLastMessage() {
+        return lastMessage.get();
+    }
+
+    public SimpleStringProperty lastMessageProperty() {
+        return lastMessage;
+    }
+
+    public void setLastMessage(String lastMessage) {
+        this.lastMessage.set(lastMessage);
+    }
+
+    public SimpleStringProperty timeProperty() {
+        return time;
+    }
+
+    public String getNotificationsNumber() {
+        return notificationsNumber.get();
+    }
+
+    public SimpleStringProperty notificationsNumberProperty() {
+        return notificationsNumber;
+    }
+
+    public void setNotificationsNumber(String notificationsNumber) {
+        this.notificationsNumber.set(notificationsNumber);
+    }
+
+    public Image getAvatarImage() {
+        return avatarImage;
+    }
+
+    public void setAvatarImage(Image avatarImage) {
+        this.avatarImage = avatarImage;
+    }
+
+}
+package Server;
+
+import java.io.*;
+import java.net.*;
+import java.util.*;
+import java.util.concurrent.*;
+
+public class Server {
+    private static final int PORT = 55555;
+    private static Map<String, ClientHandler> clients = new ConcurrentHashMap<>();
+
+    public static void main(String[] args) {
+        System.out.println("Server started...");
+        try (ServerSocket serverSocket = new ServerSocket(PORT)) {
+            while (true) {
+                Socket clientSocket = serverSocket.accept();
+                System.out.println("New connection: " + clientSocket.getInetAddress());
+
+                ClientHandler handler = new ClientHandler(clientSocket);
+                new Thread(handler).start();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+
+    public static void sendToClient(String receiver, String message) {
+        ClientHandler receiverHandler = clients.get(receiver);
+        if (receiverHandler != null) {
+            receiverHandler.sendMessage(message);
+        }
+    }
+
+    static class ClientHandler implements Runnable {
+        private Socket socket;
+        private ObjectInputStream in;
+        private ObjectOutputStream out;
+        private String userName;
+
+        public ClientHandler(Socket socket) {
+            this.socket = socket;
+        }
+
+        public void sendMessage(String message) {
+            try {
+                out.writeObject(message);
+                out.flush();
+            } catch (IOException e) {
+                System.out.println("Error sending to " + userName);
+            }
+        }
+
+        @Override
+        public void run() {
+            try {
+                out = new ObjectOutputStream(socket.getOutputStream());
+                in = new ObjectInputStream(socket.getInputStream());
+
+
+                String initMsg = (String) in.readObject();
+                if (initMsg.startsWith("INIT>")) {
+                    userName = initMsg.split(">")[1];
+                    clients.put(userName, this);
+                    System.out.println(userName + " joined.");
+                }
+
+
+                Object obj;
+                while ((obj = in.readObject()) != null) {
+                    if (obj instanceof String) {
+                        String msg = (String) obj;
+                        System.out.println("[Text] " + msg);
+                        String[] parts = msg.split(">");
+                        if (parts.length >= 4 && parts[0].equals("text")) {
+                            Server.sendToClient(parts[2], msg);
+                        }
+                    } else if (obj instanceof ToolBox.ImageMessage) {
+                        ToolBox.ImageMessage img = (ToolBox.ImageMessage) obj;
+                        System.out.println("[Image] from " + img.sender + " to " + img.receiver);
+                        Server.sendToClient(img.receiver, img.toString());
+                    }
+                    else if (obj instanceof ToolBox.FileMessage) {
+                        ToolBox.FileMessage fileMsg = (ToolBox.FileMessage) obj;
+                        System.out.println("[File] from " + fileMsg.sender + " to " + fileMsg.receiver);
+                        Server.sendToClient(fileMsg.receiver, fileMsg.toString());
+                    }
+                    else {
+                        System.out.println("[Unknown data type]: " + obj.getClass());
+                    }
+                }
+
+            } catch (Exception e) {
+                System.out.println("Client disconnected: " + userName);
+            } finally {
+                try {
+                    if (userName != null) {
+                        clients.remove(userName);
+                    }
+                    socket.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+}
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.net.URL?>
+<?import javafx.geome

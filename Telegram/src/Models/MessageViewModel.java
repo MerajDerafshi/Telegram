@@ -8,6 +8,9 @@ public class MessageViewModel {
     String time;
     public boolean isOutgoing;
     public boolean isImage;
+    public boolean isFile;
+    public byte[] fileData;
+    public String fileName;
 
     public MessageViewModel(String message, String time, boolean isOutgoing, boolean isImage, Image image) {
         this.message = message;
@@ -15,7 +18,19 @@ public class MessageViewModel {
         this.isOutgoing = isOutgoing;
         this.isImage = isImage;
         this.image = image;
+        this.isFile = false;
     }
+
+    public MessageViewModel(String fileName, byte[] fileData, String time, boolean isOutgoing) {
+        this.fileName = fileName;
+        this.fileData = fileData;
+        this.message = "📄 " + fileName;
+        this.time = time;
+        this.isOutgoing = isOutgoing;
+        this.isImage = false;
+        this.isFile = true;
+    }
+
 
     public String getMessage() {
         return message;
