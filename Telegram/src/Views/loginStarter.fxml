@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.shape.SVGPath?>
+<?import javafx.scene.text.Font?>
+
+
+<VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1">
+   <children>
+      <HBox alignment="TOP_RIGHT" prefHeight="6.0" prefWidth="600.0" style="-fx-background-color: #242F3D;">
+         <children>
+          <Button minWidth="22.0" mnemonicParsing="false" prefHeight="24.0" scaleX="0.8" style="-fx-background-color: rgb(0,0,0,0);" textFill="TRANSPARENT">
+               <graphic>
+                  <SVGPath content="M17.76 13.2H6.24c-.795 0-1.44-.537-1.44-1.2s.645-1.2 1.44-1.2h11.52c.795 0 1.44.537 1.44 1.2s-.645 1.2-1.44 1.2" fill="#404e5d" scaleX="0.5" />
+               </graphic>
+               <HBox.margin>
+                  <Insets right="-10.0" />
+               </HBox.margin>
+            </Button>
+            <Button mnemonicParsing="false" scaleX="0.5" scaleY="0.5" style="-fx-background-color: rgb(0,0,0,0);">
+               <graphic>
+                  <SVGPath content="M17.41 20.456H6.59a3.053 3.053 0 0 1-3.046-3.047V6.591A3.053 3.053 0 0 1 6.59 3.544h10.814a3.053 3.053 0 0 1 3.047 3.047v10.814a3.047 3.047 0 0 1-3.042 3.051M6.59 5.887a.7.7 0 0 0-.703.704v10.814c0 .389.314.703.703.703h10.814c.39 0 .704-.314.704-.703V6.59a.7.7 0 0 0-.704-.704z" fill="#404e5d" />
+               </graphic>
+               <HBox.margin>
+                  <Insets right="-10.0" />
+               </HBox.margin>
+            </Button>
+            <Button mnemonicParsing="false" scaleX="0.5" scaleY="0.5" scaleZ="0.0" style="-fx-background-color: rgb(0,0,0,0);">
+               <graphic>
+                  <SVGPath content="m14.481 12 6.982-6.982a1.754 1.754 0 0 0-2.481-2.48L12 9.517 5.02 2.539a1.754 1.754 0 0 0-2.481 2.48L9.519 12l-6.981 6.98a1.754 1.754 0 1 0 2.48 2.481L12 14.481l6.982 6.981a1.754 1.754 0 1 0 2.48-2.48z" fill="#404e5d" scaleX="0.8" scaleY="0.8" />
+               </graphic>
+               <HBox.margin>
+                  <Insets top="-1.0" />
+               </HBox.margin>
+            </Button>
+         </children>
+      </HBox>
+      <HBox prefHeight="168.0" prefWidth="600.0" style="-fx-background-color: #17212B;">
+         <children>
+            <Pane prefHeight="200.0" prefWidth="200.0">
+               <children>
+                  <ImageView fitHeight="189.0" fitWidth="460.0" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@../../../../../../../../../Downloads/photo_5929183081065990798_w.jpg" />
+                     </image>
+                  </ImageView>
+               </children>
+            </Pane>
+         </children>
+      </HBox>
+      <VBox alignment="TOP_CENTER" prefHeight="216.0" prefWidth="600.0" style="-fx-background-color: #17212B;">
+         <VBox.margin>
+            <Insets />
+         </VBox.margin>
+         <children>
+            <Label text="Telegram Desktop" textFill="WHITE">
+               <VBox.margin>
+                  <Insets top="12.0" />
+               </VBox.margin>
+               <font>
+                  <Font name="Ebrima" size="22.0" />
+               </font>
+            </Label>
+            <Label alignment="TOP_CENTER" prefHeight="36.0" prefWidth="274.0" text="Welcome to the official Telegram Desktop app &#10;It's fast and secure." textAlignment="CENTER" textFill="#5e7076">
+               <VBox.margin>
+                  <Insets bottom="20.0" top="14.0" />
+               </VBox.margin>
+               <font>
+                  <Font size="13.0" />
+               </font>
+            </Label>
+            <Button mnemonicParsing="false" style="-fx-background-color: #2F6EA5;" text="Start Messaging" textFill="WHITE">
+               <VBox.margin>
+                  <Insets top="10.0" />
+               </VBox.margin>
+               <padding>
+                  <Insets bottom="8.0" left="65.0" right="65.0" top="8.0" />
+               </padding>
+               <font>
+                  <Font size="14.0" />
+               </font>
+            </Button>
+         </children>
+      </VBox>
+   </children>
+</VBox>
