@@ -87,12 +87,12 @@
                                     <children>
                                         <Label fx:id="chatRoomNameLabel" text="Chat room" textAlignment="CENTER" textFill="WHITE">
                                             <font>
-                                                <Font name="Segoe UI Bold" size="17.0" />
+                                                <Font name="Arial Bold" size="17.0" />
                                             </font>
                                         </Label>
                                         <Label fx:id="lastMessageLabel" text="Last Seen recently..." textAlignment="CENTER" textFill="#92a3af">
                                             <font>
-                                                <Font name="Segoe UI" size="13.0" />
+                                                <Font name="SansSerif Regular" size="13.0" />
                                             </font>
                                         </Label>
                                     </children>
