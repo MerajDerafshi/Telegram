@@ -5,12 +5,12 @@
 -- **WARNING!** : DO NOT RUN THE BELOW LINE! EXCEPT IF YOU WANT TO DELETE THE ENTIRE DATABASE
 -- ~@#DROP DATABASE telegram~@#;$$
 
--- CREATE DATABASE telegram;
--- USE telegram;
+CREATE DATABASE IF NOT EXISTS Telegram;
+USE Telegram;
 
 
-CREATE TABLE users (
-    id BIGINT PRIMARY KEY,
+CREATE TABLE IF NOT EXISTS users (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
     first_name TEXT,
     last_name TEXT,
     username VARCHAR(30) UNIQUE,
@@ -27,7 +27,7 @@ CREATE TABLE users (
     language_ TEXT
 );
 
-CREATE TABLE contacts (
+CREATE TABLE IF NOT EXISTS contacts (
     id BIGINT,
     contact_id BIGINT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -37,7 +37,7 @@ CREATE TABLE contacts (
     FOREIGN KEY (contact_id) REFERENCES users(id)
 );
 
-CREATE TABLE conversations (
+CREATE TABLE IF NOT EXISTS conversations (
     id BIGINT PRIMARY KEY,
     type ENUM('private', 'group', 'channel') NOT NULL,
     title TEXT,
@@ -47,7 +47,7 @@ CREATE TABLE conversations (
     FOREIGN KEY (creator_id) REFERENCES users(id)
 );
 
-CREATE TABLE conversation_participants (
+CREATE TABLE IF NOT EXISTS conversation_participants (
     id BIGINT,
     user_id BIGINT,
     joined_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -58,7 +58,7 @@ CREATE TABLE conversation_participants (
     FOREIGN KEY (user_id) REFERENCES users(id)
 );
 
-CREATE TABLE media (
+CREATE TABLE IF NOT EXISTS media (
     id BIGINT PRIMARY KEY,
     uploader_id BIGINT,
     file_name TEXT,
@@ -69,15 +69,15 @@ CREATE TABLE media (
     FOREIGN KEY (uploader_id) REFERENCES users(id)
 );
 
-CREATE TABLE forward (
+CREATE TABLE IF NOT EXISTS forward (
 	id BIGINT PRIMARY KEY,
-    auther BIGINT,
+    author BIGINT,
     from_channel BOOLEAN DEFAULT FALSE,
     channel_id BIGINT,
     FOREIGN KEY (channel_id) REFERENCES conversations(id)
 );
 
-CREATE TABLE messages (
+CREATE TABLE IF NOT EXISTS messages (
     id BIGINT PRIMARY KEY,
     conversation_id BIGINT,
     sender_id BIGINT,
@@ -88,7 +88,7 @@ CREATE TABLE messages (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     edited_at TIMESTAMP,
     is_deleted BOOLEAN DEFAULT FALSE,
-    view_count BIGINT,
+    view_count BIGINT DEFAULT 0,
     FOREIGN KEY (conversation_id) REFERENCES conversations(id),
     FOREIGN KEY (sender_id) REFERENCES users(id),
     FOREIGN KEY (media_id) REFERENCES media(id),
@@ -96,7 +96,7 @@ CREATE TABLE messages (
     FOREIGN KEY (forward_id) REFERENCES forward(id)
 );
 
-CREATE TABLE message_status (
+CREATE TABLE IF NOT EXISTS message_status (
     id BIGINT,
     user_id BIGINT,
     status ENUM('delivered', 'seen', 'failed') DEFAULT 'delivered',
@@ -106,7 +106,7 @@ CREATE TABLE message_status (
     FOREIGN KEY (user_id) REFERENCES users(id)
 );
 
-CREATE TABLE sessions (
+CREATE TABLE IF NOT EXISTS sessions (
     id BIGINT PRIMARY KEY,
     user_id BIGINT,
     device_info TEXT,

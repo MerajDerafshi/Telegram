@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ChoiceBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.shape.SVGPath?>
+<?import javafx.scene.text.Font?>
+
+<VBox fx:controller="Controllers.LoginStarterController" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" style="-fx-background-color: #17212B;" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" alignment="CENTER" spacing="10">
+   <children>
+      <Label text="Your Phone Number" textFill="WHITE">
+         <font>
+            <Font size="18.0" />
+         </font>
+      </Label>
+      <Label prefHeight="34.0" prefWidth="300.0" text="Please confirm your country code and enter your phone number." textFill="#636d78" textAlignment="CENTER" wrapText="true" />
+      <ChoiceBox fx:id= "countryComboBox" nodeOrientation="LEFT_TO_RIGHT" prefHeight="26.0" prefWidth="300.0" style="-fx-background-color: #636d78;" />
+      <HBox alignment="CENTER" prefHeight="75.0" prefWidth="600.0" spacing="10">
+         <children>
+            <TextField fx:id="countryCodeField" alignment="CENTER" editable="false" prefWidth="70" promptText="+98" style="-fx-background-color: #636d78;" />
+            <TextField fx:id="phoneNumberField" prefWidth="220" promptText="10-digit phone number" style="-fx-background-color: #636d78;" />
+         </children>
+      </HBox>
+      <Button fx:id="nextButton" onAction="#nextClicked" style="-fx-background-color: #2E6DA6;" text="Next" textFill="WHITE">
+         <padding>
+            <Insets bottom="10.0" left="140.0" right="140.0" top="10.0" />
+         </padding>
+      </Button>
+      <Label fx:id="errorLabel" textFill="RED" />
+   </children>
+</VBox>

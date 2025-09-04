@@ -1,0 +1,6 @@
+.root {
+    -fx-background-image: url("../img/blue2.gif");
+    -fx-background-position: center;
+    -fx-background-repeat: no-repeat;
+    -fx-background-size: cover, auto;
+    }
