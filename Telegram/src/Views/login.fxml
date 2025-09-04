@@ -10,7 +10,7 @@
 <?import javafx.scene.shape.SVGPath?>
 <?import javafx.scene.text.Font?>
 
-<VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" style="-fx-background-color: #17212B;" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1">
+<VBox fx:id="parent" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" styleClass="background-color" stylesheets="@../resources/css/lightMode.css" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1">
    <children>
       <HBox alignment="CENTER_LEFT" prefHeight="35.0" prefWidth="600.0">
          <children>
@@ -28,7 +28,7 @@
             <Insets />
          </VBox.margin>
          <children>
-            <Label prefHeight="18.0" prefWidth="300.0" text="Your Phone Number" textFill="WHITE">
+            <Label fx:id="label" prefHeight="18.0" prefWidth="300.0" text="Your Phone Number">
                <font>
                   <Font size="18.0" />
                </font>
@@ -41,7 +41,7 @@
          </children></HBox>
       <HBox alignment="CENTER" prefHeight="75.0" prefWidth="200.0">
          <children>
-            <ChoiceBox nodeOrientation="LEFT_TO_RIGHT" prefHeight="26.0" prefWidth="300.0" style="-fx-background-color: #636d78;">
+            <ChoiceBox nodeOrientation="LEFT_TO_RIGHT" prefHeight="26.0" prefWidth="300.0" style="-fx-background-color: #e7e7e7;">
                <HBox.margin>
                   <Insets />
                </HBox.margin>
@@ -52,7 +52,7 @@
          </children></HBox>
       <HBox alignment="CENTER_LEFT" prefHeight="75.0" prefWidth="600.0">
          <children>
-            <TextField alignment="CENTER" style="-fx-background-color: #636d78;">
+            <TextField alignment="CENTER" style="-fx-background-color: #e7e7e7;">
                <HBox.margin>
                   <Insets left="148.0" right="127.0" />
                </HBox.margin>
@@ -60,7 +60,7 @@
                   <Insets bottom="10.0" left="-35.0" right="-35.0" top="10.0" />
                </padding>
             </TextField>
-            <TextField style="-fx-background-color: #636d78;">
+            <TextField style="-fx-background-color: #e7e7e7;">
                <padding>
                   <Insets bottom="10.0" left="38.0" right="38.0" top="10.0" />
                </padding>
@@ -71,7 +71,7 @@
          </children></HBox>
       <HBox alignment="TOP_CENTER" prefHeight="100.0" prefWidth="600.0">
          <children>
-            <Button mnemonicParsing="false" style="-fx-background-color: #2E6DA6;" text="Next" textFill="WHITE">
+            <Button mnemonicParsing="false" style="-fx-background-color: #40a7e3;" text="Next" textFill="WHITE">
                <padding>
                   <Insets bottom="10.0" left="140.0" right="140.0" top="10.0" />
                </padding>
