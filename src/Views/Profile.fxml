@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.shape.SVGPath?>
+<?import javafx.scene.text.Font?>
+
+<Pane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="702.0" prefWidth="1006.0" style="-fx-background-color: #0E1621;" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controllers.ProfileController">
+   <children>
+      <HBox prefHeight="702.0" prefWidth="340.0" style="-fx-background-color: #17212B;">
+      </HBox>
+      <VBox layoutX="341.0" prefHeight="702.0" prefWidth="666.0">
+         <children>
+            <HBox alignment="CENTER" prefHeight="60.0" prefWidth="666.0" style="-fx-background-color: #17212B;">
+               <children>
+                  <Label prefHeight="26.0" prefWidth="126.0" text="Profile" textFill="WHITE">
+                     <font>
+                        <Font size="16.0" />
+                     </font>
+                     <HBox.margin>
+                        <Insets right="20.0" />
+                     </HBox.margin>
+                  </Label>
+                  <Pane prefHeight="60.0" HBox.hgrow="ALWAYS" />
+                  <Button onAction="#closeProfile" mnemonicParsing="false" prefHeight="40.0" prefWidth="40.0" style="-fx-background-color: rgb(0,0,0,0);">
+                     <graphic>
+                        <SVGPath content="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" fill="#768c9e" scaleX="1.2" scaleY="1.2" />
+                     </graphic>
+                  </Button>
+               </children>
+            </HBox>
+            <Pane prefHeight="642.0" prefWidth="666.0">
+               <children>
+                  <Pane prefHeight="192.0" prefWidth="666.0">
+                     <children>
+                        <VBox alignment="CENTER" layoutX="233.0" prefHeight="192.0" prefWidth="200.0">
+                           <children>
+                              <ImageView fx:id="profileImageView" fitHeight="150.0" fitWidth="150.0" pickOnBounds="true" preserveRatio="true" />
+                           </children>
+                        </VBox>
+                        <Button onAction="#changeProfilePicture" layoutX="433.0" layoutY="138.0" mnemonicParsing="false" prefHeight="40.0" prefWidth="40.0" style="-fx-background-color: #5eb5f7; -fx-background-radius: 20;">
+                           <graphic>
+                              <SVGPath content="M9.77778 21H14.2222C17.3433 21 18.9038 21 20.0248 20.2646C20.51 19.9462 20.9267 19.5371 21.251 19.0607C22 17.9601 22 16.4279 22 13.3636C22 10.2994 22 8.76721 21.251 7.6666C20.9267 7.19014 20.51 6.78104 20.0248 6.46268C19.3044 5.99013 18.4027 5.82123 17.022 5.76086C16.3631 5.76086 15.7959 5.27068 15.6667 4.63636C15.4728 3.68489 14.6219 3 13.6337 3H10.3663C9.37805 3 8.52715 3.68489 8.33333 4.63636C8.20412 5.27068 7.63685 5.76086 6.978 5.76086C5.59733 5.82123 4.69555 5.99013 3.97524 6.46268C3.48995 6.78104 3.07328 7.19014 2.74902 7.6666C2 8.76721 2 10.2994 2 13.3636C2 16.4279 2 17.9601 2.74902 19.0607C3.07328 19.5371 3.48995 19.9462 3.97524 20.2646C5.09624 21 6.65675 21 9.77778 21ZM12 9.27273C9.69881 9.27273 7.83333 11.1043 7.83333 13.3636C7.83333 15.623 9.69881 17.4545 12 17.4545C14.3012 17.4545 16.1667 15.623 16.1667 13.3636C16.1667 11.1043 14.3012 9.27273 12 9.27273ZM12 10.9091C10.6193 10.9091 9.5 12.008 9.5 13.3636C9.5 14.7192 10.6193 15.8182 12 15.8182C13.3807 15.8182 14.5 14.7192 14.5 13.3636C14.5 12.008 13.3807 10.9091 12 10.9091ZM16.7222 10.0909C16.7222 9.63904 17.0953 9.27273 17.5556 9.27273H18.6667C19.1269 9.27273 19.5 9.63904 19.5 10.0909C19.5 10.5428 19.1269 10.9091 18.6667 10.9091H17.5556C17.0953 10.9091 16.7222 10.5428 16.7222 10.0909Z" fill="WHITE" fillRule="EVEN_ODD" />
+                           </graphic>
+                        </Button>
+                     </children>
+                  </Pane>
+
+                  <TextField fx:id="bioField" alignment="CENTER" layoutX="33.0" layoutY="192.0" prefHeight="60.0" prefWidth="600.0" promptText="Bio" style="-fx-background-color: transparent; -fx-text-fill: white;" />
+                  <TextField fx:id="nameField" alignment="CENTER" layoutX="33.0" layoutY="252.0" prefHeight="60.0" prefWidth="600.0" promptText="Name" style="-fx-background-color: transparent; -fx-text-fill: white;" />
+                  <TextField fx:id="phoneField" alignment="CENTER" layoutX="33.0" layoutY="312.0" prefHeight="60.0" prefWidth="600.0" promptText="Phone Number" style="-fx-background-color: transparent; -fx-text-fill: #999999;" />
+                  <TextField fx:id="usernameField" alignment="CENTER" layoutX="33.0" layoutY="372.0" prefHeight="60.0" prefWidth="600.0" promptText="Username" style="-fx-background-color: transparent; -fx-text-fill: white;" />
+                  <TextField fx:id="passwordField" alignment="CENTER" layoutX="33.0" layoutY="432.0" prefHeight="60.0" prefWidth="600.0" promptText="Password" style="-fx-background-color: transparent; -fx-text-fill: white;" />
+                  <Label fx:id="statusLabel" layoutX="283.0" layoutY="500.0" textFill="#4CAF50"/>
+                  <Button onAction="#saveProfileChanges" layoutX="258.0" layoutY="530.0" text="Save Changes" style="-fx-background-color: #5eb5f7;" textFill="WHITE" prefWidth="150" />
+               </children>
+            </Pane>
+         </children>
+      </VBox>
+   </children>
+</Pane>
+
