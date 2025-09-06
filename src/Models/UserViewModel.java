@@ -7,16 +7,21 @@ import javafx.scene.image.Image;
 
 
 public class UserViewModel {
-    public String userName; // This will be the display name (e.g., first_name)
-    public String phone;    // This is the unique identifier for communication
+    public String firstName; // The user's first name for display
+    public String username; // The unique username
+    public String phone;
     public SimpleStringProperty lastMessage;
     public SimpleStringProperty time;
     public SimpleStringProperty notificationsNumber;
     public Image avatarImage;
     public ObservableList<MessageViewModel> messagesList;
 
-    public UserViewModel(String userName, String phone, String lastMessage, String time, String notificationsNumber, Image avatarImage) {
-        this.userName = userName;
+    /**
+     * Constructor for users displayed in the list.
+     */
+    public UserViewModel(String firstName, String username, String phone, String lastMessage, String time, String notificationsNumber, Image avatarImage) {
+        this.firstName = firstName;
+        this.username = username;
         this.phone = phone;
         this.lastMessage = new SimpleStringProperty(lastMessage);
         this.time = new SimpleStringProperty(time);
@@ -25,17 +30,31 @@ public class UserViewModel {
         messagesList = FXCollections.observableArrayList();
     }
 
+    /**
+     * Simplified constructor for the local user object.
+     */
+    public UserViewModel(String firstName, String username, String phone, Image avatarImage) {
+        this.firstName = firstName;
+        this.username = username;
+        this.phone = phone;
+        this.lastMessage = new SimpleStringProperty("");
+        this.time = new SimpleStringProperty("");
+        this.notificationsNumber = new SimpleStringProperty("0");
+        this.avatarImage = avatarImage;
+        messagesList = FXCollections.observableArrayList();
+    }
 
-    public String getUserName() {
-        return userName;
+
+    public String getFirstName() {
+        return firstName;
+    }
+
+    public String getUsername() {
+        return username;
     }
 
     public String getPhone() {
         return phone;
-    }
-
-    public void setUserName(String userName) {
-        this.userName = userName;
     }
 
     public String getLastMessage() {
@@ -44,10 +63,6 @@ public class UserViewModel {
 
     public SimpleStringProperty lastMessageProperty() {
         return lastMessage;
-    }
-
-    public void setLastMessage(String lastMessage) {
-        this.lastMessage.set(lastMessage);
     }
 
     public SimpleStringProperty timeProperty() {
@@ -62,16 +77,9 @@ public class UserViewModel {
         return notificationsNumber;
     }
 
-    public void setNotificationsNumber(String notificationsNumber) {
-        this.notificationsNumber.set(notificationsNumber);
-    }
-
     public Image getAvatarImage() {
         return avatarImage;
     }
 
-    public void setAvatarImage(Image avatarImage) {
-        this.avatarImage = avatarImage;
-    }
-
 }
+

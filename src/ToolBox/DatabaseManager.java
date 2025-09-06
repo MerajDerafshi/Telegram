@@ -31,7 +31,6 @@ public class DatabaseManager {
     public static final class User {
         public final long id;
         public final String firstName;
-        // ... (rest of User class is unchanged)
         public final String lastName;
         public final String username;
         public final String country;
@@ -73,6 +72,59 @@ public class DatabaseManager {
             this.mimeType = mimeType;
         }
     }
+
+    public static boolean deleteMessage(long messageId) {
+        // First, get the media_id before deleting the message
+        String selectMediaSql = "SELECT media_id FROM messages WHERE id = ?";
+        String deleteMessageSql = "DELETE FROM messages WHERE id = ?";
+        String deleteMediaSql = "DELETE FROM media WHERE id = ?";
+
+        try (Connection conn = getConnection()) {
+            conn.setAutoCommit(false); // Start transaction
+
+            Long mediaId = null;
+            try (PreparedStatement psSelect = conn.prepareStatement(selectMediaSql)) {
+                psSelect.setLong(1, messageId);
+                ResultSet rs = psSelect.executeQuery();
+                if (rs.next()) {
+                    mediaId = rs.getLong("media_id");
+                    if (rs.wasNull()) {
+                        mediaId = null;
+                    }
+                }
+            }
+
+            // Delete the message
+            try (PreparedStatement psDeleteMsg = conn.prepareStatement(deleteMessageSql)) {
+                psDeleteMsg.setLong(1, messageId);
+                int affectedRows = psDeleteMsg.executeUpdate();
+                if (affectedRows == 0) {
+                    conn.rollback();
+                    return false; // Message not found
+                }
+            }
+
+            // If there was associated media, delete it
+            if (mediaId != null) {
+                try (PreparedStatement psDeleteMedia = conn.prepareStatement(deleteMediaSql)) {
+                    psDeleteMedia.setLong(1, mediaId);
+                    psDeleteMedia.executeUpdate();
+                }
+            }
+
+            conn.commit(); // Commit transaction
+            return true;
+        } catch (SQLException e) {
+            logSql("deleteMessage", e);
+            try (Connection conn = getConnection()) {
+                if (conn != null) conn.rollback();
+            } catch (SQLException ex) {
+                logSql("deleteMessageRollback", ex);
+            }
+            return false;
+        }
+    }
+
 
     public static List<User> getAllUsers(String currentUserPhone) {
         List<User> users = new ArrayList<>();
@@ -254,7 +306,6 @@ public class DatabaseManager {
         }
         return messages;
     }
-    // ... (rest of DatabaseManager is unchanged)
     public static boolean userExists(String phoneNumber) {
         String sql = "SELECT COUNT(*) FROM users WHERE phone = ?";
         try (Connection conn = getConnection();

@@ -3,6 +3,7 @@ package Controllers;
 import Models.MessageViewModel;
 import Models.UserViewModel;
 import ToolBox.DatabaseManager;
+import ToolBox.DeleteMessage;
 import ToolBox.FileMessage;
 import ToolBox.ImageMessage;
 import ToolBox.NetworkConnection;
@@ -15,6 +16,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TextField;
@@ -42,6 +44,7 @@ public class UserChatController implements Initializable {
     @FXML private Label chatRoomNameLabel;
     @FXML private TextField messageField;
     @FXML private ListView<MessageViewModel> messagesListView;
+    @FXML private Button logoutButton;
 
     private NetworkConnection connection;
     private UserViewModel currentlySelectedUser;
@@ -72,13 +75,17 @@ public class UserChatController implements Initializable {
             prefWidthProperty().bind(usersListView.widthProperty());
         }});
 
-        chatRoomNameLabel.setText(selectedUser.getUserName());
+        chatRoomNameLabel.setText(selectedUser.getFirstName());
 
         loadMessageHistory();
 
-        messagesListView.setCellFactory(param -> new MessageCustomCellController() {{
-            prefWidthProperty().bind(messagesListView.widthProperty());
-        }});
+        messagesListView.setCellFactory(param -> {
+            MessageCustomCellController cell = new MessageCustomCellController();
+            cell.prefWidthProperty().bind(messagesListView.widthProperty());
+            // Set the callback for the delete action
+            cell.deleteCallback = () -> deleteMessage(cell.getItem());
+            return cell;
+        });
 
         scrollToBottom();
     }
@@ -95,16 +102,37 @@ public class UserChatController implements Initializable {
             if (msg.mediaData != null && msg.mimeType != null) {
                 if (msg.mimeType.startsWith("image/")) {
                     Image image = new Image(new ByteArrayInputStream(msg.mediaData));
-                    currentlySelectedUser.messagesList.add(new MessageViewModel("📷 image", time, isOutgoing, true, image));
+                    currentlySelectedUser.messagesList.add(new MessageViewModel(msg.id, "📷 image", time, isOutgoing, image));
                 } else {
-                    currentlySelectedUser.messagesList.add(new MessageViewModel(msg.fileName, msg.mediaData, time, isOutgoing));
+                    currentlySelectedUser.messagesList.add(new MessageViewModel(msg.id, msg.fileName, msg.mediaData, time, isOutgoing));
                 }
             } else if (msg.content != null){
-                currentlySelectedUser.messagesList.add(new MessageViewModel(msg.content, time, isOutgoing, false, null));
+                currentlySelectedUser.messagesList.add(new MessageViewModel(msg.id, msg.content, time, isOutgoing));
             }
         }
         messagesListView.setItems(currentlySelectedUser.messagesList);
     }
+
+    private void deleteMessage(MessageViewModel messageVM) {
+        if (messageVM == null) return;
+
+        // 1. Delete from Database
+        boolean success = DatabaseManager.deleteMessage(messageVM.messageId);
+
+        if (success) {
+            // 2. Remove from local UI
+            currentlySelectedUser.messagesList.remove(messageVM);
+
+            // 3. Send delete instruction to the other user
+            try {
+                DeleteMessage deleteInstruction = new DeleteMessage(messageVM.messageId, localUser.getPhone(), currentlySelectedUser.getPhone());
+                connection.sendData(deleteInstruction);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
 
     private void openChatView(UserViewModel selectedUser) {
         try {
@@ -129,7 +157,7 @@ public class UserChatController implements Initializable {
                     if (senderUser == null || !imgMsg.receiver.equals(localUser.getPhone())) return;
 
                     Image fxImage = new Image(new ByteArrayInputStream(imgMsg.imageData));
-                    MessageViewModel imageMsg = new MessageViewModel("📷 image", imgMsg.timestamp, false, true, fxImage);
+                    MessageViewModel imageMsg = new MessageViewModel(-1, "📷 image", imgMsg.timestamp, false, fxImage);
                     senderUser.messagesList.add(imageMsg);
 
                 } else if (data instanceof FileMessage) {
@@ -137,7 +165,7 @@ public class UserChatController implements Initializable {
                     UserViewModel senderUser = findUserByPhone(fileMsg.sender);
                     if (senderUser == null || !fileMsg.receiver.equals(localUser.getPhone())) return;
 
-                    MessageViewModel fileModel = new MessageViewModel(fileMsg.fileName, fileMsg.fileData, fileMsg.timestamp, false);
+                    MessageViewModel fileModel = new MessageViewModel(-1, fileMsg.fileName, fileMsg.fileData, fileMsg.timestamp, false);
                     senderUser.messagesList.add(fileModel);
 
                 } else if (data instanceof TextMessage) {
@@ -146,8 +174,16 @@ public class UserChatController implements Initializable {
                     UserViewModel senderUser = findUserByPhone(textMsg.sender);
                     if(senderUser == null) return;
 
-                    MessageViewModel newMsg = new MessageViewModel(textMsg.content, textMsg.timestamp, false, false, null);
+                    MessageViewModel newMsg = new MessageViewModel(-1, textMsg.content, textMsg.timestamp, false);
                     senderUser.messagesList.add(newMsg);
+
+                } else if (data instanceof DeleteMessage) {
+                    DeleteMessage deleteMsg = (DeleteMessage) data;
+                    // Find the user whose message is being deleted
+                    UserViewModel relevantUser = findUserByPhone(deleteMsg.senderPhone);
+                    if (relevantUser != null) {
+                        relevantUser.messagesList.removeIf(msg -> msg.messageId == deleteMsg.messageId);
+                    }
                 }
 
                 if (messagesListView != null) messagesListView.refresh();
@@ -176,15 +212,16 @@ public class UserChatController implements Initializable {
 
         try {
             String currentTime = getCurrentTime();
-            currentlySelectedUser.messagesList.add(new MessageViewModel(message, currentTime, true, false, null));
+            DatabaseManager.saveMessage(localUser.getPhone(), currentlySelectedUser.getPhone(), message, null);
+
+            // Reload to get the new message
+            loadMessageHistory();
+            scrollToBottom();
 
             TextMessage textMessage = new TextMessage(message, localUser.getPhone(), currentlySelectedUser.getPhone(), currentTime);
             connection.sendData(textMessage);
 
-            DatabaseManager.saveMessage(localUser.getPhone(), currentlySelectedUser.getPhone(), message, null);
-
             messageField.clear();
-            scrollToBottom();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -216,23 +253,37 @@ public class UserChatController implements Initializable {
             long mediaId = mediaIdOpt.get();
 
             if (mimeType.startsWith("image/")) {
-                Image image = new Image(new ByteArrayInputStream(fileBytes));
-                currentlySelectedUser.messagesList.add(new MessageViewModel("📷 image", timestamp, true, true, image));
                 ImageMessage imageMessage = new ImageMessage(fileBytes, localUser.getPhone(), currentlySelectedUser.getPhone(), timestamp);
                 connection.sendData(imageMessage);
             } else {
-                currentlySelectedUser.messagesList.add(new MessageViewModel(fileName, fileBytes, timestamp, true));
                 FileMessage fileMessage = new FileMessage(fileBytes, fileName, localUser.getPhone(), currentlySelectedUser.getPhone(), timestamp);
                 connection.sendData(fileMessage);
             }
 
             DatabaseManager.saveMessage(localUser.getPhone(), currentlySelectedUser.getPhone(), null, mediaId);
+            loadMessageHistory();
             scrollToBottom();
 
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
+
+    @FXML
+    void logoutClicked(ActionEvent event) {
+        try {
+            if (connection != null) {
+                connection.closeConnection();
+            }
+            Parent root = FXMLLoader.load(getClass().getResource("../Views/loginStarter.fxml"));
+            Stage stage = (Stage) logoutButton.getScene().getWindow();
+            stage.setScene(new Scene(root));
+            stage.show();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
 
     private String getMimeType(String fileName) {
         String extension = fileName.substring(fileName.lastIndexOf(".") + 1).toLowerCase();

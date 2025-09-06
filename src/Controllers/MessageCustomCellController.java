@@ -3,7 +3,6 @@ package Controllers;
 import Models.MessageViewModel;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.scene.control.Button;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
@@ -22,6 +21,9 @@ public class MessageCustomCellController extends ListCell<MessageViewModel> {
     @FXML private ImageView imageView;
     @FXML private Label messageLabel;
     @FXML private Label messageTimeLabel;
+
+    // This will be set by the UserChatController
+    public Runnable deleteCallback;
 
     @Override
     protected void updateItem(MessageViewModel item, boolean empty) {
@@ -61,22 +63,30 @@ public class MessageCustomCellController extends ListCell<MessageViewModel> {
                 imageView.setImage(item.getImage());
             }
 
-            // Right-click menu for file messages
-            if (item.isFile && messageLabel != null) {
-                ContextMenu contextMenu = new ContextMenu();
 
-                MenuItem download = new MenuItem("📥 Download");
+            ContextMenu contextMenu = new ContextMenu();
+            MenuItem deleteItem = new MenuItem("❌ Delete");
+            deleteItem.setOnAction(e -> {
+                if (deleteCallback != null) {
+                    deleteCallback.run();
+                }
+            });
+            contextMenu.getItems().add(deleteItem);
+
+
+            if (item.isFile) {
+                MenuItem download = new MenuItem("📥Download");
                 download.setOnAction(e -> saveFile(item.fileName, item.fileData));
 
                 if (item.fileName.toLowerCase().endsWith(".pdf")) {
-                    MenuItem open = new MenuItem("👁️ Open PDF");
+                    MenuItem open = new MenuItem("👁️Open PDF");
                     open.setOnAction(e -> openPdf(item.fileName, item.fileData));
-                    contextMenu.getItems().add(open);
+                    contextMenu.getItems().add(0, open);
                 }
-
-                contextMenu.getItems().add(download);
-                root.setOnContextMenuRequested(e -> contextMenu.show(root, e.getScreenX(), e.getScreenY()));
+                contextMenu.getItems().add(0, download);
             }
+
+            root.setOnContextMenuRequested(e -> contextMenu.show(root, e.getScreenX(), e.getScreenY()));
 
             setGraphic(root);
 

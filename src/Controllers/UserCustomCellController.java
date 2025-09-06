@@ -48,7 +48,7 @@ public class UserCustomCellController extends ListCell<UserViewModel> {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            userNameLabel.setText(String.valueOf(item.getUserName()));
+            userNameLabel.setText(String.valueOf(item.getFirstName()));
             lastMessageLabel.setText(String.valueOf(item.getLastMessage()));
             messageTimeLabel.textProperty().bind(item.time);
             if (!item.getNotificationsNumber().matches("0")) {

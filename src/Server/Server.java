@@ -1,5 +1,6 @@
 package Server;
 
+import ToolBox.DeleteMessage;
 import ToolBox.TextMessage;
 
 import java.io.*;
@@ -85,6 +86,10 @@ public class Server {
                         ToolBox.FileMessage fileMsg = (ToolBox.FileMessage) receivedObject;
                         System.out.println("[File Received] from " + fileMsg.sender + " to " + fileMsg.receiver);
                         Server.sendToClient(fileMsg.receiver, fileMsg);
+                    } else if (receivedObject instanceof DeleteMessage) {
+                        DeleteMessage deleteMsg = (DeleteMessage) receivedObject;
+                        System.out.println("[Delete Request] from " + deleteMsg.senderPhone + " for message " + deleteMsg.messageId);
+                        Server.sendToClient(deleteMsg.receiverPhone, deleteMsg);
                     } else {
                         System.out.println("[Unknown Data Type Received] from " + userPhone + ": " + receivedObject.getClass().getName());
                     }
@@ -109,3 +114,4 @@ public class Server {
         }
     }
 }
+
