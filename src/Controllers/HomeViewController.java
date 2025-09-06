@@ -62,7 +62,7 @@ public class HomeViewController implements Initializable {
             usersList.add(new UserViewModel(user.firstName, user.phone, "Click to chat", getCurrentTime(), "0", userImage));
         }
 
-        connection = new NetworkConnection(this::handleIncomingData, "127.0.0.1", false, 8080, userPhone);
+        connection = new NetworkConnection(this::handleIncomingData, "127.0.0.1", false, 55555, userPhone);
         connection.openConnection();
     }
 

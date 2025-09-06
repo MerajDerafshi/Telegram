@@ -1,13 +1,15 @@
 package Server;
 
+import ToolBox.TextMessage;
+
 import java.io.*;
 import java.net.*;
 import java.util.*;
 import java.util.concurrent.*;
 
 public class Server {
-    private static final int PORT = 8080;
-    private static Map<String, ClientHandler> clients = new ConcurrentHashMap<>();
+    private static final int PORT = 55555;
+    private static final Map<String, ClientHandler> clients = new ConcurrentHashMap<>();
 
     public static void main(String[] args) {
         System.out.println("Server started on port: " + PORT);
@@ -28,7 +30,7 @@ public class Server {
         if (receiverHandler != null) {
             receiverHandler.sendMessage(data);
         } else {
-            System.out.println("Could not find client: " + receiver);
+            System.out.println("Could not find client: " + receiver + ". User may be offline.");
         }
     }
 
@@ -36,7 +38,7 @@ public class Server {
         private Socket socket;
         private ObjectInputStream in;
         private ObjectOutputStream out;
-        private String userName;
+        private String userPhone;
 
         public ClientHandler(Socket socket) {
             this.socket = socket;
@@ -49,7 +51,7 @@ public class Server {
                     out.flush();
                 }
             } catch (IOException e) {
-                System.err.println("Error sending message to " + userName + ": " + e.getMessage());
+                System.err.println("Error sending message to " + userPhone + ": " + e.getMessage());
             }
         }
 
@@ -61,9 +63,9 @@ public class Server {
 
                 String initMsg = (String) in.readObject();
                 if (initMsg.startsWith("INIT>")) {
-                    userName = initMsg.split(">")[1];
-                    clients.put(userName, this);
-                    System.out.println(userName + " has joined the chat.");
+                    userPhone = initMsg.split(">")[1];
+                    clients.put(userPhone, this);
+                    System.out.println(userPhone + " has joined the chat.");
                 } else {
                     System.err.println("Initialization failed for client: " + socket.getInetAddress());
                     return;
@@ -71,13 +73,10 @@ public class Server {
 
                 Object receivedObject;
                 while ((receivedObject = in.readObject()) != null) {
-                    if (receivedObject instanceof String) {
-                        String msg = (String) receivedObject;
-                        System.out.println("[Text Received] from " + userName + ": " + msg);
-                        String[] parts = msg.split(">");
-                        if (parts.length >= 4 && parts[0].equals("text")) {
-                            Server.sendToClient(parts[2], msg);
-                        }
+                    if (receivedObject instanceof TextMessage) {
+                        TextMessage textMsg = (TextMessage) receivedObject;
+                        System.out.println("[Text Received] from " + textMsg.sender + " to " + textMsg.receiver);
+                        Server.sendToClient(textMsg.receiver, textMsg);
                     } else if (receivedObject instanceof ToolBox.ImageMessage) {
                         ToolBox.ImageMessage imgMsg = (ToolBox.ImageMessage) receivedObject;
                         System.out.println("[Image Received] from " + imgMsg.sender + " to " + imgMsg.receiver);
@@ -87,17 +86,17 @@ public class Server {
                         System.out.println("[File Received] from " + fileMsg.sender + " to " + fileMsg.receiver);
                         Server.sendToClient(fileMsg.receiver, fileMsg);
                     } else {
-                        System.out.println("[Unknown Data Type Received] from " + userName + ": " + receivedObject.getClass().getName());
+                        System.out.println("[Unknown Data Type Received] from " + userPhone + ": " + receivedObject.getClass().getName());
                     }
                 }
             } catch (EOFException e) {
-                System.out.println("Client " + (userName != null ? userName : socket.getInetAddress()) + " has disconnected.");
+                System.out.println("Client " + (userPhone != null ? userPhone : socket.getInetAddress()) + " has disconnected.");
             } catch (IOException | ClassNotFoundException e) {
-                System.err.println("An error occurred with client " + (userName != null ? userName : "") + ": " + e.getMessage());
+                System.err.println("An error occurred with client " + (userPhone != null ? userPhone : "") + ": " + e.getMessage());
             } finally {
-                if (userName != null) {
-                    clients.remove(userName);
-                    System.out.println(userName + " has been removed from the client list.");
+                if (userPhone != null) {
+                    clients.remove(userPhone);
+                    System.out.println(userPhone + " has been removed from the client list.");
                 }
                 try {
                     if (socket != null && !socket.isClosed()) {

@@ -2,7 +2,9 @@ package Controllers;
 
 import Models.MessageViewModel;
 import Models.UserViewModel;
+import ToolBox.DatabaseManager;
 import ToolBox.NetworkConnection;
+import ToolBox.TextMessage;
 import javafx.application.Platform;
 import javafx.collections.ObservableList;
 import javafx.embed.swing.SwingFXUtils;
@@ -17,17 +19,16 @@ import javafx.scene.control.ListView;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.input.MouseEvent;
-import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.Serializable;
 import java.net.URL;
+import java.text.SimpleDateFormat;
+import java.util.List;
 import java.util.ResourceBundle;
 
 import static ToolBox.Utilities.getCurrentTime;
@@ -44,6 +45,7 @@ public class UserChatController implements Initializable {
     private UserViewModel currentlySelectedUser;
     private UserViewModel localUser;
     private ObservableList<UserViewModel> allUsersList;
+    private long localUserId;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -62,18 +64,34 @@ public class UserChatController implements Initializable {
         this.connection = connection;
         this.connection.receiveCallback = this::handleIncomingData;
 
+        DatabaseManager.getUserId(localUser.getPhone()).ifPresent(id -> this.localUserId = id);
+
         usersListView.setItems(allUsersList);
         usersListView.setCellFactory(param -> new UserCustomCellController() {{
             prefWidthProperty().bind(usersListView.widthProperty());
         }});
 
         chatRoomNameLabel.setText(selectedUser.getUserName());
-        messagesListView.setItems(selectedUser.messagesList);
+
+        loadMessageHistory();
+
         messagesListView.setCellFactory(param -> new MessageCustomCellController() {{
             prefWidthProperty().bind(messagesListView.widthProperty());
         }});
 
         scrollToBottom();
+    }
+
+    private void loadMessageHistory() {
+        List<DatabaseManager.Message> history = DatabaseManager.loadMessages(localUser.getPhone(), currentlySelectedUser.getPhone());
+        currentlySelectedUser.messagesList.clear();
+        SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm");
+        for(DatabaseManager.Message msg : history) {
+            boolean isOutgoing = msg.senderId == localUserId;
+            String time = timeFormat.format(msg.createdAt);
+            currentlySelectedUser.messagesList.add(new MessageViewModel(msg.content, time, isOutgoing, false, null));
+        }
+        messagesListView.setItems(currentlySelectedUser.messagesList);
     }
 
     private void openChatView(UserViewModel selectedUser) {
@@ -113,18 +131,14 @@ public class UserChatController implements Initializable {
                     MessageViewModel fileModel = new MessageViewModel(fileMsg.fileName, fileMsg.fileData, fileMsg.timestamp, false);
                     senderUser.messagesList.add(fileModel);
 
-                } else if (data instanceof String) {
-                    String msg = (String) data;
-                    if (msg.startsWith("SYSTEM_STATUS:")) return;
-
-                    String[] parts = msg.split(">");
-                    if (parts.length < 4 || !parts[2].equals(localUser.getPhone())) return;
-                    UserViewModel senderUser = findUserByPhone(parts[1]);
+                } else if (data instanceof TextMessage) {
+                    TextMessage textMsg = (TextMessage) data;
+                    if (!textMsg.receiver.equals(localUser.getPhone())) return;
+                    UserViewModel senderUser = findUserByPhone(textMsg.sender);
                     if(senderUser == null) return;
 
-                    String content = parts[3];
-                    MessageViewModel textMsg = new MessageViewModel(content, getCurrentTime(), false, false, null);
-                    senderUser.messagesList.add(textMsg);
+                    MessageViewModel newMsg = new MessageViewModel(textMsg.content, textMsg.timestamp, false, false, null);
+                    senderUser.messagesList.add(newMsg);
                 }
 
                 if (messagesListView != null) messagesListView.refresh();
@@ -154,9 +168,18 @@ public class UserChatController implements Initializable {
         }
 
         try {
+            String currentTime = getCurrentTime();
+            // 1. Add to UI
             currentlySelectedUser.messagesList.add(
-                    new MessageViewModel(message, getCurrentTime(), true, false, null));
-            connection.sendData("text>" + localUser.getPhone() + ">" + currentlySelectedUser.getPhone() + ">" + message);
+                    new MessageViewModel(message, currentTime, true, false, null));
+
+            // 2. Send over network
+            TextMessage textMessage = new TextMessage(message, localUser.getPhone(), currentlySelectedUser.getPhone(), currentTime);
+            connection.sendData(textMessage);
+
+            // 3. Save to database
+            DatabaseManager.saveTextMessage(localUser.getPhone(), currentlySelectedUser.getPhone(), message);
+
             messageField.clear();
             scrollToBottom();
         } catch (IOException e) {
@@ -166,7 +189,6 @@ public class UserChatController implements Initializable {
 
     @FXML
     void attachFile(MouseEvent event) {
-
     }
 
     private UserViewModel findUserByPhone(String phone) {
