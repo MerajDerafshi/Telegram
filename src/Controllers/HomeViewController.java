@@ -1,6 +1,7 @@
 package Controllers;
 
 import Models.UserViewModel;
+import ToolBox.DatabaseManager;
 import ToolBox.NetworkConnection;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
@@ -17,6 +18,7 @@ import javafx.stage.Stage;
 import java.io.IOException;
 import java.io.Serializable;
 import java.net.URL;
+import java.util.List;
 import java.util.ResourceBundle;
 
 import static ToolBox.Utilities.getCurrentTime;
@@ -46,13 +48,21 @@ public class HomeViewController implements Initializable {
 
 
     private void setupUserAndConnection() {
-        localUser = new UserViewModel(LogInController.userName, "message", getCurrentTime(), "0", userImage);
-        usersList.addAll(
-                new UserViewModel("Meraj", "Hey!", getCurrentTime(), "1", userImage),
-                new UserViewModel("Amin", "Yo", getCurrentTime(), "0", userImage)
-        );
+        String userPhone = LogInController.userName;
+        DatabaseManager.User dbUser = DatabaseManager.getUserByPhone(userPhone).orElse(null);
+        if (dbUser != null) {
+            localUser = new UserViewModel(dbUser.firstName, dbUser.phone, "message", getCurrentTime(), "0", userImage);
+        } else {
+            localUser = new UserViewModel(userPhone, userPhone, "message", getCurrentTime(), "0", userImage);
+        }
 
-        connection = new NetworkConnection(this::handleIncomingData, "127.0.0.1", false, 8080, LogInController.userName);
+
+        List<DatabaseManager.User> allDbUsers = DatabaseManager.getAllUsers(userPhone);
+        for (DatabaseManager.User user : allDbUsers) {
+            usersList.add(new UserViewModel(user.firstName, user.phone, "Click to chat", getCurrentTime(), "0", userImage));
+        }
+
+        connection = new NetworkConnection(this::handleIncomingData, "127.0.0.1", false, 8080, userPhone);
         connection.openConnection();
     }
 
@@ -62,6 +72,7 @@ public class HomeViewController implements Initializable {
             prefWidthProperty().bind(usersListView.widthProperty());
         }});
 
+        // Add listener to switch scenes when a user is selected
         usersListView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue != null) {
                 openChatView(newValue);
@@ -73,7 +84,6 @@ public class HomeViewController implements Initializable {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("../Views/userChat.fxml"));
             Parent root = loader.load();
-
 
             UserChatController controller = loader.getController();
             controller.initData(selectedUser, localUser, usersList, connection);

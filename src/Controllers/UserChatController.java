@@ -17,10 +17,14 @@ import javafx.scene.control.ListView;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.input.MouseEvent;
+import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.Serializable;
 import java.net.URL;
@@ -31,8 +35,7 @@ import static ToolBox.Utilities.getCurrentTime;
 
 public class UserChatController implements Initializable {
 
-    // --- FXML Components ---
-    @FXML private ListView<UserViewModel> usersListView; // Left panel
+    @FXML private ListView<UserViewModel> usersListView;
     @FXML private Label chatRoomNameLabel;
     @FXML private TextField messageField;
     @FXML private ListView<MessageViewModel> messagesListView;
@@ -57,9 +60,8 @@ public class UserChatController implements Initializable {
         this.localUser = localUser;
         this.allUsersList = allUsers;
         this.connection = connection;
-
-
         this.connection.receiveCallback = this::handleIncomingData;
+
         usersListView.setItems(allUsersList);
         usersListView.setCellFactory(param -> new UserCustomCellController() {{
             prefWidthProperty().bind(usersListView.widthProperty());
@@ -94,8 +96,8 @@ public class UserChatController implements Initializable {
             try {
                 if (data instanceof ToolBox.ImageMessage) {
                     ToolBox.ImageMessage imgMsg = (ToolBox.ImageMessage) data;
-                    UserViewModel senderUser = findUserByName(imgMsg.sender);
-                    if (senderUser == null || !imgMsg.receiver.equals(localUser.getUserName())) return;
+                    UserViewModel senderUser = findUserByPhone(imgMsg.sender);
+                    if (senderUser == null || !imgMsg.receiver.equals(localUser.getPhone())) return;
 
                     ByteArrayInputStream bais = new ByteArrayInputStream(imgMsg.imageData);
                     BufferedImage bufferedImage = ImageIO.read(bais);
@@ -105,8 +107,8 @@ public class UserChatController implements Initializable {
 
                 } else if (data instanceof ToolBox.FileMessage) {
                     ToolBox.FileMessage fileMsg = (ToolBox.FileMessage) data;
-                    UserViewModel senderUser = findUserByName(fileMsg.sender);
-                    if (senderUser == null || !fileMsg.receiver.equals(localUser.getUserName())) return;
+                    UserViewModel senderUser = findUserByPhone(fileMsg.sender);
+                    if (senderUser == null || !fileMsg.receiver.equals(localUser.getPhone())) return;
 
                     MessageViewModel fileModel = new MessageViewModel(fileMsg.fileName, fileMsg.fileData, fileMsg.timestamp, false);
                     senderUser.messagesList.add(fileModel);
@@ -116,14 +118,15 @@ public class UserChatController implements Initializable {
                     if (msg.startsWith("SYSTEM_STATUS:")) return;
 
                     String[] parts = msg.split(">");
-                    if (parts.length < 4 || !parts[2].equals(localUser.getUserName())) return;
-                    UserViewModel senderUser = findUserByName(parts[1]);
+                    if (parts.length < 4 || !parts[2].equals(localUser.getPhone())) return;
+                    UserViewModel senderUser = findUserByPhone(parts[1]);
                     if(senderUser == null) return;
 
                     String content = parts[3];
                     MessageViewModel textMsg = new MessageViewModel(content, getCurrentTime(), false, false, null);
                     senderUser.messagesList.add(textMsg);
                 }
+
                 if (messagesListView != null) messagesListView.refresh();
                 scrollToBottom();
 
@@ -153,7 +156,7 @@ public class UserChatController implements Initializable {
         try {
             currentlySelectedUser.messagesList.add(
                     new MessageViewModel(message, getCurrentTime(), true, false, null));
-            connection.sendData("text>" + localUser.getUserName() + ">" + currentlySelectedUser.getUserName() + ">" + message);
+            connection.sendData("text>" + localUser.getPhone() + ">" + currentlySelectedUser.getPhone() + ">" + message);
             messageField.clear();
             scrollToBottom();
         } catch (IOException e) {
@@ -166,9 +169,9 @@ public class UserChatController implements Initializable {
 
     }
 
-    private UserViewModel findUserByName(String username) {
+    private UserViewModel findUserByPhone(String phone) {
         for (UserViewModel user : allUsersList) {
-            if (user.getUserName().equals(username)) {
+            if (user.getPhone().equals(phone)) {
                 return user;
             }
         }

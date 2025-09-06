@@ -1,4 +1,4 @@
-package Controllers;
+/* package Controllers;
 
 import Models.UserViewModel;
 import Models.MessageViewModel;
@@ -46,11 +46,7 @@ public class HomeController implements Initializable {
     public void initialize(URL location, ResourceBundle resources) {
         localUser = new UserViewModel(LogInController.userName, "message", getCurrentTime(), "0", userImage);
         userNameLabel.setText(localUser.getUserName());
-        //examples for testing, not actual users
-        usersList.addAll(
-                new UserViewModel("Meraj", "Hey!", getCurrentTime(), "1", userImage),
-                new UserViewModel("Amin", "Yo", getCurrentTime(), "0", userImage)
-        );
+
 
         usersListView.setItems(usersList);
         usersListView.setCellFactory(param -> new UserCustomCellController() {{
@@ -70,7 +66,7 @@ public class HomeController implements Initializable {
         });
 
         connection = new NetworkConnection(data -> Platform.runLater(() -> handleIncomingData(data)),
-                "127.0.0.1", false, 55555, LogInController.userName);
+                "127.0.0.1", false, 8080, LogInController.userName);
         connection.openConnection();
 
         usersListView.getSelectionModel().select(0);
@@ -248,3 +244,4 @@ public class HomeController implements Initializable {
     @FXML void slideMenuClicked(MouseEvent event) {}
     @FXML void smileyButtonClicked(MouseEvent event) {}
 }
+*/

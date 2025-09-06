@@ -1,22 +1,23 @@
 package Models;
 
 import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.image.Image;
 
 
 public class UserViewModel {
-    public String userName;
+    public String userName; // This will be the display name (e.g., first_name)
+    public String phone;    // This is the unique identifier for communication
     public SimpleStringProperty lastMessage;
     public SimpleStringProperty time;
     public SimpleStringProperty notificationsNumber;
     public Image avatarImage;
     public ObservableList<MessageViewModel> messagesList;
 
-    public UserViewModel(String userName, String lastMessage, String time, String notificationsNumber, Image avatarImage) {
+    public UserViewModel(String userName, String phone, String lastMessage, String time, String notificationsNumber, Image avatarImage) {
         this.userName = userName;
+        this.phone = phone;
         this.lastMessage = new SimpleStringProperty(lastMessage);
         this.time = new SimpleStringProperty(time);
         this.notificationsNumber = new SimpleStringProperty(notificationsNumber);
@@ -27,6 +28,10 @@ public class UserViewModel {
 
     public String getUserName() {
         return userName;
+    }
+
+    public String getPhone() {
+        return phone;
     }
 
     public void setUserName(String userName) {

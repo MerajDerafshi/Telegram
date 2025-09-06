@@ -69,6 +69,33 @@ public class DatabaseManager {
         }
     }
 
+    public static List<User> getAllUsers(String currentUserPhone) {
+        List<User> users = new ArrayList<>();
+        String sql = "SELECT id, first_name, last_name, username, country, phone, email, bio, avatar_url FROM users WHERE phone != ?";
+        try (Connection conn = getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, currentUserPhone);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                users.add(new User(
+                        rs.getLong("id"),
+                        rs.getString("first_name"),
+                        rs.getString("last_name"),
+                        rs.getString("username"),
+                        rs.getString("country"),
+                        rs.getString("phone"),
+                        rs.getString("email"),
+                        rs.getString("bio"),
+                        rs.getString("avatar_url")
+                ));
+            }
+        } catch (SQLException e) {
+            logSql("getAllUsers", e);
+        }
+        return users;
+    }
+
+
     public static boolean userExists(String phoneNumber) {
         String sql = "SELECT COUNT(*) FROM users WHERE phone = ?";
         try (Connection conn = getConnection();
@@ -378,4 +405,3 @@ public class DatabaseManager {
         System.err.println("[DB] " + op + " failed: " + e.getMessage());
     }
 }
-
