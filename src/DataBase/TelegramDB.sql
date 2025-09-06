@@ -65,6 +65,7 @@ CREATE TABLE IF NOT EXISTS media (
     file_path TEXT,
     mime_type TEXT,
     size_bytes BIGINT,
+    media_data LONGBLOB NULL,
     uploaded_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (uploader_id) REFERENCES users(id)
 );

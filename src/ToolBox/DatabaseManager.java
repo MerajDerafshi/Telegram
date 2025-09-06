@@ -2,7 +2,6 @@ package ToolBox;
 
 import java.sql.*;
 import java.text.SimpleDateFormat;
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -32,6 +31,7 @@ public class DatabaseManager {
     public static final class User {
         public final long id;
         public final String firstName;
+        // ... (rest of User class is unchanged)
         public final String lastName;
         public final String username;
         public final String country;
@@ -56,17 +56,21 @@ public class DatabaseManager {
 
     public static final class Message {
         public final long id;
-        public final long conversationId;
         public final long senderId;
         public final String content;
         public final Timestamp createdAt;
+        public final byte[] mediaData;
+        public final String fileName;
+        public final String mimeType;
 
-        public Message(long id, long conversationId, long senderId, String content, Timestamp createdAt) {
+        public Message(long id, long senderId, String content, Timestamp createdAt, byte[] mediaData, String fileName, String mimeType) {
             this.id = id;
-            this.conversationId = conversationId;
             this.senderId = senderId;
             this.content = content;
             this.createdAt = createdAt;
+            this.mediaData = mediaData;
+            this.fileName = fileName;
+            this.mimeType = mimeType;
         }
     }
 
@@ -109,9 +113,7 @@ public class DatabaseManager {
         }
         return Optional.empty();
     }
-
     public static long findOrCreatePrivateConversation(long user1Id, long user2Id) {
-        // Ensure consistent ordering of IDs to avoid duplicate conversations
         long lowerId = Math.min(user1Id, user2Id);
         long higherId = Math.max(user1Id, user2Id);
 
@@ -130,7 +132,6 @@ public class DatabaseManager {
             logSql("findConversation", e);
         }
 
-        // If not found, create a new one
         String createConvSql = "INSERT INTO conversations (id, type, creator_id) VALUES (?, 'private', ?)";
         String addPartSql = "INSERT INTO conversation_participants (id, user_id) VALUES (?, ?)";
         long newConversationId = Math.abs(System.currentTimeMillis() + lowerId + higherId);
@@ -167,28 +168,54 @@ public class DatabaseManager {
         return -1;
     }
 
-    public static boolean saveTextMessage(String senderPhone, String receiverPhone, String content) {
+    public static Optional<Long> saveMediaAndGetId(long uploaderId, byte[] mediaData, String fileName, String mimeType) {
+        String sql = "INSERT INTO media (id, uploader_id, file_name, mime_type, media_data, size_bytes) VALUES (?, ?, ?, ?, ?, ?)";
+        long mediaId = System.currentTimeMillis();
+        try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setLong(1, mediaId);
+            ps.setLong(2, uploaderId);
+            ps.setString(3, fileName);
+            ps.setString(4, mimeType);
+            ps.setBytes(5, mediaData);
+            ps.setLong(6, mediaData.length);
+
+            int affectedRows = ps.executeUpdate();
+            if (affectedRows > 0) {
+                return Optional.of(mediaId);
+            }
+        } catch (SQLException e) {
+            logSql("saveMediaAndGetId", e);
+        }
+        return Optional.empty();
+    }
+
+
+    public static boolean saveMessage(String senderPhone, String receiverPhone, String content, Long mediaId) {
         Optional<Long> senderIdOpt = getUserId(senderPhone);
         Optional<Long> receiverIdOpt = getUserId(receiverPhone);
 
-        if (senderIdOpt.isEmpty() || receiverIdOpt.isEmpty()) {
-            return false;
-        }
+        if (senderIdOpt.isEmpty() || receiverIdOpt.isEmpty()) return false;
 
         long senderId = senderIdOpt.get();
         long receiverId = receiverIdOpt.get();
         long conversationId = findOrCreatePrivateConversation(senderId, receiverId);
         if (conversationId == -1) return false;
 
-        String sql = "INSERT INTO messages (id, conversation_id, sender_id, content) VALUES (?, ?, ?, ?)";
+        String sql = "INSERT INTO messages (id, conversation_id, sender_id, content, media_id) VALUES (?, ?, ?, ?, ?)";
         try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setLong(1, System.currentTimeMillis());
             ps.setLong(2, conversationId);
             ps.setLong(3, senderId);
             ps.setString(4, content);
+
+            if (mediaId != null) {
+                ps.setLong(5, mediaId);
+            } else {
+                ps.setNull(5, Types.BIGINT);
+            }
             return ps.executeUpdate() > 0;
         } catch (SQLException e) {
-            logSql("saveTextMessage", e);
+            logSql("saveMessage", e);
             return false;
         }
     }
@@ -198,25 +225,28 @@ public class DatabaseManager {
         Optional<Long> user1IdOpt = getUserId(user1Phone);
         Optional<Long> user2IdOpt = getUserId(user2Phone);
 
-        if (user1IdOpt.isEmpty() || user2IdOpt.isEmpty()) {
-            return messages;
-        }
+        if (user1IdOpt.isEmpty() || user2IdOpt.isEmpty()) return messages;
 
         long conversationId = findOrCreatePrivateConversation(user1IdOpt.get(), user2IdOpt.get());
         if (conversationId == -1) return messages;
 
-        String sql = "SELECT id, conversation_id, sender_id, content, created_at FROM messages " +
-                "WHERE conversation_id = ? ORDER BY created_at ASC";
+        String sql = "SELECT m.id, m.sender_id, m.content, m.created_at, " +
+                "med.media_data, med.file_name, med.mime_type " +
+                "FROM messages m LEFT JOIN media med ON m.media_id = med.id " +
+                "WHERE m.conversation_id = ? ORDER BY m.created_at ASC";
+
         try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setLong(1, conversationId);
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
                 messages.add(new Message(
                         rs.getLong("id"),
-                        rs.getLong("conversation_id"),
                         rs.getLong("sender_id"),
                         rs.getString("content"),
-                        rs.getTimestamp("created_at")
+                        rs.getTimestamp("created_at"),
+                        rs.getBytes("media_data"),
+                        rs.getString("file_name"),
+                        rs.getString("mime_type")
                 ));
             }
         } catch (SQLException e) {
@@ -224,8 +254,7 @@ public class DatabaseManager {
         }
         return messages;
     }
-
-
+    // ... (rest of DatabaseManager is unchanged)
     public static boolean userExists(String phoneNumber) {
         String sql = "SELECT COUNT(*) FROM users WHERE phone = ?";
         try (Connection conn = getConnection();
@@ -241,20 +270,6 @@ public class DatabaseManager {
         return false;
     }
 
-    public static boolean userExistsByUsername(String username) {
-        final String sql = "SELECT 1 FROM users WHERE username = ? LIMIT 1";
-        try (Connection conn = getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setString(1, username);
-            try (ResultSet rs = ps.executeQuery()) {
-                return rs.next();
-            }
-        } catch (SQLException e) {
-            logSql("userExistsByUsername", e);
-            return false;
-        }
-    }
-
     public static boolean createUser(String firstName, String lastName, String username, String country, String phone, String passwordHash) {
         String sql = "INSERT INTO users (first_name, last_name, username, country, phone, password_hash, id) VALUES (?, ?, ?, ?, ?, ?, ?)";
         try (Connection conn = getConnection();
@@ -266,8 +281,7 @@ public class DatabaseManager {
             ps.setString(5, phone);
             ps.setString(6, passwordHash);
             ps.setLong(7, Math.abs((long)phone.hashCode() + System.currentTimeMillis()));
-            int affectedRows = ps.executeUpdate();
-            return affectedRows > 0;
+            return ps.executeUpdate() > 0;
         } catch (SQLException e) {
             e.printStackTrace();
             return false;
@@ -275,10 +289,7 @@ public class DatabaseManager {
     }
 
     public static Optional<User> getUserByPhone(String phone) {
-        final String sql = """
-            SELECT id, first_name, last_name, username, country, phone, email, bio, avatar_url
-            FROM users WHERE phone = ? LIMIT 1
-            """;
+        final String sql = "SELECT id, first_name, last_name, username, country, phone, email, bio, avatar_url FROM users WHERE phone = ? LIMIT 1";
         try (Connection conn = getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, phone);
