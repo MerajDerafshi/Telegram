@@ -102,7 +102,7 @@ public class CreateAccountController implements Initializable {
 
         if (success) {
             LogInController.userName = phoneNumber;
-            loadScene("../Views/home_view.fxml", event);
+            loadScene("../Views/homeView.fxml", event);
         } else {
             errorLabel.setText("Could not create account. Username may be taken.");
         }

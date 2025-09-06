@@ -39,9 +39,10 @@ public class PasswordLoginController implements Initializable {
             return;
         }
 
+
         if (DatabaseManager.verifyPassword(phoneNumber, password)) {
             LogInController.userName = phoneNumber;
-            loadScene("../Views/home_view.fxml");
+            loadScene("../Views/homeView.fxml");
         } else {
             errorLabel.setText("Invalid password. Please try again.");
         }
@@ -58,4 +59,3 @@ public class PasswordLoginController implements Initializable {
         }
     }
 }
-

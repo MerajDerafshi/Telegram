@@ -77,7 +77,7 @@ public class NetworkConnection {
 
                 inputStream = new ObjectInputStream(socket.getInputStream());
 
-                // Notify successful connection
+
                 if (receiveCallback != null) {
                     receiveCallback.accept("SYSTEM_STATUS:CONNECTION_SUCCESS");
                 }

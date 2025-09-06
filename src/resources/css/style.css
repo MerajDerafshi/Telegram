@@ -1,0 +1,11 @@
+.radius{
+    -fx-background-radius: 100px;
+}
+
+.paneRadius{
+    -fx-pane-radius: 9px;
+}
+
+.textColor{
+    -fx-text-color:  #5eb5f7
+}
