@@ -2,9 +2,7 @@ package Controllers;
 
 import Models.MessageViewModel;
 import Models.UserViewModel;
-import ToolBox.ChannelMessage;
-import ToolBox.DatabaseManager;
-import ToolBox.NetworkConnection;
+import ToolBox.*;
 import javafx.application.Platform;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -12,21 +10,22 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.ListView;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.input.MouseEvent;
+import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 
 import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.util.List;
+import java.util.Optional;
 
 import static ToolBox.Utilities.getCurrentTime;
 
@@ -41,11 +40,15 @@ public class ChannelCreatorViewController {
     @FXML private Button newChannelButton;
     @FXML private Button logoutButton;
     @FXML private Button channelInfoButton;
+    @FXML private Button voiceRecordButton;
 
     private UserViewModel localUser;
     private UserViewModel channelViewModel;
     private ObservableList<UserViewModel> allUsersList;
     private NetworkConnection connection;
+
+    private VoiceRecorder voiceRecorder;
+    private boolean isRecording = false;
 
     public void initData(UserViewModel channelViewModel, UserViewModel localUser, ObservableList<UserViewModel> allUsers, NetworkConnection connection) {
         this.channelViewModel = channelViewModel;
@@ -105,18 +108,15 @@ public class ChannelCreatorViewController {
 
     private void executeSendMessage() {
         String messageContent = messageField.getText();
-        if (messageContent == null || messageContent.trim().isEmpty()) {
-            return;
-        }
+        if (messageContent == null || messageContent.trim().isEmpty()) return;
+
         long messageId = DatabaseManager.saveChannelMessage(channelViewModel.channelId, localUser.userId, messageContent, null);
         if (messageId != -1) {
-            // Add message to own view immediately
             MessageViewModel sentMessage = new MessageViewModel(messageId, messageContent, getCurrentTime(), true);
             channelViewModel.messagesList.add(sentMessage);
             messagesListView.refresh();
             messagesListView.scrollTo(channelViewModel.messagesList.size() - 1);
 
-            // Send to server to broadcast to others
             try {
                 ChannelMessage channelMessage = new ChannelMessage(messageId, localUser.userId, messageContent, null, channelViewModel.channelId, getCurrentTime());
                 connection.sendData(channelMessage);
@@ -127,10 +127,105 @@ public class ChannelCreatorViewController {
         }
     }
 
+
     @FXML
     void attachFile(MouseEvent event) {
-        // This functionality can be implemented similarly to the UserChatController
+        try {
+            FileChooser fileChooser = new FileChooser();
+            fileChooser.setTitle("Select File to Send");
+            File file = fileChooser.showOpenDialog(getStage());
+            if (file == null) return;
+
+            String fileName = file.getName();
+            byte[] fileBytes = new byte[(int) file.length()];
+            try (FileInputStream fis = new FileInputStream(file)) {
+                fis.read(fileBytes);
+            }
+
+            String mimeType = getMimeType(fileName);
+
+            Optional<Long> mediaIdOpt = DatabaseManager.saveMediaAndGetId(localUser.userId, fileBytes, fileName, mimeType);
+            if(mediaIdOpt.isEmpty()) {
+                System.err.println("Failed to save media to database.");
+                return;
+            }
+            long mediaId = mediaIdOpt.get();
+            long messageId = DatabaseManager.saveChannelMessage(channelViewModel.channelId, localUser.userId, null, mediaId);
+
+            if(messageId != -1) {
+                loadMessageHistory();
+                ChannelMessage channelMessage = new ChannelMessage(messageId, localUser.userId, fileName, fileBytes, channelViewModel.channelId, getCurrentTime());
+                connection.sendData(channelMessage);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
+
+    @FXML
+    void toggleVoiceRecording(MouseEvent event) {
+        if (!isRecording) {
+            voiceRecorder = new VoiceRecorder();
+            voiceRecorder.startRecording();
+            isRecording = true;
+            System.out.println("Started recording...");
+            // Optionally, change button style here
+        } else {
+            byte[] voiceData = voiceRecorder.stopRecording();
+            isRecording = false;
+            System.out.println("Stopped recording, sending voice message...");
+            sendVoiceMessage(voiceData);
+            // Optionally, change button style back
+        }
+    }
+
+    private void sendVoiceMessage(byte[] voiceData) {
+        if (voiceData == null || voiceData.length == 0) return;
+
+        try {
+            String fileName = "voice_message_" + System.currentTimeMillis() + ".mp3";
+            String mimeType = "audio/wav";
+
+            Optional<Long> mediaIdOpt = DatabaseManager.saveMediaAndGetId(localUser.userId, voiceData, fileName, mimeType);
+            if(mediaIdOpt.isEmpty()) {
+                System.err.println("Failed to save voice message to database.");
+                return;
+            }
+            long mediaId = mediaIdOpt.get();
+            long messageId = DatabaseManager.saveChannelMessage(channelViewModel.channelId, localUser.userId, null, mediaId);
+
+            if(messageId != -1) {
+                loadMessageHistory();
+                ChannelMessage channelMessage = new ChannelMessage(messageId, localUser.userId, fileName, voiceData, channelViewModel.channelId, getCurrentTime());
+                connection.sendData(channelMessage);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private String getMimeType(String fileName) {
+        String extension = "";
+        int i = fileName.lastIndexOf('.');
+        if (i > 0) {
+            extension = fileName.substring(i+1).toLowerCase();
+        }
+
+        switch (extension) {
+            case "png": return "image/png";
+            case "jpg":
+            case "jpeg": return "image/jpeg";
+            case "gif": return "image/gif";
+            case "pdf": return "application/pdf";
+            case "docx": return "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
+            case "mp3": return "audio/mpeg";
+            case "wav": return "audio/wav";
+            case "mp4": return "video/mp4";
+            default: return "application/octet-stream";
+        }
+    }
+
+
 
     @FXML
     void openChannelInfo(MouseEvent event) {
@@ -139,9 +234,7 @@ public class ChannelCreatorViewController {
             Parent root = loader.load();
             ChannelInfoController controller = loader.getController();
             controller.initData(channelViewModel, localUser, allUsersList, connection);
-            Stage stage = (Stage) channelInfoButton.getScene().getWindow();
-            stage.setScene(new Scene(root));
-            stage.show();
+            getStage().setScene(new Scene(root));
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -154,8 +247,7 @@ public class ChannelCreatorViewController {
             Parent root = loader.load();
             ProfileController controller = loader.getController();
             controller.initData(localUser, allUsersList, connection);
-            Stage stage = (Stage) profileButton.getScene().getWindow();
-            stage.setScene(new Scene(root));
+            getStage().setScene(new Scene(root));
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -168,8 +260,7 @@ public class ChannelCreatorViewController {
             Parent root = loader.load();
             SavedMessagesController controller = loader.getController();
             controller.initData(localUser, allUsersList, connection);
-            Stage stage = (Stage) savedMessagesButton.getScene().getWindow();
-            stage.setScene(new Scene(root));
+            getStage().setScene(new Scene(root));
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -199,11 +290,14 @@ public class ChannelCreatorViewController {
                 connection.closeConnection();
             }
             Parent root = FXMLLoader.load(getClass().getResource("../Views/loginStarter.fxml"));
-            Stage stage = (Stage) logoutButton.getScene().getWindow();
-            stage.setScene(new Scene(root));
+            getStage().setScene(new Scene(root));
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    private Stage getStage() {
+        return (Stage) usersListView.getScene().getWindow();
     }
 }
 
