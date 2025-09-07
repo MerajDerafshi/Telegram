@@ -74,7 +74,6 @@ public class DatabaseManager {
     }
 
     public static boolean deleteMessage(long messageId) {
-        // First, get the media_id before deleting the message
         String selectMediaSql = "SELECT media_id FROM messages WHERE id = ?";
         String deleteMessageSql = "DELETE FROM messages WHERE id = ?";
         String deleteMediaSql = "DELETE FROM media WHERE id = ?";
@@ -94,17 +93,15 @@ public class DatabaseManager {
                 }
             }
 
-            // Delete the message
             try (PreparedStatement psDeleteMsg = conn.prepareStatement(deleteMessageSql)) {
                 psDeleteMsg.setLong(1, messageId);
                 int affectedRows = psDeleteMsg.executeUpdate();
                 if (affectedRows == 0) {
                     conn.rollback();
-                    return false; // Message not found
+                    return false;
                 }
             }
 
-            // If there was associated media, delete it
             if (mediaId != null) {
                 try (PreparedStatement psDeleteMedia = conn.prepareStatement(deleteMediaSql)) {
                     psDeleteMedia.setLong(1, mediaId);
@@ -165,13 +162,70 @@ public class DatabaseManager {
         }
         return Optional.empty();
     }
+
+    private static long findOrCreateSelfConversation(long userId) {
+        // Find a 'private' conversation with exactly one participant (the user themselves)
+        String findSql = "SELECT c.id FROM conversations c " +
+                "JOIN conversation_participants cp ON c.id = cp.id " +
+                "WHERE c.type = 'private' AND c.creator_id = ? " +
+                "GROUP BY c.id HAVING COUNT(cp.user_id) = 1";
+
+        try (Connection conn = getConnection(); PreparedStatement psFind = conn.prepareStatement(findSql)) {
+            psFind.setLong(1, userId);
+            ResultSet rs = psFind.executeQuery();
+            if (rs.next()) {
+                return rs.getLong("id");
+            }
+        } catch (SQLException e) {
+            logSql("findSelfConversation", e);
+        }
+
+        // If not found, create it
+        String createConvSql = "INSERT INTO conversations (id, type, creator_id) VALUES (?, 'private', ?)";
+        String addPartSql = "INSERT INTO conversation_participants (id, user_id) VALUES (?, ?)";
+        long newConversationId = Math.abs(System.nanoTime() + userId); // Use nanoTime for better uniqueness
+
+        try (Connection conn = getConnection()) {
+            conn.setAutoCommit(false);
+            try (PreparedStatement psCreate = conn.prepareStatement(createConvSql);
+                 PreparedStatement psAdd = conn.prepareStatement(addPartSql)) {
+
+                psCreate.setLong(1, newConversationId);
+                psCreate.setLong(2, userId);
+                psCreate.executeUpdate();
+
+                psAdd.setLong(1, newConversationId);
+                psAdd.setLong(2, userId);
+                psAdd.executeUpdate();
+
+                conn.commit();
+                return newConversationId;
+            } catch (SQLException e) {
+                conn.rollback();
+                logSql("createSelfConversation", e);
+            } finally {
+                conn.setAutoCommit(true);
+            }
+        } catch (SQLException e) {
+            logSql("transactionSetupSelf", e);
+        }
+        return -1;
+    }
+
     public static long findOrCreatePrivateConversation(long user1Id, long user2Id) {
+        // Handle the "Saved Messages" case where the user chats with themselves.
+        if (user1Id == user2Id) {
+            return findOrCreateSelfConversation(user1Id);
+        }
+
         long lowerId = Math.min(user1Id, user2Id);
         long higherId = Math.max(user1Id, user2Id);
 
-        String findSql = "SELECT cp1.id FROM conversation_participants cp1 " +
-                "JOIN conversation_participants cp2 ON cp1.id = cp2.id " +
-                "WHERE cp1.user_id = ? AND cp2.user_id = ?";
+        String findSql = "SELECT cp.id FROM conversation_participants cp " +
+                "WHERE cp.id IN (SELECT id FROM conversation_participants WHERE user_id = ?) " +
+                "AND cp.user_id = ? " +
+                "AND (SELECT COUNT(*) FROM conversation_participants WHERE id = cp.id) = 2";
+
 
         try (Connection conn = getConnection(); PreparedStatement psFind = conn.prepareStatement(findSql)) {
             psFind.setLong(1, lowerId);
@@ -186,7 +240,7 @@ public class DatabaseManager {
 
         String createConvSql = "INSERT INTO conversations (id, type, creator_id) VALUES (?, 'private', ?)";
         String addPartSql = "INSERT INTO conversation_participants (id, user_id) VALUES (?, ?)";
-        long newConversationId = Math.abs(System.currentTimeMillis() + lowerId + higherId);
+        long newConversationId = Math.abs(System.nanoTime() + lowerId + higherId);
 
         try (Connection conn = getConnection()) {
             conn.setAutoCommit(false);
@@ -222,7 +276,7 @@ public class DatabaseManager {
 
     public static Optional<Long> saveMediaAndGetId(long uploaderId, byte[] mediaData, String fileName, String mimeType) {
         String sql = "INSERT INTO media (id, uploader_id, file_name, mime_type, media_data, size_bytes) VALUES (?, ?, ?, ?, ?, ?)";
-        long mediaId = System.currentTimeMillis();
+        long mediaId = System.nanoTime();
         try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setLong(1, mediaId);
             ps.setLong(2, uploaderId);
@@ -255,7 +309,7 @@ public class DatabaseManager {
 
         String sql = "INSERT INTO messages (id, conversation_id, sender_id, content, media_id) VALUES (?, ?, ?, ?, ?)";
         try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setLong(1, System.currentTimeMillis());
+            ps.setLong(1, System.nanoTime());
             ps.setLong(2, conversationId);
             ps.setLong(3, senderId);
             ps.setString(4, content);
@@ -385,4 +439,3 @@ public class DatabaseManager {
         System.err.println("[DB] " + op + " failed: " + e.getMessage());
     }
 }
-

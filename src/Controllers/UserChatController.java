@@ -45,6 +45,7 @@ public class UserChatController implements Initializable {
     @FXML private TextField messageField;
     @FXML private ListView<MessageViewModel> messagesListView;
     @FXML private Button logoutButton;
+    @FXML private Button savedMessagesButton;
 
     private NetworkConnection connection;
     private UserViewModel currentlySelectedUser;
@@ -125,7 +126,7 @@ public class UserChatController implements Initializable {
 
             // 3. Send delete instruction to the other user
             try {
-                DeleteMessage deleteInstruction = new DeleteMessage(messageVM.messageId, localUser.getPhone(), currentlySelectedUser.getPhone());
+                ToolBox.DeleteMessage deleteInstruction = new ToolBox.DeleteMessage(messageVM.messageId, localUser.getPhone(), currentlySelectedUser.getPhone());
                 connection.sendData(deleteInstruction);
             } catch (IOException e) {
                 e.printStackTrace();
@@ -141,6 +142,21 @@ public class UserChatController implements Initializable {
             UserChatController controller = loader.getController();
             controller.initData(selectedUser, localUser, allUsersList, connection);
             Stage stage = (Stage) usersListView.getScene().getWindow();
+            stage.setScene(new Scene(root));
+            stage.show();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @FXML
+    void openSavedMessages(MouseEvent event) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("../Views/saveMessageChat.fxml"));
+            Parent root = loader.load();
+            SavedMessagesController controller = loader.getController();
+            controller.initData(localUser, allUsersList, connection);
+            Stage stage = (Stage) savedMessagesButton.getScene().getWindow();
             stage.setScene(new Scene(root));
             stage.show();
         } catch (IOException e) {
@@ -177,8 +193,8 @@ public class UserChatController implements Initializable {
                     MessageViewModel newMsg = new MessageViewModel(-1, textMsg.content, textMsg.timestamp, false);
                     senderUser.messagesList.add(newMsg);
 
-                } else if (data instanceof DeleteMessage) {
-                    DeleteMessage deleteMsg = (DeleteMessage) data;
+                } else if (data instanceof ToolBox.DeleteMessage) {
+                    ToolBox.DeleteMessage deleteMsg = (ToolBox.DeleteMessage) data;
                     // Find the user whose message is being deleted
                     UserViewModel relevantUser = findUserByPhone(deleteMsg.senderPhone);
                     if (relevantUser != null) {
@@ -313,4 +329,3 @@ public class UserChatController implements Initializable {
         }
     }
 }
-

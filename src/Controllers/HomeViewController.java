@@ -15,6 +15,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ListView;
 import javafx.scene.image.Image;
+import javafx.scene.input.MouseEvent;
 import javafx.stage.Stage;
 
 import java.io.IOException;
@@ -30,6 +31,8 @@ public class HomeViewController implements Initializable {
 
     @FXML private ListView<UserViewModel> usersListView;
     @FXML private Button logoutButton;
+    @FXML private Button savedMessagesButton;
+
 
     private NetworkConnection connection;
     private UserViewModel localUser;
@@ -86,6 +89,21 @@ public class HomeViewController implements Initializable {
     }
 
     @FXML
+    void openSavedMessages(MouseEvent event) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("../Views/saveMessageChat.fxml"));
+            Parent root = loader.load();
+            SavedMessagesController controller = loader.getController();
+            controller.initData(localUser, allUsersList, connection);
+            Stage stage = (Stage) savedMessagesButton.getScene().getWindow();
+            stage.setScene(new Scene(root));
+            stage.show();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @FXML
     void logoutClicked(ActionEvent event) {
         try {
             if (connection != null) {
@@ -100,4 +118,3 @@ public class HomeViewController implements Initializable {
         }
     }
 }
-
