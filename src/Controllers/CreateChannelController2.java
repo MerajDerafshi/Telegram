@@ -2,6 +2,7 @@ package Controllers;
 
 import Models.UserViewModel;
 import ToolBox.DatabaseManager;
+import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -25,15 +26,20 @@ public class CreateChannelController2 implements Initializable {
     private String channelName;
     private byte[] channelAvatar;
     private UserViewModel localUser;
-    private ObservableList<UserViewModel> allUsersList;
 
     public void initData(String channelName, byte[] channelAvatar, UserViewModel localUser, ObservableList<UserViewModel> allUsers) {
         this.channelName = channelName;
         this.channelAvatar = channelAvatar;
         this.localUser = localUser;
-        this.allUsersList = allUsers;
-        usersListView.setItems(allUsersList);
-        usersListView.setCellFactory(param -> new UserCustomCellController());
+
+        // Filter out channels, showing only users
+        ObservableList<UserViewModel> onlyUsers = allUsers.stream()
+                .filter(u -> !u.isChannel)
+                .collect(FXCollections::observableArrayList, ObservableList::add, ObservableList::addAll);
+
+        usersListView.setItems(onlyUsers);
+        // Set the custom cell factory
+        usersListView.setCellFactory(param -> new AddUserCellController());
     }
 
     @Override
