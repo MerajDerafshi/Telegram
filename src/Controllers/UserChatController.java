@@ -11,15 +11,13 @@ import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.ListView;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.input.MouseEvent;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
+import java.awt.Desktop;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -47,6 +45,7 @@ public class UserChatController implements Initializable {
     @FXML private Button userInfoButton;
     @FXML private Label lastSeenLabel;
     @FXML private Button voiceRecordButton;
+    @FXML private Button callButton;
 
     private NetworkConnection connection;
     private UserViewModel currentlySelectedUser;
@@ -170,6 +169,28 @@ public class UserChatController implements Initializable {
     }
 
     @FXML
+    void startVideoCall(MouseEvent event) {
+        try {
+            File videoFile = new File("C:\\Telegram\\src\\resources\\img\\banana.mp4");
+            if (videoFile.exists()) {
+                if (Desktop.isDesktopSupported()) {
+                    Desktop.getDesktop().open(videoFile);
+                } else {
+                    System.err.println("Desktop is not supported on this platform.");
+                }
+            } else {
+                System.err.println("Video file not found at: " + videoFile.getAbsolutePath());
+            }
+        } catch (IOException e) {
+            System.err.println("Failed to open video file: " + e.getMessage());
+            e.printStackTrace();
+        } catch (Exception e) {
+            System.err.println("An unexpected error occurred: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    @FXML
     void openSavedMessages(MouseEvent event) {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("../Views/saveMessageChat.fxml"));
@@ -278,12 +299,10 @@ public class UserChatController implements Initializable {
             voiceRecorder = new VoiceRecorder();
             voiceRecorder.startRecording();
             isRecording = true;
-            // You can change the button icon here to indicate recording
             System.out.println("Started recording...");
         } else {
             byte[] voiceData = voiceRecorder.stopRecording();
             isRecording = false;
-            // Change button icon back
             System.out.println("Stopped recording, sending voice message...");
             sendVoiceMessage(voiceData);
         }
@@ -341,8 +360,25 @@ public class UserChatController implements Initializable {
         try {
             FileChooser fileChooser = new FileChooser();
             fileChooser.setTitle("Select File to Send");
+            fileChooser.getExtensionFilters().addAll(
+                    new FileChooser.ExtensionFilter("All Files", "*.*"),
+                    new FileChooser.ExtensionFilter("Images", "*.png", "*.jpg", "*.jpeg", "*.gif"),
+                    new FileChooser.ExtensionFilter("Videos", "*.mp4"),
+                    new FileChooser.ExtensionFilter("Documents", "*.pdf", "*.docx")
+            );
+
             File file = fileChooser.showOpenDialog(new Stage());
             if (file == null) return;
+
+            // Check file size for videos
+            if (file.getName().toLowerCase().endsWith(".mp4") && file.length() > 1 * 1024 * 1024) { // 1MB limit
+                Alert alert = new Alert(Alert.AlertType.ERROR);
+                alert.setTitle("File Too Large");
+                alert.setHeaderText("Cannot send video.");
+                alert.setContentText("Please select a video file smaller than 1MB.");
+                alert.showAndWait();
+                return;
+            }
 
             String fileName = file.getName();
             String timestamp = getCurrentTime();
@@ -409,6 +445,7 @@ public class UserChatController implements Initializable {
             case "pdf": return "application/pdf";
             case "docx": return "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
             case "mp3": return "audio/mpeg";
+            case "mp4": return "video/mp4";
             default: return "application/octet-stream";
         }
     }

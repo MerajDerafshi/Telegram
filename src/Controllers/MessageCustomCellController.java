@@ -62,7 +62,6 @@ public class MessageCustomCellController extends ListCell<MessageViewModel> {
                 imageView.setImage(item.getImage());
             }
 
-
             ContextMenu contextMenu = new ContextMenu();
             MenuItem deleteItem = new MenuItem("❌ Delete");
             deleteItem.setOnAction(e -> {
@@ -71,7 +70,6 @@ public class MessageCustomCellController extends ListCell<MessageViewModel> {
                 }
             });
             contextMenu.getItems().add(deleteItem);
-
 
             if (item.isFile) {
                 MenuItem download = new MenuItem("📥Download");
@@ -85,6 +83,10 @@ public class MessageCustomCellController extends ListCell<MessageViewModel> {
                     MenuItem play = new MenuItem("▶️ Play Audio");
                     play.setOnAction(e -> openFileWithDefaultApp(item.fileName, item.fileData));
                     contextMenu.getItems().add(0, play);
+                } else if (item.fileName.toLowerCase().endsWith(".mp4")) {
+                    MenuItem playVideo = new MenuItem("🎬 Play Video");
+                    playVideo.setOnAction(e -> openFileWithDefaultApp(item.fileName, item.fileData));
+                    contextMenu.getItems().add(0, playVideo);
                 }
                 contextMenu.getItems().add(0, download);
             }
@@ -98,7 +100,6 @@ public class MessageCustomCellController extends ListCell<MessageViewModel> {
             setText("Failed to load message bubble.");
         }
     }
-
 
     private void saveFile(String fileName, byte[] data) {
         try {
@@ -136,3 +137,4 @@ public class MessageCustomCellController extends ListCell<MessageViewModel> {
         }
     }
 }
+
