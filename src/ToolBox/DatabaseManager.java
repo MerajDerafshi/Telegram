@@ -176,6 +176,66 @@ public class DatabaseManager {
         }
     }
 
+    public static boolean deleteChatHistory(String localUserPhone, String otherUserPhone) {
+        Optional<Long> user1IdOpt = getUserId(localUserPhone);
+        Optional<Long> user2IdOpt = getUserId(otherUserPhone);
+
+        if (user1IdOpt.isEmpty() || user2IdOpt.isEmpty()) return false;
+
+        long conversationId = findOrCreatePrivateConversation(user1IdOpt.get(), user2IdOpt.get());
+        if (conversationId == -1) return true; // No conversation to delete
+
+        // First, get all media_id's from the messages to be deleted
+        String selectMediaSql = "SELECT media_id FROM messages WHERE conversation_id = ? AND media_id IS NOT NULL";
+        List<Long> mediaIds = new ArrayList<>();
+        try (Connection conn = getConnection();
+             PreparedStatement psSelect = conn.prepareStatement(selectMediaSql)) {
+            psSelect.setLong(1, conversationId);
+            ResultSet rs = psSelect.executeQuery();
+            while (rs.next()) {
+                mediaIds.add(rs.getLong("media_id"));
+            }
+        } catch (SQLException e) {
+            logSql("deleteChatHistory-selectMedia", e);
+            return false;
+        }
+
+        String deleteMessagesSql = "DELETE FROM messages WHERE conversation_id = ?";
+        String deleteMediaSql = "DELETE FROM media WHERE id = ?";
+
+        try (Connection conn = getConnection()) {
+            conn.setAutoCommit(false);
+
+            // Delete messages
+            try (PreparedStatement psDeleteMessages = conn.prepareStatement(deleteMessagesSql)) {
+                psDeleteMessages.setLong(1, conversationId);
+                psDeleteMessages.executeUpdate();
+            }
+
+            // Delete associated media
+            if (!mediaIds.isEmpty()) {
+                try (PreparedStatement psDeleteMedia = conn.prepareStatement(deleteMediaSql)) {
+                    for (Long mediaId : mediaIds) {
+                        psDeleteMedia.setLong(1, mediaId);
+                        psDeleteMedia.addBatch();
+                    }
+                    psDeleteMedia.executeBatch();
+                }
+            }
+
+            conn.commit();
+            return true;
+        } catch (SQLException e) {
+            logSql("deleteChatHistory-transaction", e);
+            try(Connection conn = getConnection()){
+                if(conn != null) conn.rollback();
+            } catch (SQLException ex) {
+                logSql("deleteChatHistory-rollback", ex);
+            }
+            return false;
+        }
+    }
+
 
     public static List<User> getAllUsers(String currentUserPhone) {
         List<User> users = new ArrayList<>();
@@ -486,8 +546,31 @@ public class DatabaseManager {
         return false;
     }
 
+    public static void updateLastSeen(String phone) {
+        String sql = "UPDATE users SET last_seen = CURRENT_TIMESTAMP WHERE phone = ?";
+        try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, phone);
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            logSql("updateLastSeen", e);
+        }
+    }
+
+    public static Optional<Timestamp> getLastSeen(String phone) {
+        String sql = "SELECT last_seen FROM users WHERE phone = ?";
+        try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, phone);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return Optional.ofNullable(rs.getTimestamp("last_seen"));
+            }
+        } catch (SQLException e) {
+            logSql("getLastSeen", e);
+        }
+        return Optional.empty();
+    }
+
     private static void logSql(String op, Exception e) {
         System.err.println("[DB] " + op + " failed: " + e.getMessage());
     }
 }
-

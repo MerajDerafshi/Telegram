@@ -1,5 +1,6 @@
 package Server;
 
+import ToolBox.DatabaseManager;
 import ToolBox.DeleteMessage;
 import ToolBox.TextMessage;
 
@@ -35,6 +36,11 @@ public class Server {
         }
     }
 
+    public static boolean isUserOnline(String phone) {
+        return clients.containsKey(phone);
+    }
+
+
     static class ClientHandler implements Runnable {
         private Socket socket;
         private ObjectInputStream in;
@@ -66,6 +72,7 @@ public class Server {
                 if (initMsg.startsWith("INIT>")) {
                     userPhone = initMsg.split(">")[1];
                     clients.put(userPhone, this);
+                    DatabaseManager.updateLastSeen(userPhone); // Update on connect
                     System.out.println(userPhone + " has joined the chat.");
                 } else {
                     System.err.println("Initialization failed for client: " + socket.getInetAddress());
@@ -101,6 +108,7 @@ public class Server {
             } finally {
                 if (userPhone != null) {
                     clients.remove(userPhone);
+                    DatabaseManager.updateLastSeen(userPhone); // Update on disconnect
                     System.out.println(userPhone + " has been removed from the client list.");
                 }
                 try {
@@ -114,4 +122,3 @@ public class Server {
         }
     }
 }
-

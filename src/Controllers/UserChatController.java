@@ -31,7 +31,9 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.Serializable;
 import java.net.URL;
+import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.ResourceBundle;
@@ -42,11 +44,13 @@ public class UserChatController implements Initializable {
 
     @FXML private ListView<UserViewModel> usersListView;
     @FXML private Label chatRoomNameLabel;
+    @FXML private Label lastSeenLabel;
     @FXML private TextField messageField;
     @FXML private ListView<MessageViewModel> messagesListView;
     @FXML private Button logoutButton;
     @FXML private Button savedMessagesButton;
     @FXML private Button profileButton;
+    @FXML private Button userInfoButton;
 
     private NetworkConnection connection;
     private UserViewModel currentlySelectedUser;
@@ -79,6 +83,13 @@ public class UserChatController implements Initializable {
 
         chatRoomNameLabel.setText(selectedUser.getFirstName());
 
+        Optional<Timestamp> lastSeen = DatabaseManager.getLastSeen(selectedUser.getPhone());
+        if (connection.isUserOnline(selectedUser.getPhone())) {
+            lastSeenLabel.setText("online");
+        } else {
+            lastSeen.ifPresent(timestamp -> lastSeenLabel.setText(formatLastSeen(timestamp)));
+        }
+
         loadMessageHistory();
 
         messagesListView.setCellFactory(param -> {
@@ -89,6 +100,28 @@ public class UserChatController implements Initializable {
         });
 
         scrollToBottom();
+    }
+
+    private String formatLastSeen(Timestamp lastSeen) {
+        if (lastSeen == null) {
+            return "last seen a long time ago";
+        }
+
+        long diff = new Date().getTime() - lastSeen.getTime();
+        long diffSeconds = diff / 1000 % 60;
+        long diffMinutes = diff / (60 * 1000) % 60;
+        long diffHours = diff / (60 * 60 * 1000) % 24;
+        long diffDays = diff / (24 * 60 * 60 * 1000);
+
+        if (diffDays > 0) {
+            return "last seen on " + new SimpleDateFormat("MMM dd").format(lastSeen);
+        } else if (diffHours > 0) {
+            return String.format("last seen %d hours ago", diffHours);
+        } else if (diffMinutes > 0) {
+            return String.format("last seen %d minutes ago", diffMinutes);
+        } else {
+            return "last seen just now";
+        }
     }
 
     private void loadMessageHistory() {
@@ -139,6 +172,21 @@ public class UserChatController implements Initializable {
             UserChatController controller = loader.getController();
             controller.initData(selectedUser, localUser, allUsersList, connection);
             Stage stage = (Stage) usersListView.getScene().getWindow();
+            stage.setScene(new Scene(root));
+            stage.show();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @FXML
+    void openUserInfo(MouseEvent event) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("../Views/userInfo.fxml"));
+            Parent root = loader.load();
+            UserInfoController controller = loader.getController();
+            controller.initData(currentlySelectedUser, localUser, allUsersList, connection);
+            Stage stage = (Stage) userInfoButton.getScene().getWindow();
             stage.setScene(new Scene(root));
             stage.show();
         } catch (IOException e) {
@@ -233,26 +281,6 @@ public class UserChatController implements Initializable {
         executeSendMessage();
     }
 
-    private void executeSendMessage() {
-        String message = messageField.getText();
-        if (message == null || message.trim().isEmpty()) return;
-
-        try {
-            String currentTime = getCurrentTime();
-            DatabaseManager.saveMessage(localUser.getPhone(), currentlySelectedUser.getPhone(), message, null);
-
-            loadMessageHistory();
-            scrollToBottom();
-
-            TextMessage textMessage = new TextMessage(message, localUser.getPhone(), currentlySelectedUser.getPhone(), currentTime);
-            connection.sendData(textMessage);
-
-            messageField.clear();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
     @FXML
     void attachFile(MouseEvent event) {
         try {
@@ -290,6 +318,27 @@ public class UserChatController implements Initializable {
             loadMessageHistory();
             scrollToBottom();
 
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+
+    private void executeSendMessage() {
+        String message = messageField.getText();
+        if (message == null || message.trim().isEmpty()) return;
+
+        try {
+            String currentTime = getCurrentTime();
+            DatabaseManager.saveMessage(localUser.getPhone(), currentlySelectedUser.getPhone(), message, null);
+
+            loadMessageHistory();
+            scrollToBottom();
+
+            TextMessage textMessage = new TextMessage(message, localUser.getPhone(), currentlySelectedUser.getPhone(), currentTime);
+            connection.sendData(textMessage);
+
+            messageField.clear();
         } catch (IOException e) {
             e.printStackTrace();
         }

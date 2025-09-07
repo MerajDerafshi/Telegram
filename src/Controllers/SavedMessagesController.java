@@ -44,6 +44,7 @@ public class SavedMessagesController implements Initializable {
     @FXML private TextField messageField;
     @FXML private ListView<MessageViewModel> messagesListView;
     @FXML private Button logoutButton;
+    @FXML private Button profileButton;
     @FXML private Button savedMessagesButton;
 
     private NetworkConnection connection;
@@ -210,6 +211,20 @@ public class SavedMessagesController implements Initializable {
         }
     }
 
+    @FXML
+    void openProfile(MouseEvent event) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("../Views/Profile.fxml"));
+            Parent root = loader.load();
+            ProfileController controller = loader.getController();
+            controller.initData(localUser, allUsersList, connection);
+            Stage stage = (Stage) profileButton.getScene().getWindow();
+            stage.setScene(new Scene(root));
+            stage.show();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
     private String getMimeType(String fileName) {
         String extension = fileName.substring(fileName.lastIndexOf(".") + 1).toLowerCase();
@@ -228,6 +243,7 @@ public class SavedMessagesController implements Initializable {
         if (savedMessagesUser != null && !savedMessagesUser.messagesList.isEmpty()) {
             messagesListView.scrollTo(savedMessagesUser.messagesList.size() - 1);
         }
+
     }
 }
 
