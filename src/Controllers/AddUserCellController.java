@@ -3,6 +3,7 @@ package Controllers;
 import Models.UserViewModel;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
 import javafx.scene.image.ImageView;
@@ -16,10 +17,7 @@ public class AddUserCellController extends ListCell<UserViewModel> {
     @FXML private Pane parent;
     @FXML private ImageView avatarImageView;
     @FXML private Label userNameLabel;
-
-    public AddUserCellController() {
-
-    }
+    @FXML private CheckBox selectCheckBox;
 
     @Override
     protected void updateItem(UserViewModel item, boolean empty) {
@@ -37,18 +35,17 @@ public class AddUserCellController extends ListCell<UserViewModel> {
             }
 
             userNameLabel.setText(item.getFirstName());
-            if(item.getAvatarImage() != null){
+            if (item.getAvatarImage() != null) {
                 avatarImageView.setImage(item.getAvatarImage());
-                Circle clip = new Circle(20, 20, 20); // Clip to a circle
+                Circle clip = new Circle(22.5, 22.5, 22.5);
                 avatarImageView.setClip(clip);
             }
 
-            // Change background based on selection state
-            if (isSelected()) {
-                parent.setStyle("-fx-background-color: #2B5278;"); // Selected color
-            } else {
-                parent.setStyle("-fx-background-color: #17212B;"); // Default color
-            }
+            selectCheckBox.selectedProperty().bindBidirectional(item.selectedProperty());
+
+            parent.setOnMouseClicked(event -> {
+                item.setSelected(!item.isSelected());
+            });
 
             setGraphic(parent);
         }

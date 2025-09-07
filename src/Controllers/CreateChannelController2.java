@@ -26,30 +26,38 @@ public class CreateChannelController2 implements Initializable {
     private String channelName;
     private byte[] channelAvatar;
     private UserViewModel localUser;
+    private ObservableList<UserViewModel> userList;
+
 
     public void initData(String channelName, byte[] channelAvatar, UserViewModel localUser, ObservableList<UserViewModel> allUsers) {
         this.channelName = channelName;
         this.channelAvatar = channelAvatar;
         this.localUser = localUser;
 
-        // Filter out channels, showing only users
-        ObservableList<UserViewModel> onlyUsers = allUsers.stream()
+        // Filter out channels, showing only users, and reset their selection state
+        this.userList = allUsers.stream()
                 .filter(u -> !u.isChannel)
-                .collect(FXCollections::observableArrayList, ObservableList::add, ObservableList::addAll);
+                .peek(u -> u.setSelected(false)) // Reset selection state for fresh use
+                .collect(Collectors.toCollection(FXCollections::observableArrayList)); // CORRECTED: Fixed the collector syntax
 
-        usersListView.setItems(onlyUsers);
-        // Set the custom cell factory
+        usersListView.setItems(userList);
+        // Set the custom cell factory for the redesigned cell
         usersListView.setCellFactory(param -> new AddUserCellController());
     }
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
+        // Selection is now handled by the checkbox, so we can allow multiple selections on the view
         usersListView.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
     }
 
     @FXML
     void createChannel(ActionEvent event) {
-        List<UserViewModel> selectedUsers = usersListView.getSelectionModel().getSelectedItems();
+        // Get selected users by checking the 'selected' property in our view model
+        List<UserViewModel> selectedUsers = userList.stream()
+                .filter(UserViewModel::isSelected)
+                .collect(Collectors.toList());
+
         if (selectedUsers.isEmpty()) {
             System.out.println("No users selected for the channel.");
             return;
