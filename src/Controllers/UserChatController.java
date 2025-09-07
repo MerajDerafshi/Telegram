@@ -2,12 +2,7 @@ package Controllers;
 
 import Models.MessageViewModel;
 import Models.UserViewModel;
-import ToolBox.DatabaseManager;
-import ToolBox.DeleteMessage;
-import ToolBox.FileMessage;
-import ToolBox.ImageMessage;
-import ToolBox.NetworkConnection;
-import ToolBox.TextMessage;
+import ToolBox.*;
 import javafx.application.Platform;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -44,19 +39,23 @@ public class UserChatController implements Initializable {
 
     @FXML private ListView<UserViewModel> usersListView;
     @FXML private Label chatRoomNameLabel;
-    @FXML private Label lastSeenLabel;
     @FXML private TextField messageField;
     @FXML private ListView<MessageViewModel> messagesListView;
     @FXML private Button logoutButton;
     @FXML private Button savedMessagesButton;
     @FXML private Button profileButton;
     @FXML private Button userInfoButton;
+    @FXML private Label lastSeenLabel;
+    @FXML private Button voiceRecordButton;
 
     private NetworkConnection connection;
     private UserViewModel currentlySelectedUser;
     private UserViewModel localUser;
     private ObservableList<UserViewModel> allUsersList;
     private long localUserId;
+
+    private VoiceRecorder voiceRecorder;
+    private boolean isRecording = false;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -72,22 +71,23 @@ public class UserChatController implements Initializable {
         this.localUser = localUser;
         this.allUsersList = allUsers;
         this.connection = connection;
-        this.connection.receiveCallback = this::handleIncomingData;
+        if (this.connection != null) {
+            this.connection.receiveCallback = this::handleIncomingData;
+        }
 
         DatabaseManager.getUserId(localUser.getPhone()).ifPresent(id -> this.localUserId = id);
 
         usersListView.setItems(allUsersList);
-        usersListView.setCellFactory(param -> new UserCustomCellController() {{
-            prefWidthProperty().bind(usersListView.widthProperty());
-        }});
+        usersListView.setCellFactory(param -> new UserCustomCellController());
 
         chatRoomNameLabel.setText(selectedUser.getFirstName());
 
-        Optional<Timestamp> lastSeen = DatabaseManager.getLastSeen(selectedUser.getPhone());
-        if (connection.isUserOnline(selectedUser.getPhone())) {
+        if (connection != null && connection.isUserOnline(selectedUser.getPhone())) {
             lastSeenLabel.setText("online");
         } else {
-            lastSeen.ifPresent(timestamp -> lastSeenLabel.setText(formatLastSeen(timestamp)));
+            DatabaseManager.getLastSeen(selectedUser.getPhone()).ifPresent(timestamp -> {
+                lastSeenLabel.setText(formatLastSeen(timestamp));
+            });
         }
 
         loadMessageHistory();
@@ -103,25 +103,16 @@ public class UserChatController implements Initializable {
     }
 
     private String formatLastSeen(Timestamp lastSeen) {
-        if (lastSeen == null) {
-            return "last seen a long time ago";
-        }
-
+        if (lastSeen == null) return "last seen a long time ago";
         long diff = new Date().getTime() - lastSeen.getTime();
-        long diffSeconds = diff / 1000 % 60;
-        long diffMinutes = diff / (60 * 1000) % 60;
-        long diffHours = diff / (60 * 60 * 1000) % 24;
+        long diffMinutes = diff / (60 * 1000);
+        long diffHours = diff / (60 * 60 * 1000);
         long diffDays = diff / (24 * 60 * 60 * 1000);
 
-        if (diffDays > 0) {
-            return "last seen on " + new SimpleDateFormat("MMM dd").format(lastSeen);
-        } else if (diffHours > 0) {
-            return String.format("last seen %d hours ago", diffHours);
-        } else if (diffMinutes > 0) {
-            return String.format("last seen %d minutes ago", diffMinutes);
-        } else {
-            return "last seen just now";
-        }
+        if (diffDays > 0) return "last seen on " + new SimpleDateFormat("MMM dd").format(lastSeen);
+        if (diffHours > 0) return "last seen " + diffHours + " hours ago";
+        if (diffMinutes > 0) return "last seen " + diffMinutes + " minutes ago";
+        return "last seen just now";
     }
 
     private void loadMessageHistory() {
@@ -154,9 +145,8 @@ public class UserChatController implements Initializable {
 
         if (success) {
             currentlySelectedUser.messagesList.remove(messageVM);
-
             try {
-                ToolBox.DeleteMessage deleteInstruction = new ToolBox.DeleteMessage(messageVM.messageId, localUser.getPhone(), currentlySelectedUser.getPhone());
+                DeleteMessage deleteInstruction = new DeleteMessage(messageVM.messageId, localUser.getPhone(), currentlySelectedUser.getPhone());
                 connection.sendData(deleteInstruction);
             } catch (IOException e) {
                 e.printStackTrace();
@@ -172,21 +162,6 @@ public class UserChatController implements Initializable {
             UserChatController controller = loader.getController();
             controller.initData(selectedUser, localUser, allUsersList, connection);
             Stage stage = (Stage) usersListView.getScene().getWindow();
-            stage.setScene(new Scene(root));
-            stage.show();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    @FXML
-    void openUserInfo(MouseEvent event) {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("../Views/userInfo.fxml"));
-            Parent root = loader.load();
-            UserInfoController controller = loader.getController();
-            controller.initData(currentlySelectedUser, localUser, allUsersList, connection);
-            Stage stage = (Stage) userInfoButton.getScene().getWindow();
             stage.setScene(new Scene(root));
             stage.show();
         } catch (IOException e) {
@@ -224,48 +199,64 @@ public class UserChatController implements Initializable {
         }
     }
 
+    @FXML
+    void openUserInfo(MouseEvent event) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("../Views/userInfo.fxml"));
+            Parent root = loader.load();
+            UserInfoController controller = loader.getController();
+            controller.initData(currentlySelectedUser, localUser, allUsersList, connection);
+            Stage stage = (Stage) userInfoButton.getScene().getWindow();
+            stage.setScene(new Scene(root));
+            stage.show();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
     private void handleIncomingData(Serializable data) {
         Platform.runLater(() -> {
             try {
+                UserViewModel senderUser = null;
                 if (data instanceof ImageMessage) {
                     ImageMessage imgMsg = (ImageMessage) data;
-                    UserViewModel senderUser = findUserByPhone(imgMsg.sender);
-                    if (senderUser == null || !imgMsg.receiver.equals(localUser.getPhone())) return;
+                    if (!imgMsg.receiver.equals(localUser.getPhone())) return;
+                    senderUser = findUserByPhone(imgMsg.sender);
+                    if (senderUser == null) return;
 
                     Image fxImage = new Image(new ByteArrayInputStream(imgMsg.imageData));
-                    MessageViewModel imageMsg = new MessageViewModel(-1, "📷 image", imgMsg.timestamp, false, fxImage);
-                    senderUser.messagesList.add(imageMsg);
+                    senderUser.messagesList.add(new MessageViewModel(-1, "📷 image", imgMsg.timestamp, false, fxImage));
 
                 } else if (data instanceof FileMessage) {
                     FileMessage fileMsg = (FileMessage) data;
-                    UserViewModel senderUser = findUserByPhone(fileMsg.sender);
-                    if (senderUser == null || !fileMsg.receiver.equals(localUser.getPhone())) return;
+                    if (!fileMsg.receiver.equals(localUser.getPhone())) return;
+                    senderUser = findUserByPhone(fileMsg.sender);
+                    if (senderUser == null) return;
 
-                    MessageViewModel fileModel = new MessageViewModel(-1, fileMsg.fileName, fileMsg.fileData, fileMsg.timestamp, false);
-                    senderUser.messagesList.add(fileModel);
+                    senderUser.messagesList.add(new MessageViewModel(-1, fileMsg.fileName, fileMsg.fileData, fileMsg.timestamp, false));
 
                 } else if (data instanceof TextMessage) {
                     TextMessage textMsg = (TextMessage) data;
                     if (!textMsg.receiver.equals(localUser.getPhone())) return;
-                    UserViewModel senderUser = findUserByPhone(textMsg.sender);
+                    senderUser = findUserByPhone(textMsg.sender);
                     if(senderUser == null) return;
 
-                    MessageViewModel newMsg = new MessageViewModel(-1, textMsg.content, textMsg.timestamp, false);
-                    senderUser.messagesList.add(newMsg);
+                    senderUser.messagesList.add(new MessageViewModel(-1, textMsg.content, textMsg.timestamp, false));
 
-                } else if (data instanceof ToolBox.DeleteMessage) {
-                    ToolBox.DeleteMessage deleteMsg = (ToolBox.DeleteMessage) data;
-                    UserViewModel relevantUser = findUserByPhone(deleteMsg.senderPhone);
-                    if (relevantUser != null) {
-                        relevantUser.messagesList.removeIf(msg -> msg.messageId == deleteMsg.messageId);
+                } else if (data instanceof DeleteMessage) {
+                    DeleteMessage deleteMsg = (DeleteMessage) data;
+                    senderUser = findUserByPhone(deleteMsg.senderPhone);
+                    if (senderUser != null) {
+                        senderUser.messagesList.removeIf(msg -> msg.messageId == deleteMsg.messageId);
                     }
                 }
 
-                if (messagesListView != null) messagesListView.refresh();
-                scrollToBottom();
+                if (senderUser != null && senderUser.getPhone().equals(currentlySelectedUser.getPhone())) {
+                    messagesListView.refresh();
+                    scrollToBottom();
+                }
 
             } catch (Exception e) {
-                System.err.println("[ERROR] Failed to handle incoming data: " + e.getMessage());
                 e.printStackTrace();
             }
         });
@@ -279,6 +270,70 @@ public class UserChatController implements Initializable {
     @FXML
     void sendMessageIconClicked(MouseEvent event) {
         executeSendMessage();
+    }
+
+    @FXML
+    void toggleVoiceRecording(MouseEvent event) {
+        if (!isRecording) {
+            voiceRecorder = new VoiceRecorder();
+            voiceRecorder.startRecording();
+            isRecording = true;
+            // You can change the button icon here to indicate recording
+            System.out.println("Started recording...");
+        } else {
+            byte[] voiceData = voiceRecorder.stopRecording();
+            isRecording = false;
+            // Change button icon back
+            System.out.println("Stopped recording, sending voice message...");
+            sendVoiceMessage(voiceData);
+        }
+    }
+
+    private void sendVoiceMessage(byte[] voiceData) {
+        if (voiceData == null || voiceData.length == 0) return;
+
+        try {
+            String fileName = "voice_message_" + System.currentTimeMillis() + ".mp3";
+            String timestamp = getCurrentTime();
+            String mimeType = getMimeType(fileName);
+
+            Optional<Long> mediaIdOpt = DatabaseManager.saveMediaAndGetId(localUserId, voiceData, fileName, mimeType);
+            if(mediaIdOpt.isEmpty()) {
+                System.err.println("Failed to save voice message to database.");
+                return;
+            }
+            long mediaId = mediaIdOpt.get();
+
+            DatabaseManager.saveMessage(localUser.getPhone(), currentlySelectedUser.getPhone(), null, mediaId);
+            loadMessageHistory();
+            scrollToBottom();
+
+            FileMessage voiceMessage = new FileMessage(voiceData, fileName, localUser.getPhone(), currentlySelectedUser.getPhone(), timestamp);
+            connection.sendData(voiceMessage);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+
+    private void executeSendMessage() {
+        String message = messageField.getText();
+        if (message == null || message.trim().isEmpty()) return;
+
+        try {
+            String currentTime = getCurrentTime();
+            DatabaseManager.saveMessage(localUser.getPhone(), currentlySelectedUser.getPhone(), message, null);
+
+            loadMessageHistory();
+            scrollToBottom();
+
+            TextMessage textMessage = new TextMessage(message, localUser.getPhone(), currentlySelectedUser.getPhone(), currentTime);
+            connection.sendData(textMessage);
+
+            messageField.clear();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     @FXML
@@ -323,27 +378,6 @@ public class UserChatController implements Initializable {
         }
     }
 
-
-    private void executeSendMessage() {
-        String message = messageField.getText();
-        if (message == null || message.trim().isEmpty()) return;
-
-        try {
-            String currentTime = getCurrentTime();
-            DatabaseManager.saveMessage(localUser.getPhone(), currentlySelectedUser.getPhone(), message, null);
-
-            loadMessageHistory();
-            scrollToBottom();
-
-            TextMessage textMessage = new TextMessage(message, localUser.getPhone(), currentlySelectedUser.getPhone(), currentTime);
-            connection.sendData(textMessage);
-
-            messageField.clear();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
     @FXML
     void logoutClicked(ActionEvent event) {
         try {
@@ -361,7 +395,12 @@ public class UserChatController implements Initializable {
 
 
     private String getMimeType(String fileName) {
-        String extension = fileName.substring(fileName.lastIndexOf(".") + 1).toLowerCase();
+        String extension = "";
+        int i = fileName.lastIndexOf('.');
+        if (i > 0) {
+            extension = fileName.substring(i+1).toLowerCase();
+        }
+
         switch (extension) {
             case "png": return "image/png";
             case "jpg":
@@ -369,6 +408,7 @@ public class UserChatController implements Initializable {
             case "gif": return "image/gif";
             case "pdf": return "application/pdf";
             case "docx": return "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
+            case "mp3": return "audio/mpeg";
             default: return "application/octet-stream";
         }
     }

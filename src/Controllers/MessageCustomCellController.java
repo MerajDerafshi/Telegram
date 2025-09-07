@@ -22,7 +22,6 @@ public class MessageCustomCellController extends ListCell<MessageViewModel> {
     @FXML private Label messageLabel;
     @FXML private Label messageTimeLabel;
 
-    // This will be set by the UserChatController
     public Runnable deleteCallback;
 
     @Override
@@ -80,8 +79,12 @@ public class MessageCustomCellController extends ListCell<MessageViewModel> {
 
                 if (item.fileName.toLowerCase().endsWith(".pdf")) {
                     MenuItem open = new MenuItem("👁️Open PDF");
-                    open.setOnAction(e -> openPdf(item.fileName, item.fileData));
+                    open.setOnAction(e -> openFileWithDefaultApp(item.fileName, item.fileData));
                     contextMenu.getItems().add(0, open);
+                } else if (item.fileName.toLowerCase().endsWith(".mp3")) {
+                    MenuItem play = new MenuItem("▶️ Play Audio");
+                    play.setOnAction(e -> openFileWithDefaultApp(item.fileName, item.fileData));
+                    contextMenu.getItems().add(0, play);
                 }
                 contextMenu.getItems().add(0, download);
             }
@@ -113,9 +116,11 @@ public class MessageCustomCellController extends ListCell<MessageViewModel> {
         }
     }
 
-    private void openPdf(String fileName, byte[] data) {
+    private void openFileWithDefaultApp(String fileName, byte[] data) {
         try {
-            File temp = File.createTempFile("chatfile_", "_" + fileName);
+            String prefix = fileName.substring(0, fileName.lastIndexOf('.'));
+            String suffix = fileName.substring(fileName.lastIndexOf('.'));
+            File temp = File.createTempFile(prefix + "_", suffix);
             temp.deleteOnExit();
             try (FileOutputStream fos = new FileOutputStream(temp)) {
                 fos.write(data);
