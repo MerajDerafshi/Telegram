@@ -34,26 +34,22 @@ public class CreateChannelController2 implements Initializable {
         this.channelAvatar = channelAvatar;
         this.localUser = localUser;
 
-        // Filter out channels, showing only users, and reset their selection state
         this.userList = allUsers.stream()
                 .filter(u -> !u.isChannel)
-                .peek(u -> u.setSelected(false)) // Reset selection state for fresh use
-                .collect(Collectors.toCollection(FXCollections::observableArrayList)); // CORRECTED: Fixed the collector syntax
+                .peek(u -> u.setSelected(false))
+                .collect(Collectors.toCollection(FXCollections::observableArrayList));
 
         usersListView.setItems(userList);
-        // Set the custom cell factory for the redesigned cell
         usersListView.setCellFactory(param -> new AddUserCellController());
     }
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        // Selection is now handled by the checkbox, so we can allow multiple selections on the view
         usersListView.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
     }
 
     @FXML
     void createChannel(ActionEvent event) {
-        // Get selected users by checking the 'selected' property in our view model
         List<UserViewModel> selectedUsers = userList.stream()
                 .filter(UserViewModel::isSelected)
                 .collect(Collectors.toList());
