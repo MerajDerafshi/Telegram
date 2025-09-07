@@ -18,6 +18,7 @@ import javafx.scene.image.Image;
 import javafx.scene.input.MouseEvent;
 import javafx.stage.Stage;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.Serializable;
 import java.net.URL;
@@ -32,6 +33,7 @@ public class HomeViewController implements Initializable {
     @FXML private ListView<UserViewModel> usersListView;
     @FXML private Button logoutButton;
     @FXML private Button savedMessagesButton;
+    @FXML private Button profileButton;
 
 
     private NetworkConnection connection;
@@ -42,7 +44,6 @@ public class HomeViewController implements Initializable {
     public void initialize(URL location, ResourceBundle resources) {
         String currentUserPhone = LogInController.userName;
 
-        // Fetch local user's full details to get their first name
         Optional<DatabaseManager.User> dbUserOptional = DatabaseManager.getUserByPhone(currentUserPhone);
         String localUserFirstName = dbUserOptional.map(user -> user.firstName).orElse(currentUserPhone);
         String localUserUsername = dbUserOptional.map(user -> user.username).orElse(currentUserPhone);
@@ -52,7 +53,13 @@ public class HomeViewController implements Initializable {
 
         allUsersList = FXCollections.observableArrayList(
                 DatabaseManager.getAllUsers(currentUserPhone).stream()
-                        .map(dbUser -> new UserViewModel(dbUser.firstName, dbUser.username, dbUser.phone, "Click to chat", getCurrentTime(), "0", new Image("resources/img/smile.png")))
+                        .map(dbUser -> {
+                            Image avatar = new Image("resources/img/smile.png"); // Default avatar
+                            if (dbUser.avatar != null && dbUser.avatar.length > 0) {
+                                avatar = new Image(new ByteArrayInputStream(dbUser.avatar));
+                            }
+                            return new UserViewModel(dbUser.firstName, dbUser.username, dbUser.phone, "Click to chat", getCurrentTime(), "0", avatar);
+                        })
                         .collect(Collectors.toList())
         );
 
@@ -70,7 +77,6 @@ public class HomeViewController implements Initializable {
     }
 
     private void handleIncomingData(Serializable data) {
-        // Placeholder for handling notifications on the home screen in the future
         Platform.runLater(() -> System.out.println("Data received on home screen: " + data));
     }
 
@@ -81,6 +87,21 @@ public class HomeViewController implements Initializable {
             UserChatController controller = loader.getController();
             controller.initData(selectedUser, localUser, allUsersList, connection);
             Stage stage = (Stage) usersListView.getScene().getWindow();
+            stage.setScene(new Scene(root));
+            stage.show();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @FXML
+    void openProfile(MouseEvent event) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("../Views/Profile.fxml"));
+            Parent root = loader.load();
+            ProfileController controller = loader.getController();
+            controller.initData(localUser, allUsersList, connection);
+            Stage stage = (Stage) profileButton.getScene().getWindow();
             stage.setScene(new Scene(root));
             stage.show();
         } catch (IOException e) {
@@ -118,3 +139,4 @@ public class HomeViewController implements Initializable {
         }
     }
 }
+

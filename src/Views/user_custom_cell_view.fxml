@@ -2,7 +2,6 @@
 
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Label?>
-<?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.GridPane?>
@@ -24,10 +23,10 @@
    <children>
       <VBox alignment="CENTER">
          <children>
-            <ImageView fx:id="avatarImage" fitHeight="50.0" fitWidth="78.0" pickOnBounds="true" preserveRatio="true" VBox.vgrow="ALWAYS">
-               <image>
-                  <Image url="@../resources/img/email.png" />
-               </image>
+            <ImageView fx:id="avatarImage" fitHeight="50.0" fitWidth="50.0" pickOnBounds="true" preserveRatio="true" VBox.vgrow="ALWAYS">
+               <clip>
+                  <Circle radius="25" centerX="25" centerY="25" />
+               </clip>
             </ImageView>
          </children>
       </VBox>

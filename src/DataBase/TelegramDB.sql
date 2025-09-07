@@ -20,6 +20,7 @@ CREATE TABLE IF NOT EXISTS users (
     password_hash TEXT NOT NULL,
     bio TEXT,
     avatar_url TEXT,
+    avatar LONGBLOB,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     last_seen TIMESTAMP,
 	theme TEXT,

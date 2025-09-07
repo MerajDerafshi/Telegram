@@ -46,6 +46,7 @@ public class UserChatController implements Initializable {
     @FXML private ListView<MessageViewModel> messagesListView;
     @FXML private Button logoutButton;
     @FXML private Button savedMessagesButton;
+    @FXML private Button profileButton;
 
     private NetworkConnection connection;
     private UserViewModel currentlySelectedUser;
@@ -83,7 +84,6 @@ public class UserChatController implements Initializable {
         messagesListView.setCellFactory(param -> {
             MessageCustomCellController cell = new MessageCustomCellController();
             cell.prefWidthProperty().bind(messagesListView.widthProperty());
-            // Set the callback for the delete action
             cell.deleteCallback = () -> deleteMessage(cell.getItem());
             return cell;
         });
@@ -117,14 +117,11 @@ public class UserChatController implements Initializable {
     private void deleteMessage(MessageViewModel messageVM) {
         if (messageVM == null) return;
 
-        // 1. Delete from Database
         boolean success = DatabaseManager.deleteMessage(messageVM.messageId);
 
         if (success) {
-            // 2. Remove from local UI
             currentlySelectedUser.messagesList.remove(messageVM);
 
-            // 3. Send delete instruction to the other user
             try {
                 ToolBox.DeleteMessage deleteInstruction = new ToolBox.DeleteMessage(messageVM.messageId, localUser.getPhone(), currentlySelectedUser.getPhone());
                 connection.sendData(deleteInstruction);
@@ -164,6 +161,21 @@ public class UserChatController implements Initializable {
         }
     }
 
+    @FXML
+    void openProfile(MouseEvent event) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("../Views/Profile.fxml"));
+            Parent root = loader.load();
+            ProfileController controller = loader.getController();
+            controller.initData(localUser, allUsersList, connection);
+            Stage stage = (Stage) profileButton.getScene().getWindow();
+            stage.setScene(new Scene(root));
+            stage.show();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
     private void handleIncomingData(Serializable data) {
         Platform.runLater(() -> {
             try {
@@ -195,7 +207,6 @@ public class UserChatController implements Initializable {
 
                 } else if (data instanceof ToolBox.DeleteMessage) {
                     ToolBox.DeleteMessage deleteMsg = (ToolBox.DeleteMessage) data;
-                    // Find the user whose message is being deleted
                     UserViewModel relevantUser = findUserByPhone(deleteMsg.senderPhone);
                     if (relevantUser != null) {
                         relevantUser.messagesList.removeIf(msg -> msg.messageId == deleteMsg.messageId);
@@ -230,7 +241,6 @@ public class UserChatController implements Initializable {
             String currentTime = getCurrentTime();
             DatabaseManager.saveMessage(localUser.getPhone(), currentlySelectedUser.getPhone(), message, null);
 
-            // Reload to get the new message
             loadMessageHistory();
             scrollToBottom();
 
@@ -329,3 +339,4 @@ public class UserChatController implements Initializable {
         }
     }
 }
+

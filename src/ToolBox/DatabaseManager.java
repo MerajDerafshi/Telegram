@@ -37,10 +37,10 @@ public class DatabaseManager {
         public final String phone;
         public final String email;
         public final String bio;
-        public final String avatarUrl;
+        public final byte[] avatar;
 
         public User(long id, String firstName, String lastName, String username,
-                    String country, String phone, String email, String bio, String avatarUrl) {
+                    String country, String phone, String email, String bio, byte[] avatar) {
             this.id = id;
             this.firstName = firstName;
             this.lastName = lastName;
@@ -49,7 +49,7 @@ public class DatabaseManager {
             this.phone = phone;
             this.email = email;
             this.bio = bio;
-            this.avatarUrl = avatarUrl;
+            this.avatar = avatar;
         }
     }
 
@@ -72,6 +72,60 @@ public class DatabaseManager {
             this.mimeType = mimeType;
         }
     }
+
+    public static boolean updateUserProfile(String oldPhone, String newFirstName, String newPhone, String newUsername, String newBio) {
+        String sql = "UPDATE users SET first_name = ?, phone = ?, username = ?, bio = ? WHERE phone = ?";
+        try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, newFirstName);
+            ps.setString(2, newPhone);
+            ps.setString(3, newUsername);
+            ps.setString(4, newBio);
+            ps.setString(5, oldPhone);
+            return ps.executeUpdate() > 0;
+        } catch (SQLException e) {
+            logSql("updateUserProfile", e);
+            return false;
+        }
+    }
+
+    public static boolean updatePassword(String phone, String newHashedPassword) {
+        String sql = "UPDATE users SET password_hash = ? WHERE phone = ?";
+        try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, newHashedPassword);
+            ps.setString(2, phone);
+            return ps.executeUpdate() > 0;
+        } catch (SQLException e) {
+            logSql("updatePassword", e);
+            return false;
+        }
+    }
+
+    public static boolean updateAvatar(String phone, byte[] avatarData) {
+        String sql = "UPDATE users SET avatar = ? WHERE phone = ?";
+        try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setBytes(1, avatarData);
+            ps.setString(2, phone);
+            return ps.executeUpdate() > 0;
+        } catch (SQLException e) {
+            logSql("updateAvatar", e);
+            return false;
+        }
+    }
+
+    public static byte[] getAvatar(String phone) {
+        String sql = "SELECT avatar FROM users WHERE phone = ?";
+        try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, phone);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getBytes("avatar");
+            }
+        } catch (SQLException e) {
+            logSql("getAvatar", e);
+        }
+        return null;
+    }
+
 
     public static boolean deleteMessage(long messageId) {
         String selectMediaSql = "SELECT media_id FROM messages WHERE id = ?";
@@ -125,7 +179,7 @@ public class DatabaseManager {
 
     public static List<User> getAllUsers(String currentUserPhone) {
         List<User> users = new ArrayList<>();
-        String sql = "SELECT id, first_name, last_name, username, country, phone, email, bio, avatar_url FROM users WHERE phone != ?";
+        String sql = "SELECT id, first_name, last_name, username, country, phone, email, bio, avatar FROM users WHERE phone != ?";
         try (Connection conn = getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, currentUserPhone);
@@ -140,7 +194,7 @@ public class DatabaseManager {
                         rs.getString("phone"),
                         rs.getString("email"),
                         rs.getString("bio"),
-                        rs.getString("avatar_url")
+                        rs.getBytes("avatar")
                 ));
             }
         } catch (SQLException e) {
@@ -164,7 +218,6 @@ public class DatabaseManager {
     }
 
     private static long findOrCreateSelfConversation(long userId) {
-        // Find a 'private' conversation with exactly one participant (the user themselves)
         String findSql = "SELECT c.id FROM conversations c " +
                 "JOIN conversation_participants cp ON c.id = cp.id " +
                 "WHERE c.type = 'private' AND c.creator_id = ? " +
@@ -180,10 +233,9 @@ public class DatabaseManager {
             logSql("findSelfConversation", e);
         }
 
-        // If not found, create it
         String createConvSql = "INSERT INTO conversations (id, type, creator_id) VALUES (?, 'private', ?)";
         String addPartSql = "INSERT INTO conversation_participants (id, user_id) VALUES (?, ?)";
-        long newConversationId = Math.abs(System.nanoTime() + userId); // Use nanoTime for better uniqueness
+        long newConversationId = Math.abs(System.nanoTime() + userId);
 
         try (Connection conn = getConnection()) {
             conn.setAutoCommit(false);
@@ -213,7 +265,6 @@ public class DatabaseManager {
     }
 
     public static long findOrCreatePrivateConversation(long user1Id, long user2Id) {
-        // Handle the "Saved Messages" case where the user chats with themselves.
         if (user1Id == user2Id) {
             return findOrCreateSelfConversation(user1Id);
         }
@@ -394,7 +445,7 @@ public class DatabaseManager {
     }
 
     public static Optional<User> getUserByPhone(String phone) {
-        final String sql = "SELECT id, first_name, last_name, username, country, phone, email, bio, avatar_url FROM users WHERE phone = ? LIMIT 1";
+        final String sql = "SELECT id, first_name, last_name, username, country, phone, email, bio, avatar FROM users WHERE phone = ? LIMIT 1";
         try (Connection conn = getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, phone);
@@ -409,7 +460,7 @@ public class DatabaseManager {
                             rs.getString("phone"),
                             rs.getString("email"),
                             rs.getString("bio"),
-                            rs.getString("avatar_url")
+                            rs.getBytes("avatar")
                     ));
                 }
             }
@@ -439,3 +490,4 @@ public class DatabaseManager {
         System.err.println("[DB] " + op + " failed: " + e.getMessage());
     }
 }
+
