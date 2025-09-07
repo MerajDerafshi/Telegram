@@ -20,6 +20,7 @@ import javafx.scene.input.MouseEvent;
 import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -87,27 +88,6 @@ public class SavedMessagesController implements Initializable {
         scrollToBottom();
     }
 
-    @FXML
-    void openNewChannelCreator(MouseEvent event) {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("../Views/createChannel1.fxml"));
-            Parent root = loader.load();
-
-            Stage stage = new Stage();
-            stage.initModality(Modality.APPLICATION_MODAL);
-            stage.setTitle("Create New Channel");
-            stage.setScene(new Scene(root));
-            stage.showAndWait();
-
-            Parent homeRoot = FXMLLoader.load(getClass().getResource("../Views/homeView.fxml"));
-            Stage mainStage = (Stage) newChannelButton.getScene().getWindow();
-            mainStage.setScene(new Scene(homeRoot));
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
     private void loadMessageHistory() {
         List<DatabaseManager.Message> history = DatabaseManager.loadMessages(localUser.getPhone(), localUser.getPhone());
         savedMessagesUser.messagesList.clear();
@@ -154,7 +134,7 @@ public class SavedMessagesController implements Initializable {
     }
 
     private void handleIncomingData(Serializable data) {
-        // This can be left empty
+        // Not needed for saved messages
     }
 
     @FXML
@@ -225,6 +205,25 @@ public class SavedMessagesController implements Initializable {
     }
 
     @FXML
+    void openNewChannel(MouseEvent event) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("../Views/createChannel1.fxml"));
+            Parent root = loader.load();
+            CreateChannelController1 controller = loader.getController();
+            // CORRECTED: Passing the correct arguments
+            controller.initData(localUser, allUsersList);
+            Stage stage = new Stage();
+            stage.initModality(Modality.APPLICATION_MODAL);
+            stage.initStyle(StageStyle.UTILITY);
+            stage.setScene(new Scene(root));
+            stage.showAndWait();
+            goHome();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @FXML
     void openProfile(MouseEvent event) {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("../Views/Profile.fxml"));
@@ -256,6 +255,18 @@ public class SavedMessagesController implements Initializable {
         if (savedMessagesUser != null && !savedMessagesUser.messagesList.isEmpty()) {
             messagesListView.scrollTo(savedMessagesUser.messagesList.size() - 1);
         }
+    }
 
+    private void goHome() {
+        try {
+            Stage stage = (Stage) newChannelButton.getScene().getWindow();
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("../Views/homeView.fxml"));
+            Parent root = loader.load();
+            stage.setScene(new Scene(root));
+            stage.show();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }
+

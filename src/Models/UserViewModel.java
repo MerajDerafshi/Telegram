@@ -5,10 +5,10 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.image.Image;
 
-
 public class UserViewModel {
-    public String firstName; // For users, this is their name. For channels, it's the channel title.
-    public String username; // The unique username
+    // Existing fields
+    public String firstName;
+    public String username;
     public String phone;
     public SimpleStringProperty lastMessage;
     public SimpleStringProperty time;
@@ -16,14 +16,15 @@ public class UserViewModel {
     public Image avatarImage;
     public ObservableList<MessageViewModel> messagesList;
 
-    // -- Channel Specific Fields --
-    private boolean isChannel = false;
-    private long channelId = -1;
-    private boolean isCreator = false;
-
+    // --- MODIFIED FIELDS: Access changed to public ---
+    public boolean isChannel = false;
+    public long userId;
+    public long channelId;
+    public long creatorId;
+    // ------------------------------------------------
 
     /**
-     * Constructor for users displayed in the list.
+     * Constructor for users in the list.
      */
     public UserViewModel(String firstName, String username, String phone, String lastMessage, String time, String notificationsNumber, Image avatarImage) {
         this.firstName = firstName;
@@ -51,21 +52,19 @@ public class UserViewModel {
     }
 
     /**
-     * Constructor for Channels.
+     * --- NEW ---
+     * Constructor specifically for channels.
      */
-    public UserViewModel(long channelId, String channelName, String lastMessage, String time, Image avatarImage, boolean isCreator) {
-        this.channelId = channelId;
-        this.firstName = channelName; // Re-using firstName for channel title
-        this.lastMessage = new SimpleStringProperty(lastMessage);
-        this.time = new SimpleStringProperty(time);
-        this.avatarImage = avatarImage;
+    public UserViewModel(long channelId, String channelName, long creatorId, Image avatar) {
         this.isChannel = true;
-        this.isCreator = isCreator;
-        this.messagesList = FXCollections.observableArrayList();
-        // Other fields can be null or default for channels
-        this.username = "channel";
-        this.phone = String.valueOf(channelId);
+        this.channelId = channelId;
+        this.creatorId = creatorId;
+        this.firstName = channelName; // Use firstName for the channel's name
+        this.avatarImage = avatar;
+        this.lastMessage = new SimpleStringProperty("Channel");
+        this.time = new SimpleStringProperty("");
         this.notificationsNumber = new SimpleStringProperty("0");
+        messagesList = FXCollections.observableArrayList();
     }
 
 
@@ -104,10 +103,5 @@ public class UserViewModel {
     public Image getAvatarImage() {
         return avatarImage;
     }
-
-    // -- Channel Specific Getters --
-    public boolean isChannel() { return isChannel; }
-    public long getChannelId() { return channelId; }
-    public boolean isCreator() { return isCreator; }
-
 }
+

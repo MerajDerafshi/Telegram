@@ -1,6 +1,8 @@
 package Controllers;
 
+import Models.UserViewModel;
 import ToolBox.ImageCropper;
+import javafx.collections.ObservableList;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -12,7 +14,9 @@ import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.stage.FileChooser;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -23,12 +27,20 @@ import java.io.IOException;
 public class CreateChannelController1 {
 
     @FXML private ImageView channelAvatarImageView;
-    @FXML private Button channelAvatarButton;
     @FXML private TextField channelNameField;
     @FXML private Button nextButton;
     @FXML private Button cancelButton;
+    @FXML private Button chooseAvatarButton;
 
-    private byte[] channelAvatarData;
+
+    private byte[] avatarData;
+    private UserViewModel localUser;
+    private ObservableList<UserViewModel> allUsersList;
+
+    public void initData(UserViewModel localUser, ObservableList<UserViewModel> allUsers) {
+        this.localUser = localUser;
+        this.allUsersList = allUsers;
+    }
 
     @FXML
     void chooseAvatar(ActionEvent event) {
@@ -45,8 +57,7 @@ public class CreateChannelController1 {
 
                 ByteArrayOutputStream baos = new ByteArrayOutputStream();
                 ImageIO.write(croppedImage, "png", baos);
-                channelAvatarData = baos.toByteArray();
-
+                avatarData = baos.toByteArray();
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -54,10 +65,10 @@ public class CreateChannelController1 {
     }
 
     @FXML
-    void nextClicked(ActionEvent event) {
+    void nextButtonClicked(ActionEvent event) {
         String channelName = channelNameField.getText();
-        if (channelName.trim().isEmpty()) {
-            System.out.println("Channel name cannot be empty.");
+        if (channelName == null || channelName.trim().isEmpty()) {
+            System.err.println("Channel name cannot be empty.");
             return;
         }
 
@@ -66,11 +77,16 @@ public class CreateChannelController1 {
             Parent root = loader.load();
 
             CreateChannelController2 controller = loader.getController();
-            controller.initData(channelName, channelAvatarData);
+            controller.initData(channelName, avatarData, localUser, allUsersList);
 
-            Stage stage = (Stage) nextButton.getScene().getWindow();
+            Stage stage = new Stage();
+            stage.initModality(Modality.APPLICATION_MODAL);
+            stage.initStyle(StageStyle.UTILITY);
+            stage.setTitle("Add Members");
             stage.setScene(new Scene(root));
-            stage.show();
+            stage.showAndWait();
+
+            closeWindow();
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -78,7 +94,11 @@ public class CreateChannelController1 {
     }
 
     @FXML
-    void cancelClicked(ActionEvent event) {
+    void cancelButtonClicked(ActionEvent event) {
+        closeWindow();
+    }
+
+    private void closeWindow() {
         Stage stage = (Stage) cancelButton.getScene().getWindow();
         stage.close();
     }

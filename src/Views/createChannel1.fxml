@@ -11,21 +11,21 @@
 
 <Pane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="160.0" prefWidth="350.0" style="-fx-background-color: #17212B;" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controllers.CreateChannelController1">
    <children>
-      <Button fx:id="channelAvatarButton" onAction="#chooseAvatar" layoutX="14.0" layoutY="14.0" mnemonicParsing="false" prefHeight="80.0" prefWidth="80.0" style="-fx-background-color: #5eb5f7; -fx-background-radius: 40;">
+      <Button fx:id="chooseAvatarButton" layoutX="14.0" layoutY="14.0" onAction="#chooseAvatar" mnemonicParsing="false" prefHeight="80.0" prefWidth="80.0" style="-fx-background-color: #5eb5f7;">
          <graphic>
             <ImageView fx:id="channelAvatarImageView" fitHeight="70.0" fitWidth="70.0" pickOnBounds="true" preserveRatio="true">
-               <clip>
-                  <javafx.scene.shape.Circle centerX="35.0" centerY="35.0" radius="35.0" />
-               </clip>
+               <image>
+                  <!-- Default icon -->
+               </image>
             </ImageView>
          </graphic>
       </Button>
-      <Button fx:id="nextButton" onAction="#nextClicked" layoutX="256.0" layoutY="116.0" mnemonicParsing="false" prefHeight="30.0" prefWidth="80.0" style="-fx-background-color: rgb(0,0,0,0);" text="Next" textFill="#5eb5f7">
+      <Button fx:id="nextButton" onAction="#nextButtonClicked" layoutX="256.0" layoutY="116.0" mnemonicParsing="false" prefHeight="30.0" prefWidth="80.0" style="-fx-background-color: rgb(0,0,0,0);" text="Next" textFill="#5eb5f7">
          <font>
             <Font size="14.0" />
          </font>
       </Button>
-      <Button fx:id="cancelButton" onAction="#cancelClicked" layoutX="175.0" layoutY="116.0" mnemonicParsing="false" prefHeight="30.0" prefWidth="80.0" style="-fx-background-color: rgb(0,0,0,0);" text="Cancel" textFill="#5eb5f7">
+      <Button fx:id="cancelButton" onAction="#cancelButtonClicked" layoutX="175.0" layoutY="116.0" mnemonicParsing="false" prefHeight="30.0" prefWidth="80.0" style="-fx-background-color: rgb(0,0,0,0);" text="Cancel" textFill="#5eb5f7">
          <font>
             <Font size="14.0" />
          </font>
@@ -35,3 +35,4 @@
       <Label layoutX="105.0" layoutY="22.0" prefHeight="17.0" prefWidth="80.0" text="Channel Name" textFill="#5eb5f7" />
    </children>
 </Pane>
+

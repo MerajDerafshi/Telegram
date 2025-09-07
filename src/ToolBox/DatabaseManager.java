@@ -1,7 +1,6 @@
 package ToolBox;
 
 import java.sql.*;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -28,6 +27,7 @@ public class DatabaseManager {
         return c;
     }
 
+    // --- Inner Classes for Data Models ---
     public static final class User {
         public final long id;
         public final String firstName;
@@ -53,6 +53,20 @@ public class DatabaseManager {
         }
     }
 
+    public static final class Channel {
+        public final long id;
+        public final String title;
+        public final long creatorId;
+        public final byte[] avatar;
+
+        public Channel(long id, String title, long creatorId, byte[] avatar) {
+            this.id = id;
+            this.title = title;
+            this.creatorId = creatorId;
+            this.avatar = avatar;
+        }
+    }
+
     public static final class Message {
         public final long id;
         public final long senderId;
@@ -73,114 +87,32 @@ public class DatabaseManager {
         }
     }
 
-    public static final class Channel {
-        public final long id;
-        public final String title;
-        public final long creatorId;
-        public final byte[] avatar;
-
-        public Channel(long id, String title, long creatorId, byte[] avatar) {
-            this.id = id;
-            this.title = title;
-            this.creatorId = creatorId;
-            this.avatar = avatar;
-        }
-    }
-
-    // START: New Channel Methods
-    public static boolean createChannel(String title, String creatorPhone, List<String> memberPhones, byte[] avatar) {
-        Optional<Long> creatorIdOpt = getUserId(creatorPhone);
-        if (creatorIdOpt.isEmpty()) return false;
-        long creatorId = creatorIdOpt.get();
-
-        String createConvSql = "INSERT INTO conversations (id, type, title, creator_id, picture) VALUES (?, 'channel', ?, ?, ?)";
-        String addPartSql = "INSERT INTO conversation_participants (id, user_id, role) VALUES (?, ?, ?)";
-        long newConversationId = Math.abs(System.nanoTime() + creatorId);
-
-        try (Connection conn = getConnection()) {
-            conn.setAutoCommit(false);
-            try (PreparedStatement psCreate = conn.prepareStatement(createConvSql)) {
-
-                psCreate.setLong(1, newConversationId);
-                psCreate.setString(2, title);
-                psCreate.setLong(3, creatorId);
-                psCreate.setBytes(4, avatar);
-                psCreate.executeUpdate();
-
-                try(PreparedStatement psAdd = conn.prepareStatement(addPartSql)) {
-                    for (String phone : memberPhones) {
-                        Optional<Long> userIdOpt = getUserId(phone);
-                        if(userIdOpt.isPresent()){
-                            psAdd.setLong(1, newConversationId);
-                            psAdd.setLong(2, userIdOpt.get());
-                            if(phone.equals(creatorPhone)){
-                                psAdd.setString(3, "owner");
-                            } else {
-                                psAdd.setString(3, "member");
-                            }
-                            psAdd.addBatch();
-                        }
-                    }
-                    psAdd.executeBatch();
-                }
-
-                conn.commit();
-                return true;
-            } catch (SQLException e) {
-                conn.rollback();
-                logSql("createChannel", e);
-                return false;
-            }
-        } catch (SQLException e) {
-            logSql("createChannelTransaction", e);
-            return false;
-        }
-    }
-
-    public static List<Channel> getChannelsForUser(String userPhone) {
-        List<Channel> channels = new ArrayList<>();
-        Optional<Long> userIdOpt = getUserId(userPhone);
-        if (userIdOpt.isEmpty()) return channels;
-        long userId = userIdOpt.get();
-
-        String sql = "SELECT c.id, c.title, c.creator_id, c.picture FROM conversations c " +
-                "JOIN conversation_participants cp ON c.id = cp.id " +
-                "WHERE cp.user_id = ? AND c.type = 'channel'";
-
-        try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setLong(1, userId);
+    public static List<String> getChannelMemberPhones(long channelId) {
+        List<String> memberPhones = new ArrayList<>();
+        String sql = "SELECT u.phone FROM users u " +
+                "JOIN conversation_participants cp ON u.id = cp.user_id " +
+                "WHERE cp.id = ?";
+        try (Connection conn = getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setLong(1, channelId);
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
-                channels.add(new Channel(
-                        rs.getLong("id"),
-                        rs.getString("title"),
-                        rs.getLong("creator_id"),
-                        rs.getBytes("picture")
-                ));
+                memberPhones.add(rs.getString("phone"));
             }
         } catch (SQLException e) {
-            logSql("getChannelsForUser", e);
+            logSql("getChannelMemberPhones", e);
         }
-        return channels;
+        return memberPhones;
     }
 
-    public static boolean saveChannelMessage(long channelId, long senderId, String content) {
-        String sql = "INSERT INTO messages (id, conversation_id, sender_id, content) VALUES (?, ?, ?, ?)";
-        try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setLong(1, System.nanoTime());
-            ps.setLong(2, channelId);
-            ps.setLong(3, senderId);
-            ps.setString(4, content);
-            return ps.executeUpdate() > 0;
-        } catch (SQLException e) {
-            logSql("saveChannelMessage", e);
-            return false;
-        }
-    }
-
+    // --- START: NEW METHOD ---
     public static List<Message> loadChannelMessages(long channelId) {
         List<Message> messages = new ArrayList<>();
-        String sql = "SELECT id, sender_id, content, created_at FROM messages WHERE conversation_id = ? ORDER BY created_at ASC";
+        String sql = "SELECT m.id, m.sender_id, m.content, m.created_at, " +
+                "med.media_data, med.file_name, med.mime_type " +
+                "FROM messages m LEFT JOIN media med ON m.media_id = med.id " +
+                "WHERE m.conversation_id = ? ORDER BY m.created_at ASC";
+
         try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setLong(1, channelId);
             ResultSet rs = ps.executeQuery();
@@ -190,7 +122,9 @@ public class DatabaseManager {
                         rs.getLong("sender_id"),
                         rs.getString("content"),
                         rs.getTimestamp("created_at"),
-                        null, null, null // Channels are text-only for now
+                        rs.getBytes("media_data"),
+                        rs.getString("file_name"),
+                        rs.getString("mime_type")
                 ));
             }
         } catch (SQLException e) {
@@ -198,22 +132,8 @@ public class DatabaseManager {
         }
         return messages;
     }
+    // --- END: NEW METHOD ---
 
-    public static List<String> getChannelMemberPhones(long channelId) {
-        List<String> phones = new ArrayList<>();
-        String sql = "SELECT u.phone FROM users u JOIN conversation_participants cp ON u.id = cp.user_id WHERE cp.id = ?";
-        try(Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setLong(1, channelId);
-            ResultSet rs = ps.executeQuery();
-            while(rs.next()) {
-                phones.add(rs.getString("phone"));
-            }
-        } catch (SQLException e) {
-            logSql("getChannelMemberPhones", e);
-        }
-        return phones;
-    }
-    // END: New Channel Methods
 
     public static boolean updateUserProfile(String oldPhone, String newFirstName, String newPhone, String newUsername, String newBio) {
         String sql = "UPDATE users SET first_name = ?, phone = ?, username = ?, bio = ? WHERE phone = ?";
@@ -309,8 +229,8 @@ public class DatabaseManager {
             return true;
         } catch (SQLException e) {
             logSql("deleteMessage", e);
-            try (Connection conn = getConnection()) {
-                if (conn != null) conn.rollback();
+            try (Connection conn2 = getConnection()) {
+                if (conn2 != null) conn2.rollback();
             } catch (SQLException ex) {
                 logSql("deleteMessageRollback", ex);
             }
@@ -327,7 +247,6 @@ public class DatabaseManager {
         long conversationId = findOrCreatePrivateConversation(user1IdOpt.get(), user2IdOpt.get());
         if (conversationId == -1) return true; // No conversation to delete
 
-        // First, get all media_id's from the messages to be deleted
         String selectMediaSql = "SELECT media_id FROM messages WHERE conversation_id = ? AND media_id IS NOT NULL";
         List<Long> mediaIds = new ArrayList<>();
         try (Connection conn = getConnection();
@@ -348,13 +267,11 @@ public class DatabaseManager {
         try (Connection conn = getConnection()) {
             conn.setAutoCommit(false);
 
-            // Delete messages
             try (PreparedStatement psDeleteMessages = conn.prepareStatement(deleteMessagesSql)) {
                 psDeleteMessages.setLong(1, conversationId);
                 psDeleteMessages.executeUpdate();
             }
 
-            // Delete associated media
             if (!mediaIds.isEmpty()) {
                 try (PreparedStatement psDeleteMedia = conn.prepareStatement(deleteMediaSql)) {
                     for (Long mediaId : mediaIds) {
@@ -369,15 +286,14 @@ public class DatabaseManager {
             return true;
         } catch (SQLException e) {
             logSql("deleteChatHistory-transaction", e);
-            try(Connection conn = getConnection()){
-                if(conn != null) conn.rollback();
+            try(Connection conn2 = getConnection()){
+                if(conn2 != null) conn2.rollback();
             } catch (SQLException ex) {
                 logSql("deleteChatHistory-rollback", ex);
             }
             return false;
         }
     }
-
 
     public static List<User> getAllUsers(String currentUserPhone) {
         List<User> users = new ArrayList<>();
@@ -671,6 +587,146 @@ public class DatabaseManager {
         }
         return Optional.empty();
     }
+
+    public static long createChannel(String title, byte[] avatar, long creatorId, List<Long> memberIds) {
+        String createConvSql = "INSERT INTO conversations (id, type, title, creator_id, picture) VALUES (?, 'channel', ?, ?, ?)";
+        String addPartSql = "INSERT INTO conversation_participants (id, user_id, role) VALUES (?, ?, ?)";
+        long newConversationId = Math.abs(System.nanoTime() + creatorId);
+
+        try (Connection conn = getConnection()) {
+            conn.setAutoCommit(false);
+            try (PreparedStatement psCreate = conn.prepareStatement(createConvSql);
+                 PreparedStatement psAdd = conn.prepareStatement(addPartSql)) {
+
+                psCreate.setLong(1, newConversationId);
+                psCreate.setString(2, title);
+                psCreate.setLong(3, creatorId);
+                if (avatar != null) {
+                    psCreate.setBytes(4, avatar);
+                } else {
+                    psCreate.setNull(4, Types.BLOB);
+                }
+                psCreate.executeUpdate();
+
+                psAdd.setLong(1, newConversationId);
+                psAdd.setLong(2, creatorId);
+                psAdd.setString(3, "owner");
+                psAdd.addBatch();
+
+                for (Long memberId : memberIds) {
+                    psAdd.setLong(1, newConversationId);
+                    psAdd.setLong(2, memberId);
+                    psAdd.setString(3, "member");
+                    psAdd.addBatch();
+                }
+                psAdd.executeBatch();
+
+                conn.commit();
+                return newConversationId;
+
+            } catch (SQLException e) {
+                conn.rollback();
+                logSql("createChannel", e);
+            }
+        } catch (SQLException e) {
+            logSql("transactionSetupChannel", e);
+        }
+        return -1;
+    }
+
+    public static List<Channel> getChannelsForUser(String phone) {
+        List<Channel> channels = new ArrayList<>();
+        getUserId(phone).ifPresent(userId -> {
+            String sql = "SELECT c.id, c.title, c.creator_id, c.picture FROM conversations c " +
+                    "JOIN conversation_participants cp ON c.id = cp.id " +
+                    "WHERE cp.user_id = ? AND c.type = 'channel'";
+            try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+                ps.setLong(1, userId);
+                ResultSet rs = ps.executeQuery();
+                while (rs.next()) {
+                    channels.add(new Channel(
+                            rs.getLong("id"),
+                            rs.getString("title"),
+                            rs.getLong("creator_id"),
+                            rs.getBytes("picture")
+                    ));
+                }
+            } catch (SQLException e) {
+                logSql("getChannelsForUser", e);
+            }
+        });
+        return channels;
+    }
+
+    public static long saveChannelMessage(long channelId, long senderId, String content, Long mediaId) {
+        String sql = "INSERT INTO messages (id, conversation_id, sender_id, content, media_id) VALUES (?, ?, ?, ?, ?)";
+        long messageId = System.nanoTime();
+        try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setLong(1, messageId);
+            ps.setLong(2, channelId);
+            ps.setLong(3, senderId);
+            ps.setString(4, content);
+
+            if (mediaId != null) {
+                ps.setLong(5, mediaId);
+            } else {
+                ps.setNull(5, Types.BIGINT);
+            }
+
+            if (ps.executeUpdate() > 0) {
+                return messageId;
+            }
+        } catch (SQLException e) {
+            logSql("saveChannelMessage", e);
+        }
+        return -1;
+    }
+
+    public static boolean leaveChannel(long channelId, long userId) {
+        String sql = "DELETE FROM conversation_participants WHERE id = ? AND user_id = ?";
+        try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setLong(1, channelId);
+            ps.setLong(2, userId);
+            return ps.executeUpdate() > 0;
+        } catch (SQLException e) {
+            logSql("leaveChannel", e);
+            return false;
+        }
+    }
+
+    public static boolean deleteChannel(long channelId) {
+        String deleteParticipantsSql = "DELETE FROM conversation_participants WHERE id = ?";
+        String deleteMessagesSql = "DELETE FROM messages WHERE conversation_id = ?";
+        String deleteConversationSql = "DELETE FROM conversations WHERE id = ?";
+
+        try (Connection conn = getConnection()) {
+            conn.setAutoCommit(false);
+            try (PreparedStatement ps1 = conn.prepareStatement(deleteParticipantsSql);
+                 PreparedStatement ps2 = conn.prepareStatement(deleteMessagesSql);
+                 PreparedStatement ps3 = conn.prepareStatement(deleteConversationSql)) {
+
+                ps1.setLong(1, channelId);
+                ps1.executeUpdate();
+
+                ps2.setLong(1, channelId);
+                ps2.executeUpdate();
+
+                ps3.setLong(1, channelId);
+                ps3.executeUpdate();
+
+                conn.commit();
+                return true;
+            } catch (SQLException e) {
+                conn.rollback();
+                logSql("deleteChannel", e);
+                return false;
+            }
+        } catch (SQLException e) {
+            logSql("transactionDeleteChannel", e);
+            return false;
+        }
+    }
+
 
     public static boolean verifyPassword(String phoneNumber, String plainPassword) {
         String sql = "SELECT password_hash FROM users WHERE phone = ?";

@@ -1,9 +1,6 @@
 package Server;
 
-import ToolBox.ChannelMessage;
-import ToolBox.DatabaseManager;
-import ToolBox.DeleteMessage;
-import ToolBox.TextMessage;
+import ToolBox.*;
 
 import java.io.*;
 import java.net.*;
@@ -34,15 +31,6 @@ public class Server {
             receiverHandler.sendMessage(data);
         } else {
             System.out.println("Could not find client: " + receiver + ". User may be offline.");
-        }
-    }
-
-    public static void broadcastToChannel(long channelId, Serializable data, String senderPhone) {
-        List<String> memberPhones = DatabaseManager.getChannelMemberPhones(channelId);
-        for (String phone : memberPhones) {
-            if (!phone.equals(senderPhone)) { // Don't send back to the sender
-                sendToClient(phone, data);
-            }
         }
     }
 
@@ -95,23 +83,33 @@ public class Server {
                         TextMessage textMsg = (TextMessage) receivedObject;
                         System.out.println("[Text Received] from " + textMsg.sender + " to " + textMsg.receiver);
                         Server.sendToClient(textMsg.receiver, textMsg);
-                    } else if (receivedObject instanceof ToolBox.ImageMessage) {
-                        ToolBox.ImageMessage imgMsg = (ToolBox.ImageMessage) receivedObject;
+                    } else if (receivedObject instanceof ImageMessage) {
+                        ImageMessage imgMsg = (ImageMessage) receivedObject;
                         System.out.println("[Image Received] from " + imgMsg.sender + " to " + imgMsg.receiver);
                         Server.sendToClient(imgMsg.receiver, imgMsg);
-                    } else if (receivedObject instanceof ToolBox.FileMessage) {
-                        ToolBox.FileMessage fileMsg = (ToolBox.FileMessage) receivedObject;
+                    } else if (receivedObject instanceof FileMessage) {
+                        FileMessage fileMsg = (FileMessage) receivedObject;
                         System.out.println("[File Received] from " + fileMsg.sender + " to " + fileMsg.receiver);
                         Server.sendToClient(fileMsg.receiver, fileMsg);
                     } else if (receivedObject instanceof DeleteMessage) {
                         DeleteMessage deleteMsg = (DeleteMessage) receivedObject;
                         System.out.println("[Delete Request] from " + deleteMsg.senderPhone + " for message " + deleteMsg.messageId);
                         Server.sendToClient(deleteMsg.receiverPhone, deleteMsg);
-                    } else if (receivedObject instanceof ChannelMessage) {
+                    }
+                    // --- START: UPDATED LOGIC ---
+                    else if (receivedObject instanceof ChannelMessage) {
                         ChannelMessage channelMsg = (ChannelMessage) receivedObject;
-                        System.out.println("[Channel Msg Received] for channel " + channelMsg.channelId + " from " + userPhone);
-                        Server.broadcastToChannel(channelMsg.channelId, channelMsg, userPhone);
-                    } else {
+                        System.out.println("[Channel Msg Received] for channel " + channelMsg.channelId + " from user " + channelMsg.senderId);
+                        List<String> memberPhones = DatabaseManager.getChannelMemberPhones(channelMsg.channelId);
+                        for (String memberPhone : memberPhones) {
+                            // Don't send the message back to the original sender
+                            if (!memberPhone.equals(this.userPhone)) {
+                                Server.sendToClient(memberPhone, channelMsg);
+                            }
+                        }
+                    }
+                    // --- END: UPDATED LOGIC ---
+                    else {
                         System.out.println("[Unknown Data Type Received] from " + userPhone + ": " + receivedObject.getClass().getName());
                     }
                 }
@@ -136,3 +134,4 @@ public class Server {
         }
     }
 }
+

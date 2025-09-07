@@ -17,6 +17,7 @@ import javafx.scene.input.MouseEvent;
 import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 
 import java.awt.Desktop;
 import java.io.ByteArrayInputStream;
@@ -49,6 +50,7 @@ public class UserChatController implements Initializable {
     @FXML private Button callButton;
     @FXML private Button newChannelButton;
 
+
     private NetworkConnection connection;
     private UserViewModel currentlySelectedUser;
     private UserViewModel localUser;
@@ -62,7 +64,6 @@ public class UserChatController implements Initializable {
     public void initialize(URL location, ResourceBundle resources) {
         usersListView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue != null && newValue != currentlySelectedUser) {
-                // This logic might need refinement if you switch between users and channels
                 openChatView(newValue);
             }
         });
@@ -102,31 +103,6 @@ public class UserChatController implements Initializable {
         });
 
         scrollToBottom();
-    }
-
-    @FXML
-    void openNewChannelCreator(MouseEvent event) {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("../Views/createChannel1.fxml"));
-            Parent root = loader.load();
-
-            CreateChannelController1 controller = loader.getController();
-            // No need to pass a reference, the window will be modal
-
-            Stage stage = new Stage();
-            stage.initModality(Modality.APPLICATION_MODAL);
-            stage.setTitle("Create New Channel");
-            stage.setScene(new Scene(root));
-            stage.showAndWait(); // Wait for the channel creation process to finish
-
-            // After it finishes, navigate back to a fresh home view to see the new channel
-            Parent homeRoot = FXMLLoader.load(getClass().getResource("../Views/homeView.fxml"));
-            Stage mainStage = (Stage) newChannelButton.getScene().getWindow();
-            mainStage.setScene(new Scene(homeRoot));
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
     }
 
     private String formatLastSeen(Timestamp lastSeen) {
@@ -183,7 +159,6 @@ public class UserChatController implements Initializable {
 
 
     private void openChatView(UserViewModel selectedUser) {
-        // This needs to be updated to handle channels as well
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("../Views/userChat.fxml"));
             Parent root = loader.load();
@@ -244,6 +219,25 @@ public class UserChatController implements Initializable {
             Stage stage = (Stage) profileButton.getScene().getWindow();
             stage.setScene(new Scene(root));
             stage.show();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @FXML
+    void openNewChannel(MouseEvent event) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("../Views/createChannel1.fxml"));
+            Parent root = loader.load();
+            CreateChannelController1 controller = loader.getController();
+            // CORRECTED: Passing the correct arguments
+            controller.initData(localUser, allUsersList);
+            Stage stage = new Stage();
+            stage.initModality(Modality.APPLICATION_MODAL);
+            stage.initStyle(StageStyle.UTILITY);
+            stage.setScene(new Scene(root));
+            stage.showAndWait();
+            goHome();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -399,7 +393,6 @@ public class UserChatController implements Initializable {
             File file = fileChooser.showOpenDialog(new Stage());
             if (file == null) return;
 
-            // Check file size for videos
             if (file.getName().toLowerCase().endsWith(".mp4") && file.length() > 1 * 1024 * 1024) { // 1MB limit
                 Alert alert = new Alert(Alert.AlertType.ERROR);
                 alert.setTitle("File Too Large");
@@ -493,4 +486,17 @@ public class UserChatController implements Initializable {
             messagesListView.scrollTo(currentlySelectedUser.messagesList.size() - 1);
         }
     }
+
+    private void goHome() {
+        try {
+            Stage stage = (Stage) newChannelButton.getScene().getWindow();
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("../Views/homeView.fxml"));
+            Parent root = loader.load();
+            stage.setScene(new Scene(root));
+            stage.show();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 }
+

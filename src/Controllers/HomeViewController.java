@@ -10,6 +10,7 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
@@ -18,11 +19,13 @@ import javafx.scene.image.Image;
 import javafx.scene.input.MouseEvent;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.Serializable;
 import java.net.URL;
+import java.util.List;
 import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.stream.Collectors;
@@ -39,25 +42,26 @@ public class HomeViewController implements Initializable {
 
     private NetworkConnection connection;
     private UserViewModel localUser;
-    private ObservableList<UserViewModel> allUsersAndChannelsList;
-    private long localUserId;
+    private ObservableList<UserViewModel> allUsersList;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         String currentUserPhone = LogInController.userName;
-        DatabaseManager.getUserId(currentUserPhone).ifPresent(id -> this.localUserId = id);
 
         Optional<DatabaseManager.User> dbUserOptional = DatabaseManager.getUserByPhone(currentUserPhone);
-        String localUserFirstName = dbUserOptional.map(user -> user.firstName).orElse(currentUserPhone);
-        String localUserUsername = dbUserOptional.map(user -> user.username).orElse(currentUserPhone);
+        if (dbUserOptional.isEmpty()) {
+            return;
+        }
+        DatabaseManager.User dbUser = dbUserOptional.get();
 
-        localUser = new UserViewModel(localUserFirstName, localUserUsername, currentUserPhone, new Image("resources/img/smile.png"));
+        Image localUserAvatar = new Image("resources/img/smile.png");
+        if (dbUser.avatar != null && dbUser.avatar.length > 0) {
+            localUserAvatar = new Image(new ByteArrayInputStream(dbUser.avatar));
+        }
+        localUser = new UserViewModel(dbUser.firstName, dbUser.username, dbUser.phone, localUserAvatar);
+        localUser.userId = dbUser.id;
 
-        allUsersAndChannelsList = FXCollections.observableArrayList();
-        usersListView.setItems(allUsersAndChannelsList);
-        usersListView.setCellFactory(param -> new UserCustomCellController());
-
-        refreshUserAndChannelList();
+        loadConversations();
 
         usersListView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue != null) {
@@ -69,34 +73,41 @@ public class HomeViewController implements Initializable {
         connection.openConnection();
     }
 
-    public void refreshUserAndChannelList() {
-        allUsersAndChannelsList.clear();
-        // Add Users
-        allUsersAndChannelsList.addAll(
-                DatabaseManager.getAllUsers(localUser.getPhone()).stream()
-                        .map(dbUser -> {
-                            Image avatar = new Image("resources/img/smile.png"); // Default avatar
-                            if (dbUser.avatar != null && dbUser.avatar.length > 0) {
-                                avatar = new Image(new ByteArrayInputStream(dbUser.avatar));
-                            }
-                            return new UserViewModel(dbUser.firstName, dbUser.username, dbUser.phone, "Click to chat", getCurrentTime(), "0", avatar);
-                        })
-                        .collect(Collectors.toList())
-        );
-        // Add Channels
-        allUsersAndChannelsList.addAll(
-                DatabaseManager.getChannelsForUser(localUser.getPhone()).stream()
-                        .map(dbChannel -> {
-                            Image avatar = new Image("resources/img/smile.png"); // Default
-                            if (dbChannel.avatar != null && dbChannel.avatar.length > 0) {
-                                avatar = new Image(new ByteArrayInputStream(dbChannel.avatar));
-                            }
-                            boolean isCreator = dbChannel.creatorId == localUserId;
-                            return new UserViewModel(dbChannel.id, dbChannel.title, "Channel", "", avatar, isCreator);
-                        })
-                        .collect(Collectors.toList())
-        );
+    private void loadConversations() {
+        allUsersList = FXCollections.observableArrayList();
+
+        // Load all other users
+        List<UserViewModel> users = DatabaseManager.getAllUsers(localUser.getPhone()).stream()
+                .map(user -> {
+                    Image avatar = new Image("resources/img/smile.png");
+                    if (user.avatar != null && user.avatar.length > 0) {
+                        avatar = new Image(new ByteArrayInputStream(user.avatar));
+                    }
+                    UserViewModel uvm = new UserViewModel(user.firstName, user.username, user.phone, "Click to chat", getCurrentTime(), "0", avatar);
+                    uvm.userId = user.id;
+                    return uvm;
+                })
+                .collect(Collectors.toList());
+        allUsersList.addAll(users);
+
+        // Load channels
+        List<DatabaseManager.Channel> channels = DatabaseManager.getChannelsForUser(localUser.getPhone());
+        for (DatabaseManager.Channel channel : channels) {
+            Image avatar = new Image("resources/img/smile.png");
+            if (channel.avatar != null && channel.avatar.length > 0) {
+                avatar = new Image(new ByteArrayInputStream(channel.avatar));
+            }
+            UserViewModel channelVM = new UserViewModel(channel.title, "@" + channel.title.replaceAll("\\s+", ""), null, avatar);
+            channelVM.isChannel = true;
+            channelVM.channelId = channel.id;
+            channelVM.creatorId = channel.creatorId;
+            allUsersList.add(channelVM);
+        }
+
+        usersListView.setItems(allUsersList);
+        usersListView.setCellFactory(param -> new UserCustomCellController());
     }
+
 
     private void handleIncomingData(Serializable data) {
         Platform.runLater(() -> System.out.println("Data received on home screen: " + data));
@@ -104,93 +115,67 @@ public class HomeViewController implements Initializable {
 
     private void openConversationView(UserViewModel selectedItem) {
         try {
-            if (selectedItem.isChannel()) {
-                FXMLLoader loader;
-                if (selectedItem.isCreator()) {
+            FXMLLoader loader;
+            // CORRECTED LOGIC: This now correctly distinguishes between creator, member, and user chats.
+            if (selectedItem.isChannel) {
+                if (localUser.userId == selectedItem.creatorId) {
                     loader = new FXMLLoader(getClass().getResource("../Views/channelCreatorView.fxml"));
                     Parent root = loader.load();
                     ChannelCreatorViewController controller = loader.getController();
-                    controller.initData(selectedItem, localUser, allUsersAndChannelsList, connection);
-                    Stage stage = (Stage) usersListView.getScene().getWindow();
-                    stage.setScene(new Scene(root));
-                    stage.show();
+                    controller.initData(selectedItem, localUser, allUsersList, connection);
+                    getStage().setScene(new Scene(root));
                 } else {
                     loader = new FXMLLoader(getClass().getResource("../Views/channelMemberView.fxml"));
                     Parent root = loader.load();
                     ChannelMemberViewController controller = loader.getController();
-                    controller.initData(selectedItem, allUsersAndChannelsList, connection);
-                    Stage stage = (Stage) usersListView.getScene().getWindow();
-                    stage.setScene(new Scene(root));
-                    stage.show();
+                    controller.initData(selectedItem, localUser, allUsersList, connection);
+                    getStage().setScene(new Scene(root));
                 }
             } else {
-                FXMLLoader loader = new FXMLLoader(getClass().getResource("../Views/userChat.fxml"));
+                loader = new FXMLLoader(getClass().getResource("../Views/userChat.fxml"));
                 Parent root = loader.load();
                 UserChatController controller = loader.getController();
-                controller.initData(selectedItem, localUser, allUsersAndChannelsList, connection);
-                Stage stage = (Stage) usersListView.getScene().getWindow();
-                stage.setScene(new Scene(root));
-                stage.show();
+                controller.initData(selectedItem, localUser, allUsersList, connection);
+                getStage().setScene(new Scene(root));
             }
+            // Calling getStage().show() is only needed if it's a new window, which it's not.
+            // Setting the scene is enough.
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
     @FXML
-    void openNewChannelCreator(MouseEvent event) {
+    void openNewChannel(MouseEvent event) {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("../Views/createChannel1.fxml"));
             Parent root = loader.load();
-
             CreateChannelController1 controller = loader.getController();
-            // No need to pass a reference, the window will be modal
+            controller.initData(localUser, allUsersList);
 
             Stage stage = new Stage();
             stage.initModality(Modality.APPLICATION_MODAL);
+            stage.initStyle(StageStyle.UTILITY);
             stage.setTitle("Create New Channel");
             stage.setScene(new Scene(root));
-            stage.showAndWait(); // Wait for the channel creation process to finish
+            stage.showAndWait();
 
-            // After it finishes, navigate back to a fresh home view to see the new channel
-            Parent homeRoot = FXMLLoader.load(getClass().getResource("../Views/homeView.fxml"));
-            Stage mainStage = (Stage) newChannelButton.getScene().getWindow();
-            mainStage.setScene(new Scene(homeRoot));
+            // Refresh the list after the creation window closes
+            loadConversations();
 
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-
     @FXML
     void openProfile(MouseEvent event) {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("../Views/Profile.fxml"));
-            Parent root = loader.load();
-            ProfileController controller = loader.getController();
-            controller.initData(localUser, allUsersAndChannelsList, connection);
-            Stage stage = (Stage) profileButton.getScene().getWindow();
-            stage.setScene(new Scene(root));
-            stage.show();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        loadScene(event, "../Views/Profile.fxml");
     }
 
     @FXML
     void openSavedMessages(MouseEvent event) {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("../Views/saveMessageChat.fxml"));
-            Parent root = loader.load();
-            SavedMessagesController controller = loader.getController();
-            controller.initData(localUser, allUsersAndChannelsList, connection);
-            Stage stage = (Stage) savedMessagesButton.getScene().getWindow();
-            stage.setScene(new Scene(root));
-            stage.show();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        loadScene(event, "../Views/saveMessageChat.fxml");
     }
 
     @FXML
@@ -200,11 +185,45 @@ public class HomeViewController implements Initializable {
                 connection.closeConnection();
             }
             Parent root = FXMLLoader.load(getClass().getResource("../Views/loginStarter.fxml"));
-            Stage stage = (Stage) logoutButton.getScene().getWindow();
+            // Use the event source to get the stage reliably
+            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
             stage.setScene(new Scene(root));
-            stage.show();
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
+
+    // A more robust way to handle scene switching
+    private void loadScene(MouseEvent event, String fxmlFile) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlFile));
+            Parent root = loader.load();
+
+            if (fxmlFile.contains("Profile")) {
+                ProfileController controller = loader.getController();
+                controller.initData(localUser, allUsersList, connection);
+            } else if (fxmlFile.contains("saveMessageChat")) {
+                SavedMessagesController controller = loader.getController();
+                controller.initData(localUser, allUsersList, connection);
+            }
+
+            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+            stage.setScene(new Scene(root));
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    // CORRECTED: This method is now more robust.
+    private Stage getStage() {
+        if (usersListView != null && usersListView.getScene() != null) {
+            return (Stage) usersListView.getScene().getWindow();
+        } else if (profileButton != null && profileButton.getScene() != null) {
+            return (Stage) profileButton.getScene().getWindow();
+        }
+        // Fallback to the main stage if others are not available
+        return Main.stage;
+    }
 }
+
