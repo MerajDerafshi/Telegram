@@ -39,15 +39,14 @@ CREATE TABLE IF NOT EXISTS contacts (
 );
 
 CREATE TABLE IF NOT EXISTS conversations (
-    id BIGINT PRIMARY KEY,
-    type ENUM('private', 'group', 'channel') NOT NULL,
-    title TEXT,
-    creator_id BIGINT,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    picture_url TEXT,
-    FOREIGN KEY (creator_id) REFERENCES users(id)
+id BIGINT PRIMARY KEY,
+type ENUM('private', 'group', 'channel') NOT NULL,
+title TEXT,
+creator_id BIGINT,
+created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+picture LONGBLOB,
+FOREIGN KEY (creator_id) REFERENCES users(id)
 );
-
 CREATE TABLE IF NOT EXISTS conversation_participants (
     id BIGINT,
     user_id BIGINT,

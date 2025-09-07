@@ -7,7 +7,7 @@ import javafx.scene.image.Image;
 
 
 public class UserViewModel {
-    public String firstName; // The user's first name for display
+    public String firstName; // For users, this is their name. For channels, it's the channel title.
     public String username; // The unique username
     public String phone;
     public SimpleStringProperty lastMessage;
@@ -15,6 +15,12 @@ public class UserViewModel {
     public SimpleStringProperty notificationsNumber;
     public Image avatarImage;
     public ObservableList<MessageViewModel> messagesList;
+
+    // -- Channel Specific Fields --
+    private boolean isChannel = false;
+    private long channelId = -1;
+    private boolean isCreator = false;
+
 
     /**
      * Constructor for users displayed in the list.
@@ -42,6 +48,24 @@ public class UserViewModel {
         this.notificationsNumber = new SimpleStringProperty("0");
         this.avatarImage = avatarImage;
         messagesList = FXCollections.observableArrayList();
+    }
+
+    /**
+     * Constructor for Channels.
+     */
+    public UserViewModel(long channelId, String channelName, String lastMessage, String time, Image avatarImage, boolean isCreator) {
+        this.channelId = channelId;
+        this.firstName = channelName; // Re-using firstName for channel title
+        this.lastMessage = new SimpleStringProperty(lastMessage);
+        this.time = new SimpleStringProperty(time);
+        this.avatarImage = avatarImage;
+        this.isChannel = true;
+        this.isCreator = isCreator;
+        this.messagesList = FXCollections.observableArrayList();
+        // Other fields can be null or default for channels
+        this.username = "channel";
+        this.phone = String.valueOf(channelId);
+        this.notificationsNumber = new SimpleStringProperty("0");
     }
 
 
@@ -81,5 +105,9 @@ public class UserViewModel {
         return avatarImage;
     }
 
-}
+    // -- Channel Specific Getters --
+    public boolean isChannel() { return isChannel; }
+    public long getChannelId() { return channelId; }
+    public boolean isCreator() { return isCreator; }
 
+}

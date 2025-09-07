@@ -3,11 +3,7 @@ package Controllers;
 import Models.MessageViewModel;
 import Models.UserViewModel;
 import ToolBox.DatabaseManager;
-import ToolBox.FileMessage;
-import ToolBox.ImageMessage;
 import ToolBox.NetworkConnection;
-import ToolBox.TextMessage;
-import javafx.application.Platform;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -22,6 +18,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.input.MouseEvent;
 import javafx.stage.FileChooser;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
 
 import java.io.ByteArrayInputStream;
@@ -35,8 +32,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.ResourceBundle;
 
-import static ToolBox.Utilities.getCurrentTime;
-
 public class SavedMessagesController implements Initializable {
 
     @FXML private ListView<UserViewModel> usersListView;
@@ -46,10 +41,11 @@ public class SavedMessagesController implements Initializable {
     @FXML private Button logoutButton;
     @FXML private Button profileButton;
     @FXML private Button savedMessagesButton;
+    @FXML private Button newChannelButton;
 
     private NetworkConnection connection;
-    private UserViewModel localUser; // The actual logged-in user
-    private UserViewModel savedMessagesUser; // A dedicated view model for the self-chat UI
+    private UserViewModel localUser;
+    private UserViewModel savedMessagesUser;
     private ObservableList<UserViewModel> allUsersList;
     private long localUserId;
 
@@ -70,7 +66,6 @@ public class SavedMessagesController implements Initializable {
             this.connection.receiveCallback = this::handleIncomingData;
         }
 
-        // Create a dedicated UserViewModel for the "Saved Messages" chat UI
         this.savedMessagesUser = new UserViewModel(localUser.getFirstName(), localUser.getUsername(), localUser.getPhone(), localUser.getAvatarImage());
 
         DatabaseManager.getUserId(localUser.getPhone()).ifPresent(id -> this.localUserId = id);
@@ -92,14 +87,33 @@ public class SavedMessagesController implements Initializable {
         scrollToBottom();
     }
 
+    @FXML
+    void openNewChannelCreator(MouseEvent event) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("../Views/createChannel1.fxml"));
+            Parent root = loader.load();
+
+            Stage stage = new Stage();
+            stage.initModality(Modality.APPLICATION_MODAL);
+            stage.setTitle("Create New Channel");
+            stage.setScene(new Scene(root));
+            stage.showAndWait();
+
+            Parent homeRoot = FXMLLoader.load(getClass().getResource("../Views/homeView.fxml"));
+            Stage mainStage = (Stage) newChannelButton.getScene().getWindow();
+            mainStage.setScene(new Scene(homeRoot));
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
     private void loadMessageHistory() {
-        // For saved messages, both sender and receiver are the local user.
         List<DatabaseManager.Message> history = DatabaseManager.loadMessages(localUser.getPhone(), localUser.getPhone());
-        savedMessagesUser.messagesList.clear(); // Use the dedicated UserViewModel
+        savedMessagesUser.messagesList.clear();
         SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm");
 
         for(DatabaseManager.Message msg : history) {
-            // In a self-chat, all messages are considered "outgoing" for UI purposes.
             boolean isOutgoing = true;
             String time = timeFormat.format(msg.createdAt);
 
@@ -140,8 +154,7 @@ public class SavedMessagesController implements Initializable {
     }
 
     private void handleIncomingData(Serializable data) {
-        // This can be left empty as saved messages don't involve network traffic
-        // but is required by the NetworkConnection callback.
+        // This can be left empty
     }
 
     @FXML
@@ -159,7 +172,7 @@ public class SavedMessagesController implements Initializable {
         if (message == null || message.trim().isEmpty()) return;
 
         DatabaseManager.saveMessage(localUser.getPhone(), localUser.getPhone(), message, null);
-        loadMessageHistory(); // Reload from DB to show the new message
+        loadMessageHistory();
         scrollToBottom();
         messageField.clear();
     }
@@ -246,4 +259,3 @@ public class SavedMessagesController implements Initializable {
 
     }
 }
-

@@ -1,5 +1,6 @@
 package Server;
 
+import ToolBox.ChannelMessage;
 import ToolBox.DatabaseManager;
 import ToolBox.DeleteMessage;
 import ToolBox.TextMessage;
@@ -33,6 +34,15 @@ public class Server {
             receiverHandler.sendMessage(data);
         } else {
             System.out.println("Could not find client: " + receiver + ". User may be offline.");
+        }
+    }
+
+    public static void broadcastToChannel(long channelId, Serializable data, String senderPhone) {
+        List<String> memberPhones = DatabaseManager.getChannelMemberPhones(channelId);
+        for (String phone : memberPhones) {
+            if (!phone.equals(senderPhone)) { // Don't send back to the sender
+                sendToClient(phone, data);
+            }
         }
     }
 
@@ -97,6 +107,10 @@ public class Server {
                         DeleteMessage deleteMsg = (DeleteMessage) receivedObject;
                         System.out.println("[Delete Request] from " + deleteMsg.senderPhone + " for message " + deleteMsg.messageId);
                         Server.sendToClient(deleteMsg.receiverPhone, deleteMsg);
+                    } else if (receivedObject instanceof ChannelMessage) {
+                        ChannelMessage channelMsg = (ChannelMessage) receivedObject;
+                        System.out.println("[Channel Msg Received] for channel " + channelMsg.channelId + " from " + userPhone);
+                        Server.broadcastToChannel(channelMsg.channelId, channelMsg, userPhone);
                     } else {
                         System.out.println("[Unknown Data Type Received] from " + userPhone + ": " + receivedObject.getClass().getName());
                     }

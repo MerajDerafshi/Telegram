@@ -15,6 +15,7 @@ import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.input.MouseEvent;
 import javafx.stage.FileChooser;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
 
 import java.awt.Desktop;
@@ -46,6 +47,7 @@ public class UserChatController implements Initializable {
     @FXML private Label lastSeenLabel;
     @FXML private Button voiceRecordButton;
     @FXML private Button callButton;
+    @FXML private Button newChannelButton;
 
     private NetworkConnection connection;
     private UserViewModel currentlySelectedUser;
@@ -60,6 +62,7 @@ public class UserChatController implements Initializable {
     public void initialize(URL location, ResourceBundle resources) {
         usersListView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue != null && newValue != currentlySelectedUser) {
+                // This logic might need refinement if you switch between users and channels
                 openChatView(newValue);
             }
         });
@@ -99,6 +102,31 @@ public class UserChatController implements Initializable {
         });
 
         scrollToBottom();
+    }
+
+    @FXML
+    void openNewChannelCreator(MouseEvent event) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("../Views/createChannel1.fxml"));
+            Parent root = loader.load();
+
+            CreateChannelController1 controller = loader.getController();
+            // No need to pass a reference, the window will be modal
+
+            Stage stage = new Stage();
+            stage.initModality(Modality.APPLICATION_MODAL);
+            stage.setTitle("Create New Channel");
+            stage.setScene(new Scene(root));
+            stage.showAndWait(); // Wait for the channel creation process to finish
+
+            // After it finishes, navigate back to a fresh home view to see the new channel
+            Parent homeRoot = FXMLLoader.load(getClass().getResource("../Views/homeView.fxml"));
+            Stage mainStage = (Stage) newChannelButton.getScene().getWindow();
+            mainStage.setScene(new Scene(homeRoot));
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     private String formatLastSeen(Timestamp lastSeen) {
@@ -155,6 +183,7 @@ public class UserChatController implements Initializable {
 
 
     private void openChatView(UserViewModel selectedUser) {
+        // This needs to be updated to handle channels as well
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("../Views/userChat.fxml"));
             Parent root = loader.load();
@@ -465,4 +494,3 @@ public class UserChatController implements Initializable {
         }
     }
 }
-
