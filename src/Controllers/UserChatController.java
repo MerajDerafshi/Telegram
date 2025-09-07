@@ -63,8 +63,8 @@ public class UserChatController implements Initializable {
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         usersListView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-            if (newValue != null && newValue != currentlySelectedUser) {
-                openChatView(newValue);
+            if (newValue != null) {
+                openConversationView(newValue);
             }
         });
     }
@@ -103,6 +103,35 @@ public class UserChatController implements Initializable {
         });
 
         scrollToBottom();
+    }
+
+    private void openConversationView(UserViewModel selectedItem) {
+        try {
+            FXMLLoader loader;
+            if (selectedItem.isChannel) {
+                if (localUser.userId == selectedItem.creatorId) {
+                    loader = new FXMLLoader(getClass().getResource("../Views/channelCreatorView.fxml"));
+                    Parent root = loader.load();
+                    ChannelCreatorViewController controller = loader.getController();
+                    controller.initData(selectedItem, localUser, allUsersList, connection);
+                    getStage().setScene(new Scene(root));
+                } else {
+                    loader = new FXMLLoader(getClass().getResource("../Views/channelMemberView.fxml"));
+                    Parent root = loader.load();
+                    ChannelMemberViewController controller = loader.getController();
+                    controller.initData(selectedItem, localUser, allUsersList, connection);
+                    getStage().setScene(new Scene(root));
+                }
+            } else { // It's a user chat
+                loader = new FXMLLoader(getClass().getResource("../Views/userChat.fxml"));
+                Parent root = loader.load();
+                UserChatController controller = loader.getController();
+                controller.initData(selectedItem, localUser, allUsersList, connection);
+                getStage().setScene(new Scene(root));
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     private String formatLastSeen(Timestamp lastSeen) {
@@ -157,21 +186,6 @@ public class UserChatController implements Initializable {
         }
     }
 
-
-    private void openChatView(UserViewModel selectedUser) {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("../Views/userChat.fxml"));
-            Parent root = loader.load();
-            UserChatController controller = loader.getController();
-            controller.initData(selectedUser, localUser, allUsersList, connection);
-            Stage stage = (Stage) usersListView.getScene().getWindow();
-            stage.setScene(new Scene(root));
-            stage.show();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
     @FXML
     void startVideoCall(MouseEvent event) {
         try {
@@ -201,9 +215,7 @@ public class UserChatController implements Initializable {
             Parent root = loader.load();
             SavedMessagesController controller = loader.getController();
             controller.initData(localUser, allUsersList, connection);
-            Stage stage = (Stage) savedMessagesButton.getScene().getWindow();
-            stage.setScene(new Scene(root));
-            stage.show();
+            getStage().setScene(new Scene(root));
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -216,9 +228,7 @@ public class UserChatController implements Initializable {
             Parent root = loader.load();
             ProfileController controller = loader.getController();
             controller.initData(localUser, allUsersList, connection);
-            Stage stage = (Stage) profileButton.getScene().getWindow();
-            stage.setScene(new Scene(root));
-            stage.show();
+            getStage().setScene(new Scene(root));
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -230,7 +240,7 @@ public class UserChatController implements Initializable {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("../Views/createChannel1.fxml"));
             Parent root = loader.load();
             CreateChannelController1 controller = loader.getController();
-            // CORRECTED: Passing the correct arguments
+            // CORRECTED: Passing only the required arguments
             controller.initData(localUser, allUsersList);
             Stage stage = new Stage();
             stage.initModality(Modality.APPLICATION_MODAL);
@@ -250,9 +260,7 @@ public class UserChatController implements Initializable {
             Parent root = loader.load();
             UserInfoController controller = loader.getController();
             controller.initData(currentlySelectedUser, localUser, allUsersList, connection);
-            Stage stage = (Stage) userInfoButton.getScene().getWindow();
-            stage.setScene(new Scene(root));
-            stage.show();
+            getStage().setScene(new Scene(root));
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -443,9 +451,7 @@ public class UserChatController implements Initializable {
                 connection.closeConnection();
             }
             Parent root = FXMLLoader.load(getClass().getResource("../Views/loginStarter.fxml"));
-            Stage stage = (Stage) logoutButton.getScene().getWindow();
-            stage.setScene(new Scene(root));
-            stage.show();
+            getStage().setScene(new Scene(root));
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -474,7 +480,7 @@ public class UserChatController implements Initializable {
 
     private UserViewModel findUserByPhone(String phone) {
         for (UserViewModel user : allUsersList) {
-            if (user.getPhone().equals(phone)) {
+            if (user.getPhone() != null && user.getPhone().equals(phone)) {
                 return user;
             }
         }
@@ -489,14 +495,16 @@ public class UserChatController implements Initializable {
 
     private void goHome() {
         try {
-            Stage stage = (Stage) newChannelButton.getScene().getWindow();
             FXMLLoader loader = new FXMLLoader(getClass().getResource("../Views/homeView.fxml"));
             Parent root = loader.load();
-            stage.setScene(new Scene(root));
-            stage.show();
+            getStage().setScene(new Scene(root));
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    private Stage getStage() {
+        return (Stage) usersListView.getScene().getWindow();
     }
 }
 

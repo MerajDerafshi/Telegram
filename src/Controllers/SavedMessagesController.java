@@ -54,7 +54,7 @@ public class SavedMessagesController implements Initializable {
     public void initialize(URL location, ResourceBundle resources) {
         usersListView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue != null) {
-                openChatView(newValue);
+                openConversationView(newValue);
             }
         });
     }
@@ -88,6 +88,35 @@ public class SavedMessagesController implements Initializable {
         scrollToBottom();
     }
 
+    private void openConversationView(UserViewModel selectedItem) {
+        try {
+            FXMLLoader loader;
+            if (selectedItem.isChannel) {
+                if (localUser.userId == selectedItem.creatorId) {
+                    loader = new FXMLLoader(getClass().getResource("../Views/channelCreatorView.fxml"));
+                    Parent root = loader.load();
+                    ChannelCreatorViewController controller = loader.getController();
+                    controller.initData(selectedItem, localUser, allUsersList, connection);
+                    getStage().setScene(new Scene(root));
+                } else {
+                    loader = new FXMLLoader(getClass().getResource("../Views/channelMemberView.fxml"));
+                    Parent root = loader.load();
+                    ChannelMemberViewController controller = loader.getController();
+                    controller.initData(selectedItem, localUser, allUsersList, connection);
+                    getStage().setScene(new Scene(root));
+                }
+            } else { // It's a user chat
+                loader = new FXMLLoader(getClass().getResource("../Views/userChat.fxml"));
+                Parent root = loader.load();
+                UserChatController controller = loader.getController();
+                controller.initData(selectedItem, localUser, allUsersList, connection);
+                getStage().setScene(new Scene(root));
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
     private void loadMessageHistory() {
         List<DatabaseManager.Message> history = DatabaseManager.loadMessages(localUser.getPhone(), localUser.getPhone());
         savedMessagesUser.messagesList.clear();
@@ -116,20 +145,6 @@ public class SavedMessagesController implements Initializable {
         boolean success = DatabaseManager.deleteMessage(messageVM.messageId);
         if (success) {
             savedMessagesUser.messagesList.remove(messageVM);
-        }
-    }
-
-    private void openChatView(UserViewModel selectedUser) {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("../Views/userChat.fxml"));
-            Parent root = loader.load();
-            UserChatController controller = loader.getController();
-            controller.initData(selectedUser, localUser, allUsersList, connection);
-            Stage stage = (Stage) usersListView.getScene().getWindow();
-            stage.setScene(new Scene(root));
-            stage.show();
-        } catch (IOException e) {
-            e.printStackTrace();
         }
     }
 
@@ -196,9 +211,7 @@ public class SavedMessagesController implements Initializable {
                 connection.closeConnection();
             }
             Parent root = FXMLLoader.load(getClass().getResource("../Views/loginStarter.fxml"));
-            Stage stage = (Stage) logoutButton.getScene().getWindow();
-            stage.setScene(new Scene(root));
-            stage.show();
+            getStage().setScene(new Scene(root));
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -230,9 +243,7 @@ public class SavedMessagesController implements Initializable {
             Parent root = loader.load();
             ProfileController controller = loader.getController();
             controller.initData(localUser, allUsersList, connection);
-            Stage stage = (Stage) profileButton.getScene().getWindow();
-            stage.setScene(new Scene(root));
-            stage.show();
+            getStage().setScene(new Scene(root));
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -259,14 +270,16 @@ public class SavedMessagesController implements Initializable {
 
     private void goHome() {
         try {
-            Stage stage = (Stage) newChannelButton.getScene().getWindow();
             FXMLLoader loader = new FXMLLoader(getClass().getResource("../Views/homeView.fxml"));
             Parent root = loader.load();
-            stage.setScene(new Scene(root));
-            stage.show();
+            getStage().setScene(new Scene(root));
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    private Stage getStage() {
+        return (Stage) usersListView.getScene().getWindow();
     }
 }
 

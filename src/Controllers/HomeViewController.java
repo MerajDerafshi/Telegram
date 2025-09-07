@@ -76,7 +76,6 @@ public class HomeViewController implements Initializable {
     private void loadConversations() {
         allUsersList = FXCollections.observableArrayList();
 
-        // Load all other users
         List<UserViewModel> users = DatabaseManager.getAllUsers(localUser.getPhone()).stream()
                 .map(user -> {
                     Image avatar = new Image("resources/img/smile.png");
@@ -90,7 +89,6 @@ public class HomeViewController implements Initializable {
                 .collect(Collectors.toList());
         allUsersList.addAll(users);
 
-        // Load channels
         List<DatabaseManager.Channel> channels = DatabaseManager.getChannelsForUser(localUser.getPhone());
         for (DatabaseManager.Channel channel : channels) {
             Image avatar = new Image("resources/img/smile.png");
@@ -116,7 +114,6 @@ public class HomeViewController implements Initializable {
     private void openConversationView(UserViewModel selectedItem) {
         try {
             FXMLLoader loader;
-            // CORRECTED LOGIC: This now correctly distinguishes between creator, member, and user chats.
             if (selectedItem.isChannel) {
                 if (localUser.userId == selectedItem.creatorId) {
                     loader = new FXMLLoader(getClass().getResource("../Views/channelCreatorView.fxml"));
@@ -138,8 +135,6 @@ public class HomeViewController implements Initializable {
                 controller.initData(selectedItem, localUser, allUsersList, connection);
                 getStage().setScene(new Scene(root));
             }
-            // Calling getStage().show() is only needed if it's a new window, which it's not.
-            // Setting the scene is enough.
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -151,6 +146,7 @@ public class HomeViewController implements Initializable {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("../Views/createChannel1.fxml"));
             Parent root = loader.load();
             CreateChannelController1 controller = loader.getController();
+            // CORRECTED: Passing only the required arguments
             controller.initData(localUser, allUsersList);
 
             Stage stage = new Stage();
@@ -160,7 +156,6 @@ public class HomeViewController implements Initializable {
             stage.setScene(new Scene(root));
             stage.showAndWait();
 
-            // Refresh the list after the creation window closes
             loadConversations();
 
         } catch (IOException e) {
@@ -170,12 +165,12 @@ public class HomeViewController implements Initializable {
 
     @FXML
     void openProfile(MouseEvent event) {
-        loadScene(event, "../Views/Profile.fxml");
+        loadSceneFromEvent(event, "../Views/Profile.fxml");
     }
 
     @FXML
     void openSavedMessages(MouseEvent event) {
-        loadScene(event, "../Views/saveMessageChat.fxml");
+        loadSceneFromEvent(event, "../Views/saveMessageChat.fxml");
     }
 
     @FXML
@@ -185,7 +180,6 @@ public class HomeViewController implements Initializable {
                 connection.closeConnection();
             }
             Parent root = FXMLLoader.load(getClass().getResource("../Views/loginStarter.fxml"));
-            // Use the event source to get the stage reliably
             Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
             stage.setScene(new Scene(root));
         } catch (IOException e) {
@@ -193,8 +187,7 @@ public class HomeViewController implements Initializable {
         }
     }
 
-    // A more robust way to handle scene switching
-    private void loadScene(MouseEvent event, String fxmlFile) {
+    private void loadSceneFromEvent(MouseEvent event, String fxmlFile) {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlFile));
             Parent root = loader.load();
@@ -215,15 +208,8 @@ public class HomeViewController implements Initializable {
         }
     }
 
-    // CORRECTED: This method is now more robust.
     private Stage getStage() {
-        if (usersListView != null && usersListView.getScene() != null) {
-            return (Stage) usersListView.getScene().getWindow();
-        } else if (profileButton != null && profileButton.getScene() != null) {
-            return (Stage) profileButton.getScene().getWindow();
-        }
-        // Fallback to the main stage if others are not available
-        return Main.stage;
+        return (Stage) usersListView.getScene().getWindow();
     }
 }
 
