@@ -1,9 +1,6 @@
 # Telegram
 
-<p align = "center">
-<img src = "src/resource/img/loginStarter.jpg"width=50%>
-<br/>
-</p>
+![Telegram](src/resources/img/loginStarter.jpg)
 
 ---
 
@@ -83,20 +80,11 @@ This project is a the final project of the Advanced Programing course at SBU. Th
 
 ## 📹 Demo
 
-<p align = "center">
-<img src = "src/resource/img/screenshot1"width=50%>
-<br/>
-</p>
+![screenshot1](src/resources/img/screenshot1.png)
 
-<p align = "center">
-<img src = "src/resource/img/screenshot2"width=50%>
-<br/>
-</p>
+![screenshot2](src/resources/img/screenshot2.png)
 
-<p align = "center">
-<img src = "src/resource/img/screenshot3"width=50%>
-<br/>
-</p>
+![screenshot3](src/resources/img/screenshot3.png)
 
 ---
 
