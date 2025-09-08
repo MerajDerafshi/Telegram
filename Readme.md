@@ -100,8 +100,11 @@ This project is a the final project of the Advanced Programing course at SBU. Th
 
 ## 🤝 Credits
 
-[Sadra seyyed Tabaei]()
+[Sadra seyyed Tabaei](https://github.com/sadra3st), [Meraj Derafshi](https://github.com/MerajDerafshi) & [Amin Asadi](https://github.com/yoaminoo) (contributers)
 
 ---
 
 ## 📄 License
+
+MIT License
+Copyright (c) 2025 Sadra Seyedtabaei
