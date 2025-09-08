@@ -7,6 +7,8 @@ import ToolBox.DatabaseManager;
 import ToolBox.NetworkConnection;
 import javafx.application.Platform;
 import javafx.collections.ObservableList;
+import javafx.collections.transformation.FilteredList;
+import javafx.collections.transformation.SortedList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -15,6 +17,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
+import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.input.MouseEvent;
 import javafx.stage.Modality;
@@ -37,6 +40,8 @@ public class ChannelMemberViewController {
     @FXML private Button newChannelButton;
     @FXML private Button logoutButton;
     @FXML private Button channelInfoButton;
+    @FXML private TextField userSearchField;
+    @FXML private TextField messageSearchField;
 
     private UserViewModel localUser;
     private UserViewModel channelViewModel;
@@ -54,6 +59,8 @@ public class ChannelMemberViewController {
         usersListView.setItems(allUsersList);
         usersListView.setCellFactory(param -> new UserCustomCellController());
         messagesListView.setCellFactory(param -> new MessageCustomCellController());
+        setupUserSearchFunctionality();
+        setupMessageSearchFunctionality();
 
         // --- START: BUG FIX ---
         // Added the listener to make the chat list on the left functional
@@ -65,6 +72,39 @@ public class ChannelMemberViewController {
         // --- END: BUG FIX ---
 
         loadMessageHistory();
+    }
+
+    private void setupUserSearchFunctionality() {
+        FilteredList<UserViewModel> filteredData = new FilteredList<>(allUsersList, p -> true);
+        userSearchField.textProperty().addListener((observable, oldValue, newValue) -> {
+            filteredData.setPredicate(userViewModel -> {
+                if (newValue == null || newValue.isEmpty()) {
+                    return true;
+                }
+                String lowerCaseFilter = newValue.toLowerCase();
+                return userViewModel.getFirstName().toLowerCase().contains(lowerCaseFilter);
+            });
+        });
+        SortedList<UserViewModel> sortedData = new SortedList<>(filteredData);
+        usersListView.setItems(sortedData);
+    }
+
+    private void setupMessageSearchFunctionality() {
+        FilteredList<MessageViewModel> filteredMessages = new FilteredList<>(channelViewModel.messagesList, p -> true);
+        messageSearchField.textProperty().addListener((observable, oldValue, newValue) -> {
+            filteredMessages.setPredicate(messageViewModel -> {
+                if (newValue == null || newValue.isEmpty()) {
+                    return true;
+                }
+                String lowerCaseFilter = newValue.toLowerCase();
+                if (messageViewModel.getMessage() != null) {
+                    return messageViewModel.getMessage().toLowerCase().contains(lowerCaseFilter);
+                }
+                return false;
+            });
+        });
+        SortedList<MessageViewModel> sortedMessages = new SortedList<>(filteredMessages);
+        messagesListView.setItems(sortedMessages);
     }
 
     // --- START: NEW METHOD TO HANDLE NAVIGATION ---

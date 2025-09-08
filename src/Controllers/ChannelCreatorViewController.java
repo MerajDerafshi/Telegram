@@ -5,6 +5,8 @@ import Models.UserViewModel;
 import ToolBox.*;
 import javafx.application.Platform;
 import javafx.collections.ObservableList;
+import javafx.collections.transformation.FilteredList;
+import javafx.collections.transformation.SortedList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -42,6 +44,8 @@ public class ChannelCreatorViewController {
     @FXML private Button channelInfoButton;
     @FXML private Button voiceRecordButton;
     @FXML private Button manageMembersButton;
+    @FXML private TextField userSearchField;
+    @FXML private TextField messageSearchField;
 
     private UserViewModel localUser;
     private UserViewModel channelViewModel;
@@ -62,6 +66,8 @@ public class ChannelCreatorViewController {
         usersListView.setItems(allUsersList);
         usersListView.setCellFactory(param -> new UserCustomCellController());
         messagesListView.setCellFactory(param -> new MessageCustomCellController());
+        setupUserSearchFunctionality();
+        setupMessageSearchFunctionality();
 
 
         // Added the listener to make the chat list on the left functional
@@ -75,6 +81,39 @@ public class ChannelCreatorViewController {
         loadMessageHistory();
     }
 
+
+    private void setupUserSearchFunctionality() {
+        FilteredList<UserViewModel> filteredData = new FilteredList<>(allUsersList, p -> true);
+        userSearchField.textProperty().addListener((observable, oldValue, newValue) -> {
+            filteredData.setPredicate(userViewModel -> {
+                if (newValue == null || newValue.isEmpty()) {
+                    return true;
+                }
+                String lowerCaseFilter = newValue.toLowerCase();
+                return userViewModel.getFirstName().toLowerCase().contains(lowerCaseFilter);
+            });
+        });
+        SortedList<UserViewModel> sortedData = new SortedList<>(filteredData);
+        usersListView.setItems(sortedData);
+    }
+
+    private void setupMessageSearchFunctionality() {
+        FilteredList<MessageViewModel> filteredMessages = new FilteredList<>(channelViewModel.messagesList, p -> true);
+        messageSearchField.textProperty().addListener((observable, oldValue, newValue) -> {
+            filteredMessages.setPredicate(messageViewModel -> {
+                if (newValue == null || newValue.isEmpty()) {
+                    return true;
+                }
+                String lowerCaseFilter = newValue.toLowerCase();
+                if (messageViewModel.getMessage() != null) {
+                    return messageViewModel.getMessage().toLowerCase().contains(lowerCaseFilter);
+                }
+                return false;
+            });
+        });
+        SortedList<MessageViewModel> sortedMessages = new SortedList<>(filteredMessages);
+        messagesListView.setItems(sortedMessages);
+    }
 
     private void openConversationView(UserViewModel selectedItem) {
         try {

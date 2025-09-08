@@ -87,7 +87,7 @@
                <children>
                   <HBox alignment="CENTER" prefHeight="40.0" prefWidth="260.0">
                      <children>
-                        <TextField prefHeight="26.0" prefWidth="208.0" promptText="Search" style="-fx-background-color: #242F3D; -fx-background-radius: 100px;" styleClass="radius" stylesheets="@../resources/css/style.css" />
+                        <TextField fx:id="searchField" prefHeight="26.0" prefWidth="208.0" promptText="Search" style="-fx-background-color: #242F3D; -fx-background-radius: 100px;" styleClass="radius" stylesheets="@../resources/css/style.css" />
                      </children>
                      <VBox.margin>
                         <Insets left="20.0" right="20.0" top="14.0" />
@@ -119,4 +119,3 @@
       </Label>
    </center>
 </BorderPane>
-

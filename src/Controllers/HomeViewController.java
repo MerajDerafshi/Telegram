@@ -6,6 +6,8 @@ import ToolBox.NetworkConnection;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.collections.transformation.FilteredList;
+import javafx.collections.transformation.SortedList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -15,6 +17,7 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ListView;
+import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.input.MouseEvent;
 import javafx.stage.Modality;
@@ -39,6 +42,7 @@ public class HomeViewController implements Initializable {
     @FXML private Button savedMessagesButton;
     @FXML private Button profileButton;
     @FXML private Button newChannelButton;
+    @FXML private TextField searchField; // Added for the search bar
 
     private NetworkConnection connection;
     private UserViewModel localUser;
@@ -62,6 +66,7 @@ public class HomeViewController implements Initializable {
         localUser.userId = dbUser.id;
 
         loadConversations();
+        setupSearchFunctionality();
 
         usersListView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue != null) {
@@ -71,6 +76,33 @@ public class HomeViewController implements Initializable {
 
         connection = new NetworkConnection(this::handleIncomingData, "127.0.0.1", false, 55555, currentUserPhone);
         connection.openConnection();
+    }
+
+    private void setupSearchFunctionality() {
+        // Wrap the ObservableList in a FilteredList (initially display all data).
+        FilteredList<UserViewModel> filteredData = new FilteredList<>(allUsersList, p -> true);
+
+        // Set the filter Predicate whenever the filter changes.
+        searchField.textProperty().addListener((observable, oldValue, newValue) -> {
+            filteredData.setPredicate(userViewModel -> {
+                // If filter text is empty, display all items.
+                if (newValue == null || newValue.isEmpty()) {
+                    return true;
+                }
+
+                // Compare first name of every user with filter text.
+                String lowerCaseFilter = newValue.toLowerCase();
+
+                // If the user's name contains the filter text, show it.
+                return userViewModel.getFirstName().toLowerCase().contains(lowerCaseFilter);
+            });
+        });
+
+        // Wrap the FilteredList in a SortedList.
+        SortedList<UserViewModel> sortedData = new SortedList<>(filteredData);
+
+        // Add sorted (and filtered) data to the ListView.
+        usersListView.setItems(sortedData);
     }
 
     private void loadConversations() {
@@ -213,4 +245,3 @@ public class HomeViewController implements Initializable {
         return (Stage) usersListView.getScene().getWindow();
     }
 }
-

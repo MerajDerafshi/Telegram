@@ -5,6 +5,8 @@ import Models.UserViewModel;
 import ToolBox.*;
 import javafx.application.Platform;
 import javafx.collections.ObservableList;
+import javafx.collections.transformation.FilteredList;
+import javafx.collections.transformation.SortedList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -49,6 +51,8 @@ public class UserChatController implements Initializable {
     @FXML private Button voiceRecordButton;
     @FXML private Button callButton;
     @FXML private Button newChannelButton;
+    @FXML private TextField userSearchField;
+    @FXML private TextField messageSearchField;
 
 
     private NetworkConnection connection;
@@ -82,6 +86,7 @@ public class UserChatController implements Initializable {
 
         usersListView.setItems(allUsersList);
         usersListView.setCellFactory(param -> new UserCustomCellController());
+        setupUserSearchFunctionality();
 
         chatRoomNameLabel.setText(selectedUser.getFirstName());
 
@@ -94,6 +99,7 @@ public class UserChatController implements Initializable {
         }
 
         loadMessageHistory();
+        setupMessageSearchFunctionality();
 
         messagesListView.setCellFactory(param -> {
             MessageCustomCellController cell = new MessageCustomCellController();
@@ -103,6 +109,39 @@ public class UserChatController implements Initializable {
         });
 
         scrollToBottom();
+    }
+
+    private void setupUserSearchFunctionality() {
+        FilteredList<UserViewModel> filteredData = new FilteredList<>(allUsersList, p -> true);
+        userSearchField.textProperty().addListener((observable, oldValue, newValue) -> {
+            filteredData.setPredicate(userViewModel -> {
+                if (newValue == null || newValue.isEmpty()) {
+                    return true;
+                }
+                String lowerCaseFilter = newValue.toLowerCase();
+                return userViewModel.getFirstName().toLowerCase().contains(lowerCaseFilter);
+            });
+        });
+        SortedList<UserViewModel> sortedData = new SortedList<>(filteredData);
+        usersListView.setItems(sortedData);
+    }
+
+    private void setupMessageSearchFunctionality() {
+        FilteredList<MessageViewModel> filteredMessages = new FilteredList<>(currentlySelectedUser.messagesList, p -> true);
+        messageSearchField.textProperty().addListener((observable, oldValue, newValue) -> {
+            filteredMessages.setPredicate(messageViewModel -> {
+                if (newValue == null || newValue.isEmpty()) {
+                    return true;
+                }
+                String lowerCaseFilter = newValue.toLowerCase();
+                if (messageViewModel.getMessage() != null) {
+                    return messageViewModel.getMessage().toLowerCase().contains(lowerCaseFilter);
+                }
+                return false; // Or however you want to handle messages with no text
+            });
+        });
+        SortedList<MessageViewModel> sortedMessages = new SortedList<>(filteredMessages);
+        messagesListView.setItems(sortedMessages);
     }
 
     private void openConversationView(UserViewModel selectedItem) {

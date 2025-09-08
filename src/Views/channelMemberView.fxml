@@ -86,7 +86,7 @@
                <children>
                   <HBox alignment="CENTER" prefHeight="40.0" prefWidth="260.0">
                      <children>
-                        <TextField prefHeight="26.0" prefWidth="208.0" promptText="Search" style="-fx-background-color: #242F3D; -fx-background-radius: 100px;" styleClass="radius" stylesheets="@../resources/css/style.css" />
+                        <TextField fx:id="userSearchField" prefHeight="26.0" prefWidth="208.0" promptText="Search" style="-fx-background-color: #242F3D; -fx-background-radius: 100px;" styleClass="radius" stylesheets="@../resources/css/style.css" />
                      </children>
                      <VBox.margin>
                         <Insets left="20.0" right="20.0" top="14.0" />
@@ -112,7 +112,7 @@
                      </font>
                   </Label>
                   <Pane HBox.hgrow="ALWAYS" />
-                  <TextField fx:id="searchField" prefHeight="26.0" prefWidth="208.0" promptText="Search" style="-fx-background-color: #242F3D; -fx-background-radius: 8px; -fx-text-fill: white;" />
+                  <TextField fx:id="messageSearchField" prefHeight="26.0" prefWidth="208.0" promptText="Search in messages" style="-fx-background-color: #242F3D; -fx-background-radius: 8px; -fx-text-fill: white;" />
                   <Button fx:id="channelInfoButton" onMouseClicked="#openChannelInfo" mnemonicParsing="false" prefHeight="40.0" prefWidth="40.0" style="-fx-background-color: rgb(0,0,0,0);">
                      <graphic>
                         <SVGPath content="M8 9a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3ZM1.5 9a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3Zm13 0a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3Z" fill="#768c9e" rotate="90.0" scaleX="1.2" scaleY="1.2" />
