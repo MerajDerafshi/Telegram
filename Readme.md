@@ -31,7 +31,7 @@ This project is a the final project of the Advanced Programing course at SBU. Th
 |**Server**      |![Java](https://img.shields.io/badge/Java-ED8B00?style=for-the-badge&logo=java)                                                                           |
 |**Database**    |![MySQL](https://img.shields.io/badge/MySQL-4479A1?style=for-the-badge&logo=mysql&logoColor=white)                                                        |
 |**Networking**  |![Java](https://img.shields.io/badge/Java-ED8B00?style=for-the-badge&logo=java) ![Socket](https://img.shields.io/badge/Sockets-0A74DA?style=for-the-badge)|
-|**API**         |![Java](https://img.shields.io/badge/Java-ED8B00style=for-the-badgelogo=java)                                                                             |
+|**API**         |![Java](https://img.shields.io/badge/Java-ED8B00?style=for-the-badge&logo=java)                                                                           |
 
 ---
 
@@ -80,9 +80,15 @@ This project is a the final project of the Advanced Programing course at SBU. Th
 
 ## 📹 Demo
 
+### LOGIN TO THE APP
+
 ![screenshot1](src/resources/img/screenshot1.png)
 
+### CHAT WITH SOME FAMOUS PEOPLE
+
 ![screenshot2](src/resources/img/screenshot2.png)
+
+### PROMOTE & REMOVE PEOPLE FROM YOUR CHANNEL
 
 ![screenshot3](src/resources/img/screenshot3.png)
 
