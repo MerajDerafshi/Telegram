@@ -7,25 +7,26 @@
 <?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Pane?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.shape.SVGPath?>
 <?import javafx.scene.text.Font?>
 
-<Pane fx:id="chatBox" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="702.0" prefWidth="1006.0" styleClass="chatbox-background" stylesheets="@../resources/css/lightModeMainChat.css" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1">
-   <children>
-      <HBox fx:id="secondMenu" prefHeight="702.0" prefWidth="340.0" styleClass="second-menu-background">
+<BorderPane styleClass="chatbox-background" stylesheets="@../resources/css/lightModeMainChat.css" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1">
+   <left>
+      <HBox fx:id="secondMenu" prefWidth="340.0" styleClass="second-menu-background">
          <children>
-            <VBox fx:id="firstMenu" alignment="CENTER" prefHeight="702.0" prefWidth="80.0" styleClass="first-menu-background">
+            <VBox fx:id="firstMenu" alignment="CENTER" prefWidth="80.0" styleClass="first-menu-background">
                <children>
                   <Button mnemonicParsing="false" prefHeight="40.0" prefWidth="40.0" style="-fx-background-color: rgb(0,0,0,0);">
-                     <VBox.margin>
-                        <Insets />
-                     </VBox.margin>
                      <graphic>
                         <SVGPath content="M12 5.9c1.16 0 2.1.94 2.1 2.1s-.94 2.1-2.1 2.1S9.9 9.16 9.9 8s.94-2.1 2.1-2.1m0 9c2.97 0 6.1 1.46 6.1 2.1v1.1H5.9V17c0-.64 3.13-2.1 6.1-2.1M12 4C9.79 4 8 5.79 8 8s1.79 4 4 4 4-1.79 4-4-1.79-4-4-4zm0 9c-2.67 0-8 1.34-8 4v3h16v-3c0-2.66-5.33-4-8-4z" fill="#768c9e" layoutX="1.0" layoutY="1.0" scaleX="1.5" scaleY="1.5" scaleZ="0.0" />
                      </graphic>
+                     <VBox.margin>
+                        <Insets />
+                     </VBox.margin>
                   </Button>
                   <Label text="Profile" textFill="#768c9e">
                      <VBox.margin>
@@ -38,12 +39,12 @@
                      </VBox.margin>
                   </Pane>
                   <Button mnemonicParsing="false" prefHeight="40.0" prefWidth="40.0" style="-fx-background-color: rgb(0,0,0,0);">
-                     <VBox.margin>
-                        <Insets top="20.0" />
-                     </VBox.margin>
                      <graphic>
                         <SVGPath content="M16.52 23.44c-1 0-2-0.6-2.88-1.68-0.040 0-0.040 0-0.080 0-4.16 0-7.56-3.4-7.56-7.56s3.4-7.56 7.56-7.56 7.56 3.4 7.56 7.56c0 2.040-0.8 3.96-2.24 5.36 0.16 1.24-0.040 2.32-0.6 3.040-0.44 0.52-1.080 0.84-1.76 0.84v0zM14.080 20.040c0.28 0 0.52 0.12 0.68 0.36 0.72 1 1.36 1.36 1.76 1.36 0.2 0 0.32-0.080 0.44-0.2 0.32-0.4 0.4-1.2 0.2-2.080-0.080-0.32 0.040-0.64 0.28-0.84 1.28-1.12 2-2.72 2-4.4 0-3.24-2.64-5.88-5.88-5.88s-5.88 2.64-5.88 5.88 2.64 5.88 5.88 5.88c0.12 0 0.28 0 0.4 0 0.040-0.080 0.12-0.080 0.12-0.080zM3.84 25.36c-0.2 0-0.44-0.040-0.6-0.12-0.96-0.32-1.72-1.48-1.48-3.36-1.12-1.12-1.76-2.68-1.76-4.28 0-2.56 1.52-4.8 3.88-5.72 0.44-0.16 0.92 0.040 1.080 0.48s-0.040 0.92-0.48 1.080c-1.68 0.68-2.8 2.32-2.8 4.16 0 1.28 0.56 2.52 1.52 3.36 0.040 0.040 0.080 0.080 0.12 0.12 0.16 0.2 0.24 0.44 0.16 0.72-0.24 1.24 0.12 1.8 0.32 1.88 0.24 0.080 0.76-0.24 1.2-1.16 0.16-0.32 0.48-0.48 0.8-0.48 0.84 0.040 1.72-0.12 2.48-0.56 0.4-0.24 0.92-0.080 1.16 0.32s0.080 0.92-0.32 1.16c-0.88 0.48-1.88 0.76-2.88 0.76-0.76 1.2-1.68 1.64-2.4 1.64z" fill="#768c9e" scaleX="1.5" scaleY="1.5" />
                      </graphic>
+                     <VBox.margin>
+                        <Insets top="20.0" />
+                     </VBox.margin>
                   </Button>
                   <Label text="Chat" textFill="#768c9e">
                      <VBox.margin>
@@ -51,12 +52,12 @@
                      </VBox.margin>
                   </Label>
                   <Button mnemonicParsing="false" prefHeight="40.0" prefWidth="40.0" style="-fx-background-color: rgb(0,0,0,0);" textFill="#768c9e">
-                     <VBox.margin>
-                        <Insets top="20.0" />
-                     </VBox.margin>
                      <graphic>
                         <SVGPath content="M3 2.75C3 1.784 3.784 1 4.75 1h6.5c.966 0 1.75.784 1.75 1.75v11.5a.75.75 0 0 1-1.227.579L8 11.722l-3.773 3.107A.751.751 0 0 1 3 14.25Zm1.75-.25a.25.25 0 0 0-.25.25v9.91l3.023-2.489a.75.75 0 0 1 .954 0l3.023 2.49V2.75a.25.25 0 0 0-.25-.25Z" fill="#768c9e" scaleX="1.5" scaleY="1.5" scaleZ="0.0" />
                      </graphic>
+                     <VBox.margin>
+                        <Insets top="20.0" />
+                     </VBox.margin>
                   </Button>
                   <Label text="Saved" textFill="#768c9e" />
                   <Button mnemonicParsing="false" prefHeight="40.0" prefWidth="40.0" style="-fx-background-color: rgb(0,0,0,0);">
@@ -81,62 +82,65 @@
                      </VBox.margin>
                   </Button>
                   <Label text="New&#10;Channel" textAlignment="CENTER" textFill="#768c9e" />
-                  <Pane prefHeight="90.0" prefWidth="80.0" />
+                  <Pane VBox.vgrow="ALWAYS" />
                   <Button mnemonicParsing="false" prefHeight="40.0" prefWidth="40.0" style="-fx-background-color: rgb(0,0,0,0);">
-                     <VBox.margin>
-                        <Insets />
-                     </VBox.margin>
                      <graphic>
                         <SVGPath content="M10.09 15.59L11.5 17l5-5-5-5-1.41 1.41L12.67 11H3v2h9.67l-2.58 2.59zM19 3H5c-1.11 0-2 .9-2 2v4h2V5h14v14H5v-4H3v4c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z" fill="#768c9e" scaleX="1.5" scaleY="1.5" />
                      </graphic>
+                     <VBox.margin>
+                        <Insets />
+                     </VBox.margin>
                   </Button>
                </children>
             </VBox>
-            <VBox prefHeight="702.0" prefWidth="260.0">
+            <VBox prefWidth="260.0">
                <children>
-                  <HBox alignment="CENTER" prefHeight="40.0" prefWidth="260.0">
-                     <VBox.margin>
-                        <Insets left="20.0" right="20.0" top="14.0" />
-                     </VBox.margin>
+                  <HBox alignment="CENTER" prefHeight="40.0">
                      <children>
-                        <TextField fx:id="searchbox" prefHeight="26.0" prefWidth="208.0" promptText="Search" stylesheets="@../resources/css/style.css">
+                        <TextField fx:id="searchbox" promptText="Search" stylesheets="@../resources/css/style.css" HBox.hgrow="ALWAYS">
                            <styleClass>
                               <String fx:value="radius" />
                               <String fx:value="search-box-background" />
-                           </styleClass></TextField>
+                           </styleClass>
+                        </TextField>
                      </children>
+                     <VBox.margin>
+                        <Insets left="20.0" right="20.0" top="14.0" />
+                     </VBox.margin>
                   </HBox>
-                  <VBox prefHeight="650.0" prefWidth="260.0">
-                     <children>
-                        <ScrollPane hbarPolicy="NEVER" opacity="0.0" prefHeight="650.0" prefWidth="260.0" style="-fx-background-color: rgb(0.0.0.0);" vbarPolicy="ALWAYS" />
-                     </children>
-                  </VBox>
+                  <ScrollPane fitToWidth="true" hbarPolicy="NEVER" style="-fx-background-color: transparent; -fx-background: transparent;" vbarPolicy="ALWAYS" VBox.vgrow="ALWAYS">
+                     <content>
+                        <VBox />
+                     </content>
+                  </ScrollPane>
                </children>
             </VBox>
          </children>
       </HBox>
-      <VBox layoutX="341.0" prefHeight="702.0" prefWidth="666.0">
+   </left>
+   <center>
+      <VBox>
          <children>
-            <HBox fx:id="titlebar" alignment="CENTER" prefHeight="60.0" prefWidth="666.0" styleClass="titleBar-background" stylesheets="@../resources/css/style.css">
+            <HBox fx:id="titlebar" alignment="CENTER" prefHeight="60.0" styleClass="titleBar-background" stylesheets="@../resources/css/style.css">
                <children>
                   <ImageView fitHeight="50.0" fitWidth="50.0" pickOnBounds="true" preserveRatio="true" styleClass="radius" />
-                  <Label fx:id="nameLabel" prefHeight="26.0" prefWidth="126.0" text="Sam">
+                  <Label fx:id="nameLabel" text="Sam">
                      <font>
                         <Font size="16.0" />
                      </font>
                      <HBox.margin>
-                        <Insets right="20.0" />
+                        <Insets left="10.0" right="20.0" />
                      </HBox.margin>
                   </Label>
-                  <Pane prefHeight="60.0" prefWidth="160.0" />
-                  <TextField fx:id="searchbox2" prefHeight="26.0" prefWidth="208.0" promptText="Search" stylesheets="@../resources/css/style.css">
-                     <HBox.margin>
-                        <Insets left="14.0" right="20.0" />
-                     </HBox.margin>
+                  <Pane HBox.hgrow="ALWAYS" />
+                  <TextField fx:id="searchbox2" prefWidth="208.0" promptText="Search" stylesheets="@../resources/css/style.css">
                      <styleClass>
                         <String fx:value="radius" />
                         <String fx:value="search-box2-background" />
                      </styleClass>
+                     <HBox.margin>
+                        <Insets left="14.0" right="20.0" />
+                     </HBox.margin>
                   </TextField>
                   <Button mnemonicParsing="false" prefHeight="40.0" prefWidth="40.0" style="-fx-background-color: rgb(0,0,0,0);">
                      <graphic>
@@ -148,19 +152,19 @@
                   </Button>
                </children>
             </HBox>
-            <Pane prefHeight="592.0" prefWidth="666.0">
-               <children>
-                  <ScrollPane hbarPolicy="NEVER" opacity="0.0" prefHeight="592.0" prefWidth="666.0" style="-fx-background-color: rgb(0.0.0.0);" vbarPolicy="ALWAYS" />
-               </children>
-            </Pane>
-            <HBox fx:id="messagebar" alignment="CENTER" prefHeight="50.0" prefWidth="666.0" styleClass="messageBar-background">
+            <ScrollPane fitToWidth="true" hbarPolicy="NEVER" style="-fx-background-color: transparent; -fx-background: transparent;" vbarPolicy="ALWAYS" VBox.vgrow="ALWAYS">
+               <content>
+                  <VBox />
+               </content>
+            </ScrollPane>
+            <HBox fx:id="messagebar" alignment="CENTER" prefHeight="50.0" styleClass="messageBar-background">
                <children>
                   <Button mnemonicParsing="false" prefHeight="40.0" prefWidth="40.0" style="-fx-background-color: rgb(0,0,0,0);">
                      <graphic>
                         <SVGPath content="M284.562,164.181 L270.325,178.26 C267.966,180.593 264.141,180.593 261.782,178.26 C259.423,175.928 259.423,172.146 261.782,169.813 L274.596,157.141 C276.168,155.586 278.718,155.586 280.291,157.141 C281.863,158.696 281.863,161.218 280.291,162.772 L267.477,175.444 C266.691,176.222 265.416,176.222 264.629,175.444 C263.843,174.667 263.843,173.406 264.629,172.628 L276.02,161.365 L274.596,159.957 L263.206,171.221 C261.633,172.775 261.633,175.297 263.206,176.853 C264.778,178.407 267.328,178.407 268.901,176.852 L281.714,164.181 C284.073,161.849 284.074,158.065 281.715,155.733 C279.355,153.4 275.531,153.4 273.172,155.733 L259.646,169.108 L259.696,169.157 C257.238,172.281 257.455,176.797 260.358,179.668 C263.262,182.539 267.828,182.754 270.987,180.323 L271.036,180.372 L285.986,165.589 L284.562,164.181" fill="#768c9e" scaleX="0.8" scaleY="0.8" scaleZ="0.0" />
                      </graphic>
                   </Button>
-                  <TextField prefHeight="40.0" prefWidth="520.0" promptText="Write a message..." style="-fx-background-color: rgb(0,0,0,0);">
+                  <TextField promptText="Write a message..." style="-fx-background-color: rgb(0,0,0,0);" HBox.hgrow="ALWAYS">
                      <font>
                         <Font size="14.0" />
                      </font>
@@ -185,5 +189,5 @@
             </HBox>
          </children>
       </VBox>
-   </children>
-</Pane>
+   </center>
+</BorderPane>
