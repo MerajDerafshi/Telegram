@@ -8,7 +8,7 @@ import java.util.Optional;
 public class DatabaseManager {
 
     private static final String JDBC_URL = "jdbc:mysql://localhost:3306/Telegram";
-    private static final String DB_USER = "Telegram_Admin0";
+    private static final String DB_USER = "Telegram_Admin";
     private static final String DB_PASSWORD = "Telegram_Admin_@Pass3000";
 
     static {

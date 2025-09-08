@@ -228,7 +228,7 @@ public class UserChatController implements Initializable {
     @FXML
     void startVideoCall(MouseEvent event) {
         try {
-            File videoFile = new File("C:\\Telegram\\src\\resources\\img\\banana.mp4");
+            File videoFile = new File("C:\\_temp3\\Telegram\\src\\resources\\img\\banana.mp4");
             if (videoFile.exists()) {
                 if (Desktop.isDesktopSupported()) {
                     Desktop.getDesktop().open(videoFile);
@@ -434,7 +434,7 @@ public class UserChatController implements Initializable {
                     new FileChooser.ExtensionFilter("All Files", "*.*"),
                     new FileChooser.ExtensionFilter("Images", "*.png", "*.jpg", "*.jpeg", "*.gif"),
                     new FileChooser.ExtensionFilter("Videos", "*.mp4"),
-                    new FileChooser.ExtensionFilter("Documents", "*.pdf", "*.docx")
+                    new FileChooser.ExtensionFilter("Documents", "*.pdf", "*.docx", "*.java")
             );
 
             File file = fileChooser.showOpenDialog(new Stage());
