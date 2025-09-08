@@ -84,9 +84,13 @@ This project is a the final project of the Advanced Programing course at SBU. Th
 
 ![screenshot1](src/resources/img/screenshot1.png)
 
+---
+
 ### CHAT WITH SOME FAMOUS PEOPLE
 
 ![screenshot2](src/resources/img/screenshot2.png)
+
+---
 
 ### PROMOTE & REMOVE PEOPLE FROM YOUR CHANNEL
 
