@@ -1,0 +1,31 @@
+.first-menu-background{
+    -fx-background-color: #293A4C;
+}
+
+.second-menu-background{
+    -fx-background-color: #FFFFFF;
+}
+
+.search-box-background{
+    -fx-background-color: #F1F1F1;
+}
+
+.chatbox-background{
+    -fx-background-color: #74B4E0;
+}
+
+.titleBar-background{
+    -fx-background-color: #F1F1F1;
+}
+
+.messageBar-background{
+    -fx-background-color: #F1F1F1;
+}
+
+.info-background{
+    -fx-background-color: #FFFFFF;
+}
+
+.search-box2-background{
+    -fx-background-color: #E6E6E6;
+}

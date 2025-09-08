@@ -14,13 +14,13 @@
 <?import javafx.scene.text.Font?>
 <?import javafx.scene.text.Text?>
 
-<VBox fx:controller="Controllers.CreateAccountController" prefHeight="550.0" prefWidth="700.0" style="-fx-background-color: #17212B;" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1">
+<VBox fx:controller="Controllers.CreateAccountController" prefHeight="550.0" prefWidth="700.0" styleClass="background-color" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1">
     <children>
         <HBox alignment="CENTER_LEFT" prefHeight="35.0" prefWidth="600.0">
             <children>
                 <Button fx:id="backButton" onAction="#backButtonClicked" mnemonicParsing="false" style="-fx-background-color: transparent;">
                     <graphic>
-                        <SVGPath content="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z" fill="#636d78" />
+                        <SVGPath content="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z" styleClass="svg-path" />
                     </graphic>
                 </Button>
             </children>
@@ -29,12 +29,11 @@
             </VBox.margin>
         </HBox>
 
-
         <VBox alignment="CENTER" prefHeight="499.0" prefWidth="700.0" spacing="15.0" VBox.vgrow="ALWAYS">
             <children>
                 <HBox alignment="CENTER_LEFT" maxWidth="400.0">
                     <children>
-                        <Label text="Please complete your information." textFill="#636d78">
+                        <Label styleClass="secondary-text" text="Please complete your information.">
                             <font>
                                 <Font size="14.0" />
                             </font>
@@ -42,73 +41,67 @@
                     </children>
                 </HBox>
 
-
                 <HBox alignment="CENTER_LEFT" maxWidth="400.0" spacing="10.0">
                     <children>
-                        <Text fill="WHITE" strokeType="OUTSIDE" strokeWidth="0.0" text="First Name:" wrappingWidth="120.0">
+                        <Text styleClass="header-text" strokeType="OUTSIDE" strokeWidth="0.0" text="First Name:" wrappingWidth="120.0">
                             <font><Font size="14.0" /></font>
                         </Text>
-                        <TextField fx:id="firstNameField" HBox.hgrow="ALWAYS" style="-fx-background-color: transparent; -fx-border-color: #636d78; -fx-border-width: 0 0 1 0; -fx-text-fill: white;" />
+                        <TextField fx:id="firstNameField" style="-fx-background-color: transparent; -fx-border-width: 0 0 1 0;" styleClass="text-field-border" HBox.hgrow="ALWAYS" />
                     </children>
                 </HBox>
 
-
                 <HBox alignment="CENTER_LEFT" maxWidth="400.0" spacing="10.0">
                     <children>
-                        <Text fill="WHITE" strokeType="OUTSIDE" strokeWidth="0.0" text="Last Name:" wrappingWidth="120.0">
+                        <Text styleClass="header-text" strokeType="OUTSIDE" strokeWidth="0.0" text="Last Name:" wrappingWidth="120.0">
                             <font><Font size="14.0" /></font>
                         </Text>
-                        <TextField fx:id="lastNameField" HBox.hgrow="ALWAYS" style="-fx-background-color: transparent; -fx-border-color: #636d78; -fx-border-width: 0 0 1 0; -fx-text-fill: white;" />
+                        <TextField fx:id="lastNameField" style="-fx-background-color: transparent; -fx-border-width: 0 0 1 0;" styleClass="text-field-border" HBox.hgrow="ALWAYS" />
                     </children>
                 </HBox>
 
-
                 <HBox alignment="CENTER_LEFT" maxWidth="400.0" spacing="10.0">
                     <children>
-                        <Text fill="WHITE" strokeType="OUTSIDE" strokeWidth="0.0" text="Username:" wrappingWidth="120.0">
+                        <Text styleClass="header-text" strokeType="OUTSIDE" strokeWidth="0.0" text="Username:" wrappingWidth="120.0">
                             <font><Font size="14.0" /></font>
                         </Text>
-                        <TextField fx:id="usernameField" HBox.hgrow="ALWAYS" style="-fx-background-color: transparent; -fx-border-color: #636d78; -fx-border-width: 0 0 1 0; -fx-text-fill: white;" />
+                        <TextField fx:id="usernameField" style="-fx-background-color: transparent; -fx-border-width: 0 0 1 0;" styleClass="text-field-border" HBox.hgrow="ALWAYS" />
                     </children>
                 </HBox>
 
-
                 <HBox alignment="CENTER_LEFT" maxWidth="400.0" spacing="10.0">
                     <children>
-                        <Text fill="WHITE" strokeType="OUTSIDE" strokeWidth="0.0" text="Password:" wrappingWidth="120.0">
+                        <Text styleClass="header-text" strokeType="OUTSIDE" strokeWidth="0.0" text="Password:" wrappingWidth="120.0">
                             <font><Font size="14.0" /></font>
                         </Text>
                         <StackPane HBox.hgrow="ALWAYS">
                             <children>
-                                <PasswordField fx:id="passwordField" style="-fx-background-color: transparent; -fx-border-color: #636d78; -fx-border-width: 0 0 1 0; -fx-text-fill: white;" />
-                                <TextField fx:id="visiblePasswordField" managed="false" style="-fx-background-color: transparent; -fx-border-color: #636d78; -fx-border-width: 0 0 1 0; -fx-text-fill: white;" visible="false" />
+                                <PasswordField fx:id="passwordField" style="-fx-background-color: transparent; -fx-border-width: 0 0 1 0;" styleClass="text-field-border" />
+                                <TextField fx:id="visiblePasswordField" managed="false" style="-fx-background-color: transparent; -fx-border-width: 0 0 1 0;" styleClass="text-field-border" visible="false" />
                             </children>
                         </StackPane>
                     </children>
                 </HBox>
 
-
                 <HBox alignment="CENTER_LEFT" maxWidth="400.0" spacing="10.0">
                     <children>
-                        <Text fill="WHITE" strokeType="OUTSIDE" strokeWidth="0.0" text="Confirm Password:" wrappingWidth="120.0">
+                        <Text styleClass="header-text" strokeType="OUTSIDE" strokeWidth="0.0" text="Confirm Password:" wrappingWidth="120.0">
                             <font>
                                 <Font size="14.0" />
                             </font>
                         </Text>
                         <StackPane HBox.hgrow="ALWAYS">
                             <children>
-                                <PasswordField fx:id="confirmPasswordField" style="-fx-background-color: transparent; -fx-border-color: #636d78; -fx-border-width: 0 0 1 0; -fx-text-fill: white;" />
-                                <TextField fx:id="visibleConfirmPasswordField" managed="false" style="-fx-background-color: transparent; -fx-border-color: #636d78; -fx-border-width: 0 0 1 0; -fx-text-fill: white;" visible="false" />
+                                <PasswordField fx:id="confirmPasswordField" style="-fx-background-color: transparent; -fx-border-width: 0 0 1 0;" styleClass="text-field-border" />
+                                <TextField fx:id="visibleConfirmPasswordField" managed="false" style="-fx-background-color: transparent; -fx-border-width: 0 0 1 0;" styleClass="text-field-border" visible="false" />
                             </children>
                         </StackPane>
                     </children>
                 </HBox>
 
-
                 <HBox alignment="CENTER_LEFT" maxWidth="400.0" spacing="20.0">
                     <children>
                         <Region HBox.hgrow="ALWAYS" /> <!-- Pushes content to the right -->
-                        <CheckBox fx:id="showPasswordCheckBox" text="Show Password" textFill="#636d78" />
+                        <CheckBox fx:id="showPasswordCheckBox" styleClass="secondary-text" text="Show Password" />
                     </children>
                     <padding>
                         <Insets left="130.0" />
@@ -117,7 +110,7 @@
 
                 <HBox alignment="CENTER" maxWidth="400.0">
                     <children>
-                        <Text fx:id="passwordStrengthText" fill="#636d78" strokeType="OUTSIDE" strokeWidth="0.0" text="Password Strength:" />
+                        <Text fx:id="passwordStrengthText" styleClass="secondary-text" strokeType="OUTSIDE" strokeWidth="0.0" text="Password Strength:" />
                     </children>
                 </HBox>
 
@@ -146,4 +139,3 @@
         </VBox>
     </children>
 </VBox>
-

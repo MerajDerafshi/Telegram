@@ -1,6 +1,7 @@
 package Controllers;
 
 import ToolBox.DatabaseManager;
+import ToolBox.ThemeManager;
 import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -81,10 +82,13 @@ public class LoginStarterController implements Initializable {
         try {
             Parent root = FXMLLoader.load(getClass().getResource(fxmlFile));
             Stage stage = (Stage) nextButton.getScene().getWindow();
-            stage.setScene(new Scene(root));
+            Scene scene = new Scene(root);
+            ThemeManager.applyTheme(scene); // Apply theme to the newly created scene
+            stage.setScene(scene);
         } catch (IOException e) {
             e.printStackTrace();
             errorLabel.setText("Error: Could not load the next screen.");
         }
     }
 }
+

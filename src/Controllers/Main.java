@@ -1,5 +1,6 @@
 package Controllers;
 
+import ToolBox.ThemeManager;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -11,12 +12,17 @@ import javafx.stage.StageStyle;
 import java.util.Objects;
 
 public class Main extends Application {
+
     @Override
     public void start(Stage primaryStage) throws Exception {
-        primaryStage.getIcons().add(new Image("resources/img/app.png"));
+        primaryStage.getIcons().add(new Image(Objects.requireNonNull(getClass().getResourceAsStream("/resources/img/app.png"))));
         Parent root = FXMLLoader.load(Objects.requireNonNull(getClass().getResource("../Views/loginStarter.fxml")));
 
-        primaryStage.setScene(new Scene(root));
+        Scene scene = new Scene(root);
+        // Apply the default (dark) theme immediately on startup.
+        ThemeManager.applyTheme(scene);
+
+        primaryStage.setScene(scene);
         primaryStage.initStyle(StageStyle.DECORATED);
         primaryStage.setTitle("Telegram");
         primaryStage.show();
@@ -26,3 +32,4 @@ public class Main extends Application {
         launch(args);
     }
 }
+

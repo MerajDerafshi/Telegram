@@ -1,6 +1,7 @@
 package Controllers;
 
 import ToolBox.DatabaseManager;
+import ToolBox.ThemeManager;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -52,7 +53,9 @@ public class PasswordLoginController implements Initializable {
         try {
             Parent root = FXMLLoader.load(getClass().getResource(fxmlFile));
             Stage stage = (Stage) loginButton.getScene().getWindow();
-            stage.setScene(new Scene(root));
+            Scene scene = new Scene(root);
+            ThemeManager.applyTheme(scene);
+            stage.setScene(scene);
         } catch (IOException e) {
             e.printStackTrace();
             errorLabel.setText("Error: Could not load the application.");
