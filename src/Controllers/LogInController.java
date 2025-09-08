@@ -4,10 +4,12 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.TextField; // Changed from JFXTextField
+import javafx.scene.control.TextField;
 import javafx.scene.input.MouseEvent;
+import javafx.stage.Stage;
 
 import java.io.IOException;
 import java.net.URL;
@@ -25,12 +27,14 @@ public class LogInController implements Initializable {
 
     @FXML
     void closeApp(MouseEvent event) {
-        Main.stage.close();
+        Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+        stage.close();
     }
 
     @FXML
     void minimizeApp(MouseEvent event) {
-        Main.stage.setIconified(true);
+        Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+        stage.setIconified(true);
     }
 
     @FXML
@@ -38,7 +42,8 @@ public class LogInController implements Initializable {
         try {
             userName = userNameTextField.getText();
             Parent root = FXMLLoader.load(getClass().getResource("../Views/homeView.fxml"));
-            Main.stage.setScene(new Scene(root));
+            Stage stage = (Stage) userNameTextField.getScene().getWindow();
+            stage.setScene(new Scene(root));
         } catch (IOException e) {
             e.printStackTrace();
         }

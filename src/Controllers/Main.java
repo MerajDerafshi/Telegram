@@ -11,8 +11,6 @@ import javafx.stage.StageStyle;
 import java.util.Objects;
 
 public class Main extends Application {
-    public static Stage stage;
-
     @Override
     public void start(Stage primaryStage) throws Exception {
         primaryStage.getIcons().add(new Image("resources/img/app.png"));
@@ -20,9 +18,8 @@ public class Main extends Application {
 
         primaryStage.setScene(new Scene(root));
         primaryStage.initStyle(StageStyle.DECORATED);
-        stage = primaryStage;
         primaryStage.setTitle("Telegram");
-        stage.show();
+        primaryStage.show();
     }
 
     public static void main(String[] args) {
