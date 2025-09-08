@@ -21,8 +21,8 @@ public class UserViewModel {
     public boolean isChannel = false;
     public long channelId;
     public long creatorId;
+    public String role; // NEW: To store user's role in a channel
 
-    // Property for selection in the add members view
     public SimpleBooleanProperty selected = new SimpleBooleanProperty(false);
 
 
@@ -59,10 +59,8 @@ public class UserViewModel {
     public SimpleStringProperty notificationsNumberProperty() { return notificationsNumber; }
     public Image getAvatarImage() { return avatarImage; }
 
-    // --- Selection Property Methods ---
     public boolean isSelected() { return selected.get(); }
     public void setSelected(boolean selected) { this.selected.set(selected); }
     public SimpleBooleanProperty selectedProperty() { return selected; }
-
 }
 

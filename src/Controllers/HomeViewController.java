@@ -115,7 +115,8 @@ public class HomeViewController implements Initializable {
         try {
             FXMLLoader loader;
             if (selectedItem.isChannel) {
-                if (localUser.userId == selectedItem.creatorId) {
+                String userRole = DatabaseManager.getUserRoleInChannel(selectedItem.channelId, localUser.userId);
+                if ("owner".equals(userRole) || "admin".equals(userRole)) {
                     loader = new FXMLLoader(getClass().getResource("../Views/channelCreatorView.fxml"));
                     Parent root = loader.load();
                     ChannelCreatorViewController controller = loader.getController();

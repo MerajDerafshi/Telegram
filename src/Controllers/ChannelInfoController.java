@@ -46,7 +46,7 @@ public class ChannelInfoController {
             avatarImageView.setImage(channelViewModel.getAvatarImage());
         }
         // These are placeholders as requested
-        bioLabel.setText("You can post messages here.");
+        bioLabel.setText("Channel");
         channelLinklabel.setText("@" + channelViewModel.getFirstName().replaceAll("\\s+", ""));
 
         usersListView.setItems(allUsers);

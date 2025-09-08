@@ -41,6 +41,7 @@ public class ChannelCreatorViewController {
     @FXML private Button logoutButton;
     @FXML private Button channelInfoButton;
     @FXML private Button voiceRecordButton;
+    @FXML private Button manageMembersButton;
 
     private UserViewModel localUser;
     private UserViewModel channelViewModel;
@@ -62,19 +63,19 @@ public class ChannelCreatorViewController {
         usersListView.setCellFactory(param -> new UserCustomCellController());
         messagesListView.setCellFactory(param -> new MessageCustomCellController());
 
-        // --- START: BUG FIX ---
+
         // Added the listener to make the chat list on the left functional
         usersListView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue != null) {
                 openConversationView(newValue);
             }
         });
-        // --- END: BUG FIX ---
+
 
         loadMessageHistory();
     }
 
-    // --- START: NEW METHOD TO HANDLE NAVIGATION ---
+
     private void openConversationView(UserViewModel selectedItem) {
         try {
             FXMLLoader loader;
@@ -103,7 +104,7 @@ public class ChannelCreatorViewController {
             e.printStackTrace();
         }
     }
-    // --- END: NEW METHOD ---
+
 
     private void handleIncomingData(Serializable data) {
         if (data instanceof ChannelMessage) {
@@ -217,6 +218,24 @@ public class ChannelCreatorViewController {
         }
     }
 
+    @FXML
+    void openManageMembers(MouseEvent event) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("../Views/manageChannelMembers.fxml"));
+            Parent root = loader.load();
+            ManageChannelMembersController controller = loader.getController();
+            controller.initData(channelViewModel);
+
+            Stage stage = new Stage();
+            stage.initModality(Modality.APPLICATION_MODAL);
+            stage.initStyle(StageStyle.UTILITY);
+            stage.setTitle("Manage Members");
+            stage.setScene(new Scene(root));
+            stage.showAndWait();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
     private void sendVoiceMessage(byte[] voiceData) {
         if (voiceData == null || voiceData.length == 0) return;
 

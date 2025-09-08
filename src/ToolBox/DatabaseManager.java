@@ -28,7 +28,7 @@ public class DatabaseManager {
     }
 
     // --- Inner Classes for Data Models ---
-    public static final class User {
+    public static class User {
         public final long id;
         public final String firstName;
         public final String lastName;
@@ -770,6 +770,82 @@ public class DatabaseManager {
 
     private static void logSql(String op, Exception e) {
         System.err.println("[DB] " + op + " failed: " + e.getMessage());
+    }
+
+    //channel controll
+    public static final class ChannelMember extends User {
+        public final String role;
+        public ChannelMember(long id, String firstName, String lastName, String username, String country, String phone, String email, String bio, byte[] avatar, String role) {
+            super(id, firstName, lastName, username, country, phone, email, bio, avatar);
+            this.role = role;
+        }
+    }
+
+    public static List<ChannelMember> getChannelMembers(long channelId) {
+        List<ChannelMember> members = new ArrayList<>();
+        String sql = "SELECT u.*, cp.role FROM users u " +
+                "JOIN conversation_participants cp ON u.id = cp.user_id " +
+                "WHERE cp.id = ?";
+        try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setLong(1, channelId);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                members.add(new ChannelMember(
+                        rs.getLong("id"),
+                        rs.getString("first_name"),
+                        rs.getString("last_name"),
+                        rs.getString("username"),
+                        rs.getString("country"),
+                        rs.getString("phone"),
+                        rs.getString("email"),
+                        rs.getString("bio"),
+                        rs.getBytes("avatar"),
+                        rs.getString("role")
+                ));
+            }
+        } catch (SQLException e) {
+            logSql("getChannelMembers", e);
+        }
+        return members;
+    }
+
+    public static boolean promoteUserToAdmin(long channelId, long userId) {
+        String sql = "UPDATE conversation_participants SET role = 'admin' WHERE id = ? AND user_id = ?";
+        try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setLong(1, channelId);
+            ps.setLong(2, userId);
+            return ps.executeUpdate() > 0;
+        } catch (SQLException e) {
+            logSql("promoteUserToAdmin", e);
+            return false;
+        }
+    }
+
+    public static boolean removeUserFromChannel(long channelId, long userId) {
+        String sql = "DELETE FROM conversation_participants WHERE id = ? AND user_id = ?";
+        try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setLong(1, channelId);
+            ps.setLong(2, userId);
+            return ps.executeUpdate() > 0;
+        } catch (SQLException e) {
+            logSql("removeUserFromChannel", e);
+            return false;
+        }
+    }
+
+    public static String getUserRoleInChannel(long channelId, long userId) {
+        String sql = "SELECT role FROM conversation_participants WHERE id = ? AND user_id = ?";
+        try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setLong(1, channelId);
+            ps.setLong(2, userId);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getString("role");
+            }
+        } catch (SQLException e) {
+            logSql("getUserRoleInChannel", e);
+        }
+        return null; // or "guest"
     }
 }
 
