@@ -61,8 +61,49 @@ public class ChannelCreatorViewController {
         usersListView.setItems(allUsersList);
         usersListView.setCellFactory(param -> new UserCustomCellController());
         messagesListView.setCellFactory(param -> new MessageCustomCellController());
+
+        // --- START: BUG FIX ---
+        // Added the listener to make the chat list on the left functional
+        usersListView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue != null) {
+                openConversationView(newValue);
+            }
+        });
+        // --- END: BUG FIX ---
+
         loadMessageHistory();
     }
+
+    // --- START: NEW METHOD TO HANDLE NAVIGATION ---
+    private void openConversationView(UserViewModel selectedItem) {
+        try {
+            FXMLLoader loader;
+            if (selectedItem.isChannel) {
+                if (localUser.userId == selectedItem.creatorId) {
+                    loader = new FXMLLoader(getClass().getResource("../Views/channelCreatorView.fxml"));
+                    Parent root = loader.load();
+                    ChannelCreatorViewController controller = loader.getController();
+                    controller.initData(selectedItem, localUser, allUsersList, connection);
+                    getStage().setScene(new Scene(root));
+                } else {
+                    loader = new FXMLLoader(getClass().getResource("../Views/channelMemberView.fxml"));
+                    Parent root = loader.load();
+                    ChannelMemberViewController controller = loader.getController();
+                    controller.initData(selectedItem, localUser, allUsersList, connection);
+                    getStage().setScene(new Scene(root));
+                }
+            } else { // It's a user chat
+                loader = new FXMLLoader(getClass().getResource("../Views/userChat.fxml"));
+                Parent root = loader.load();
+                UserChatController controller = loader.getController();
+                controller.initData(selectedItem, localUser, allUsersList, connection);
+                getStage().setScene(new Scene(root));
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+    // --- END: NEW METHOD ---
 
     private void handleIncomingData(Serializable data) {
         if (data instanceof ChannelMessage) {
@@ -127,7 +168,6 @@ public class ChannelCreatorViewController {
         }
     }
 
-
     @FXML
     void attachFile(MouseEvent event) {
         try {
@@ -169,13 +209,11 @@ public class ChannelCreatorViewController {
             voiceRecorder.startRecording();
             isRecording = true;
             System.out.println("Started recording...");
-            // Optionally, change button style here
         } else {
             byte[] voiceData = voiceRecorder.stopRecording();
             isRecording = false;
             System.out.println("Stopped recording, sending voice message...");
             sendVoiceMessage(voiceData);
-            // Optionally, change button style back
         }
     }
 
@@ -183,7 +221,7 @@ public class ChannelCreatorViewController {
         if (voiceData == null || voiceData.length == 0) return;
 
         try {
-            String fileName = "voice_message_" + System.currentTimeMillis() + ".mp3";
+            String fileName = "voice_message_" + System.currentTimeMillis() + ".wav";
             String mimeType = "audio/wav";
 
             Optional<Long> mediaIdOpt = DatabaseManager.saveMediaAndGetId(localUser.userId, voiceData, fileName, mimeType);
@@ -224,8 +262,6 @@ public class ChannelCreatorViewController {
             default: return "application/octet-stream";
         }
     }
-
-
 
     @FXML
     void openChannelInfo(MouseEvent event) {

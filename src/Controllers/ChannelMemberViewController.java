@@ -54,8 +54,49 @@ public class ChannelMemberViewController {
         usersListView.setItems(allUsersList);
         usersListView.setCellFactory(param -> new UserCustomCellController());
         messagesListView.setCellFactory(param -> new MessageCustomCellController());
+
+        // --- START: BUG FIX ---
+        // Added the listener to make the chat list on the left functional
+        usersListView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue != null) {
+                openConversationView(newValue);
+            }
+        });
+        // --- END: BUG FIX ---
+
         loadMessageHistory();
     }
+
+    // --- START: NEW METHOD TO HANDLE NAVIGATION ---
+    private void openConversationView(UserViewModel selectedItem) {
+        try {
+            FXMLLoader loader;
+            if (selectedItem.isChannel) {
+                if (localUser.userId == selectedItem.creatorId) {
+                    loader = new FXMLLoader(getClass().getResource("../Views/channelCreatorView.fxml"));
+                    Parent root = loader.load();
+                    ChannelCreatorViewController controller = loader.getController();
+                    controller.initData(selectedItem, localUser, allUsersList, connection);
+                    getStage().setScene(new Scene(root));
+                } else {
+                    loader = new FXMLLoader(getClass().getResource("../Views/channelMemberView.fxml"));
+                    Parent root = loader.load();
+                    ChannelMemberViewController controller = loader.getController();
+                    controller.initData(selectedItem, localUser, allUsersList, connection);
+                    getStage().setScene(new Scene(root));
+                }
+            } else { // It's a user chat
+                loader = new FXMLLoader(getClass().getResource("../Views/userChat.fxml"));
+                Parent root = loader.load();
+                UserChatController controller = loader.getController();
+                controller.initData(selectedItem, localUser, allUsersList, connection);
+                getStage().setScene(new Scene(root));
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+    // --- END: NEW METHOD ---
 
     private void handleIncomingData(Serializable data) {
         if (data instanceof ChannelMessage) {
@@ -97,9 +138,7 @@ public class ChannelMemberViewController {
             Parent root = loader.load();
             ChannelInfoController controller = loader.getController();
             controller.initData(channelViewModel, localUser, allUsersList, connection);
-            Stage stage = (Stage) channelInfoButton.getScene().getWindow();
-            stage.setScene(new Scene(root));
-            stage.show();
+            getStage().setScene(new Scene(root));
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -112,8 +151,7 @@ public class ChannelMemberViewController {
             Parent root = loader.load();
             ProfileController controller = loader.getController();
             controller.initData(localUser, allUsersList, connection);
-            Stage stage = (Stage) profileButton.getScene().getWindow();
-            stage.setScene(new Scene(root));
+            getStage().setScene(new Scene(root));
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -126,8 +164,7 @@ public class ChannelMemberViewController {
             Parent root = loader.load();
             SavedMessagesController controller = loader.getController();
             controller.initData(localUser, allUsersList, connection);
-            Stage stage = (Stage) savedMessagesButton.getScene().getWindow();
-            stage.setScene(new Scene(root));
+            getStage().setScene(new Scene(root));
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -157,11 +194,14 @@ public class ChannelMemberViewController {
                 connection.closeConnection();
             }
             Parent root = FXMLLoader.load(getClass().getResource("../Views/loginStarter.fxml"));
-            Stage stage = (Stage) logoutButton.getScene().getWindow();
-            stage.setScene(new Scene(root));
+            getStage().setScene(new Scene(root));
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    private Stage getStage() {
+        return (Stage) usersListView.getScene().getWindow();
     }
 }
 
