@@ -3,7 +3,6 @@ package Controllers;
 import Models.MessageViewModel;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.scene.control.Button;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
@@ -22,6 +21,8 @@ public class MessageCustomCellController extends ListCell<MessageViewModel> {
     @FXML private ImageView imageView;
     @FXML private Label messageLabel;
     @FXML private Label messageTimeLabel;
+
+    public Runnable deleteCallback;
 
     @Override
     protected void updateItem(MessageViewModel item, boolean empty) {
@@ -61,22 +62,36 @@ public class MessageCustomCellController extends ListCell<MessageViewModel> {
                 imageView.setImage(item.getImage());
             }
 
-            // Right-click menu for file messages
-            if (item.isFile && messageLabel != null) {
-                ContextMenu contextMenu = new ContextMenu();
+            ContextMenu contextMenu = new ContextMenu();
+            MenuItem deleteItem = new MenuItem("❌ Delete");
+            deleteItem.setOnAction(e -> {
+                if (deleteCallback != null) {
+                    deleteCallback.run();
+                }
+            });
+            contextMenu.getItems().add(deleteItem);
 
-                MenuItem download = new MenuItem("📥 Download");
+            if (item.isFile) {
+                MenuItem download = new MenuItem("📥Download");
                 download.setOnAction(e -> saveFile(item.fileName, item.fileData));
 
                 if (item.fileName.toLowerCase().endsWith(".pdf")) {
-                    MenuItem open = new MenuItem("👁️ Open PDF");
-                    open.setOnAction(e -> openPdf(item.fileName, item.fileData));
-                    contextMenu.getItems().add(open);
+                    MenuItem open = new MenuItem("👁️Open PDF");
+                    open.setOnAction(e -> openFileWithDefaultApp(item.fileName, item.fileData));
+                    contextMenu.getItems().add(0, open);
+                } else if (item.fileName.toLowerCase().endsWith(".mp3")) {
+                    MenuItem play = new MenuItem("▶️ Play Audio");
+                    play.setOnAction(e -> openFileWithDefaultApp(item.fileName, item.fileData));
+                    contextMenu.getItems().add(0, play);
+                } else if (item.fileName.toLowerCase().endsWith(".mp4")) {
+                    MenuItem playVideo = new MenuItem("🎬 Play Video");
+                    playVideo.setOnAction(e -> openFileWithDefaultApp(item.fileName, item.fileData));
+                    contextMenu.getItems().add(0, playVideo);
                 }
-
-                contextMenu.getItems().add(download);
-                root.setOnContextMenuRequested(e -> contextMenu.show(root, e.getScreenX(), e.getScreenY()));
+                contextMenu.getItems().add(0, download);
             }
+
+            root.setOnContextMenuRequested(e -> contextMenu.show(root, e.getScreenX(), e.getScreenY()));
 
             setGraphic(root);
 
@@ -85,7 +100,6 @@ public class MessageCustomCellController extends ListCell<MessageViewModel> {
             setText("Failed to load message bubble.");
         }
     }
-
 
     private void saveFile(String fileName, byte[] data) {
         try {
@@ -103,9 +117,11 @@ public class MessageCustomCellController extends ListCell<MessageViewModel> {
         }
     }
 
-    private void openPdf(String fileName, byte[] data) {
+    private void openFileWithDefaultApp(String fileName, byte[] data) {
         try {
-            File temp = File.createTempFile("chatfile_", "_" + fileName);
+            String prefix = fileName.substring(0, fileName.lastIndexOf('.'));
+            String suffix = fileName.substring(fileName.lastIndexOf('.'));
+            File temp = File.createTempFile(prefix + "_", suffix);
             temp.deleteOnExit();
             try (FileOutputStream fos = new FileOutputStream(temp)) {
                 fos.write(data);
@@ -121,3 +137,4 @@ public class MessageCustomCellController extends ListCell<MessageViewModel> {
         }
     }
 }
+

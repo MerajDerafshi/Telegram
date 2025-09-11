@@ -3,25 +3,40 @@ package Models;
 import javafx.scene.image.Image;
 
 public class MessageViewModel {
-    Image image;
-    String message;
-    String time;
+    public long messageId; // Unique ID from the database
+    public Image image;
+    public String message;
+    public String time;
     public boolean isOutgoing;
     public boolean isImage;
     public boolean isFile;
     public byte[] fileData;
     public String fileName;
 
-    public MessageViewModel(String message, String time, boolean isOutgoing, boolean isImage, Image image) {
+
+    public MessageViewModel(long messageId, String message, String time, boolean isOutgoing) {
+        this.messageId = messageId;
         this.message = message;
         this.time = time;
         this.isOutgoing = isOutgoing;
-        this.isImage = isImage;
+        this.isImage = false;
+        this.isFile = false;
+    }
+
+
+    public MessageViewModel(long messageId, String message, String time, boolean isOutgoing, Image image) {
+        this.messageId = messageId;
+        this.message = message;
+        this.time = time;
+        this.isOutgoing = isOutgoing;
+        this.isImage = true;
         this.image = image;
         this.isFile = false;
     }
 
-    public MessageViewModel(String fileName, byte[] fileData, String time, boolean isOutgoing) {
+
+    public MessageViewModel(long messageId, String fileName, byte[] fileData, String time, boolean isOutgoing) {
+        this.messageId = messageId;
         this.fileName = fileName;
         this.fileData = fileData;
         this.message = "📄 " + fileName;
@@ -36,31 +51,11 @@ public class MessageViewModel {
         return message;
     }
 
-    public void setMessage(String message) {
-        this.message = message;
-    }
-
     public String getTime() {
         return time;
     }
 
-    public void setTime(String time) {
-        this.time = time;
-    }
-
-    public boolean isOutgoing() {
-        return isOutgoing;
-    }
-
-    public void setOutgoing(boolean outgoing) {
-        isOutgoing = outgoing;
-    }
-
     public Image getImage() {
         return image;
-    }
-
-    public void setImage(Image image) {
-        this.image = image;
     }
 }

@@ -48,9 +48,11 @@ public class UserCustomCellController extends ListCell<UserViewModel> {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            userNameLabel.setText(String.valueOf(item.getUserName()));
+            userNameLabel.setText(String.valueOf(item.getFirstName()));
             lastMessageLabel.setText(String.valueOf(item.getLastMessage()));
             messageTimeLabel.textProperty().bind(item.time);
+            avatarImage.setImage(item.getAvatarImage());
+
             if (!item.getNotificationsNumber().matches("0")) {
                 nombreMessageLabel.textProperty().bind(item.notificationsNumberProperty());
                 if (!notificationPanel.isVisible()) notificationPanel.setVisible(true);

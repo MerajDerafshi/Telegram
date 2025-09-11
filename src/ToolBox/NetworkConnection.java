@@ -2,6 +2,8 @@ package ToolBox;
 
 import java.io.*;
 import java.net.*;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.function.Consumer;
 
 public class NetworkConnection {
@@ -12,6 +14,8 @@ public class NetworkConnection {
     public boolean isServer;
     public int port;
     public String userName;
+    private static final Set<String> onlineUsers = new HashSet<>();
+
 
     public NetworkConnection(Consumer<Serializable> receiveCallback, String ip, boolean isServer, int port, String userName) {
         this.receiveCallback = receiveCallback;
@@ -20,6 +24,10 @@ public class NetworkConnection {
         this.port = port;
         this.userName = userName;
         this.connectionThread = new ConnectionThread();
+    }
+
+    public boolean isUserOnline(String phone) {
+        return onlineUsers.contains(phone);
     }
 
     public void openConnection() {
@@ -74,10 +82,12 @@ public class NetworkConnection {
                 // Send INIT message
                 outputStream.writeObject("INIT>" + userName);
                 outputStream.flush();
+                onlineUsers.add(userName);
+
 
                 inputStream = new ObjectInputStream(socket.getInputStream());
 
-                // Notify successful connection
+
                 if (receiveCallback != null) {
                     receiveCallback.accept("SYSTEM_STATUS:CONNECTION_SUCCESS");
                 }
@@ -85,7 +95,13 @@ public class NetworkConnection {
                 while (!socket.isClosed()) {
                     try {
                         Serializable data = (Serializable) inputStream.readObject();
-                        if (receiveCallback != null) {
+                        if (data instanceof String && ((String) data).startsWith("ONLINE_USERS:")) {
+                            String[] users = ((String) data).substring(13).split(",");
+                            onlineUsers.clear();
+                            for (String user : users) {
+                                onlineUsers.add(user);
+                            }
+                        } else if (receiveCallback != null) {
                             receiveCallback.accept(data);
                         }
                     } catch (EOFException e) {
@@ -100,6 +116,7 @@ public class NetworkConnection {
                 }
                 e.printStackTrace();
             } finally {
+                onlineUsers.remove(userName);
                 cleanup();
             }
         }

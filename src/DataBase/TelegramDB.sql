@@ -20,6 +20,7 @@ CREATE TABLE IF NOT EXISTS users (
     password_hash TEXT NOT NULL,
     bio TEXT,
     avatar_url TEXT,
+    avatar LONGBLOB,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     last_seen TIMESTAMP,
 	theme TEXT,
@@ -38,15 +39,14 @@ CREATE TABLE IF NOT EXISTS contacts (
 );
 
 CREATE TABLE IF NOT EXISTS conversations (
-    id BIGINT PRIMARY KEY,
-    type ENUM('private', 'group', 'channel') NOT NULL,
-    title TEXT,
-    creator_id BIGINT,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    picture_url TEXT,
-    FOREIGN KEY (creator_id) REFERENCES users(id)
+id BIGINT PRIMARY KEY,
+type ENUM('private', 'group', 'channel') NOT NULL,
+title TEXT,
+creator_id BIGINT,
+created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+picture LONGBLOB,
+FOREIGN KEY (creator_id) REFERENCES users(id)
 );
-
 CREATE TABLE IF NOT EXISTS conversation_participants (
     id BIGINT,
     user_id BIGINT,
@@ -65,6 +65,7 @@ CREATE TABLE IF NOT EXISTS media (
     file_path TEXT,
     mime_type TEXT,
     size_bytes BIGINT,
+    media_data LONGBLOB NULL,
     uploaded_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (uploader_id) REFERENCES users(id)
 );
