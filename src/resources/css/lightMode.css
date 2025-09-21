@@ -1,0 +1,32 @@
+.background-color {
+    -fx-background-color: #ffffff;
+}
+
+.button-background-color {
+    -fx-background-color:  #e7e7e7;
+}
+
+.header-text {
+    -fx-text-fill: black;
+}
+.secondary-text {
+    -fx-text-fill: #5e7076;
+}
+
+.choice-box {
+    -fx-background-color: #e7e7e7;
+}
+
+.text-field-theme {
+    -fx-background-color: #e7e7e7;
+    -fx-text-fill: black;
+}
+
+.text-field-border {
+    -fx-border-color: #c7c7c7;
+    -fx-text-fill: black;
+}
+.svg-path{
+    -fx-fill: #636d78;
+}
+

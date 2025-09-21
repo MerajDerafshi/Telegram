@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.String?>
+<?import java.net.URL?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.shape.SVGPath?>
+<?import javafx.scene.text.Font?>
+
+<VBox fx:id="parent" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" styleClass="background-color" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controllers.WelcomeController">
+   <children>
+      <HBox prefHeight="168.0" prefWidth="600.0" style="-fx-background-color: rgb(0,0,0,0);">
+         <children>
+            <Pane prefHeight="162.0" prefWidth="603.0">
+               <children>
+                  <ImageView fx:id="headerImage" fitHeight="168.0" fitWidth="600.0" layoutY="-2.0" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@../resources/img/loginStarter.jpg" />
+                     </image>
+                  </ImageView>
+               </children>
+            </Pane>
+         </children>
+      </HBox>
+      <VBox alignment="TOP_CENTER" prefHeight="234.0" prefWidth="600.0" styleClass="background-color">
+         <VBox.margin>
+            <Insets />
+         </VBox.margin>
+         <children>
+            <Label fx:id="headerLabel" styleClass="header-text" text="Telegram Desktop">
+               <VBox.margin>
+                  <Insets top="12.0" />
+               </VBox.margin>
+               <font>
+                  <Font name="Ebrima" size="22.0" />
+               </font>
+            </Label>
+            <Label alignment="TOP_CENTER" prefHeight="36.0" prefWidth="274.0" styleClass="secondary-text" text="Welcome to the official Telegram Desktop app &#10;It's fast and secure." textAlignment="CENTER">
+               <VBox.margin>
+                  <Insets bottom="20.0" top="14.0" />
+               </VBox.margin>
+               <font>
+                  <Font size="13.0" />
+               </font>
+            </Label>
+            <Button onAction="#startMessagingClicked" style="-fx-background-color: #40A7E3;" text="Start Messaging" textFill="WHITE">
+               <VBox.margin>
+                  <Insets top="10.0" />
+               </VBox.margin>
+               <padding>
+                  <Insets bottom="8.0" left="65.0" right="65.0" top="8.0" />
+               </padding>
+               <font>
+                  <Font size="14.0" />
+               </font>
+            </Button>
+            <Pane prefHeight="80.0" prefWidth="600.0" VBox.vgrow="ALWAYS">
+               <children>
+                  <Button fx:id="buttonMode" layoutX="14.0" layoutY="26.0" mnemonicParsing="false" prefHeight="35.0" prefWidth="30.0">
+                     <graphic>
+                        <SVGPath fx:id="svgMode" content="M2.03009 12.42C2.39009 17.57 6.76009 21.76 11.9901 21.99C15.6801 22.15 18.9801 20.43 20.9601 17.72C21.7801 16.61 21.3401 15.87 19.9701 16.12C19.3001 16.24 18.6101 16.29 17.8901 16.26C13.0001 16.06 9.00009 11.97 8.98009 7.13996C8.97009 5.83996 9.24009 4.60996 9.73009 3.48996C10.2701 2.24996 9.62009 1.65996 8.37009 2.18996C4.41009 3.85996 1.70009 7.84996 2.03009 12.42Z" fill="#40a7e3" />
+                     </graphic>
+                     <styleClass>
+                        <String fx:value="button-background-color" />
+                        <String fx:value="radius" />
+                     </styleClass>
+                  </Button>
+               </children>
+            </Pane>
+         </children>
+      </VBox>
+   </children>
+   <stylesheets>
+      <URL value="@../resources/css/style.css" />
+   </stylesheets>
+</VBox>
+

@@ -1,0 +1,28 @@
+.background-color {
+    -fx-background-color:  #17212B;
+}
+.button-background-color {
+    -fx-background-color:  #0E1621;
+}
+.header-text {
+    -fx-text-fill: white;
+}
+.secondary-text {
+    -fx-text-fill: #636d78;
+}
+.choice-box {
+    -fx-background-color: #636d78;
+}
+.text-field-theme {
+    -fx-background-color: #636d78;
+    -fx-text-fill: white;
+}
+.text-field-border {
+    -fx-border-color: #636d78;
+    -fx-text-fill: white;
+}
+
+.svg-path{
+    -fx-fill: #636d78;
+}
+
