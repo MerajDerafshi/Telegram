@@ -68,21 +68,21 @@ This project is a the final project of the Advanced Programing course at SBU. Th
 
 Here are the core features included in the **Telegram app** 📨:
 
-- 🔒 **Hashing Passwords** your paasword is hashed with jcrypt
-- 💬 **Private Chats** one-to-one messaging
-- 👥 **Group Chats** chat with a group of people  
-- 📢 **Channels** for broadcasting messages to large audiences  
-- 🖼️ **Media Sharing** photos, videos, files, documents, music, voice messages
-- 🎙️ **Voice Messages**  send voice messages
-- 😀 **Stickers & GIFs**  use sticker and send gifs
-- 🌙 **Dark / Light Mode** themes  
-- 🔍 **Powerful Search** across chats and messages  
-- 📂 **Saved Message** save your important messages
+- 🔒 **Hashing Passwords** (your paasword is hashed with jcrypt)
+- 💬 **Private Chats** (one-to-one messaging)
+- 👥 **Group Chats** (chat with a group of people)  
+- 📢 **Channels** (for broadcasting messages to large audiences)  
+- 🖼️ **Media Sharing** (photos, videos, files, documents, music, voice messages)
+- 🎙️ **Voice Messages**  (send voice messages)
+- 😀 **Stickers & GIFs**  (use sticker and send gifs)
+- 🌙 **Dark / Light Mode** (themes)  
+- 🔍 **Powerful Search** (across chats and messages)
+- 📂 **Saved Message** (save your important messages)
 - 🖥️ **Desktop Support**  
-- 🔔 **Mute Options**  mute any chat, group or channel you want
+- 🔔 **Mute Options**  (mute any chat, group or channel you want)
 - 🛠️ **Account Management** (usernames, profile pictures, bio)  
 - ⚡ **Fast & Responsive UI/UX**  
-- 📡 **Socket Networking** for communication  
+- 📡 **Socket Networking** (for communication)
 - 🏗️ **OOP-Based Architecture**
 
 ---
@@ -145,7 +145,7 @@ Follow these steps to set up and run the project locally ⚡:
 
 ---
 
-### PROMOTE & REMOVE PEOPLE FROM YOUR CHANNEL
+### BUILD THEN PROMOTE & REMOVE PEOPLE FROM YOUR CHANNEL
 
 ![screenshot3](src/resources/img/screenshot3.png)
 
